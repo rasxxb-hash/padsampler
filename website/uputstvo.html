@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PadSampler uputstvo</title>
+<meta name="description" content="Kompletno uputstvo za PadSampler: session, mikser, bubnjevi, sintisajzer, print to pad, sesije, Ableton Link, Launchpad Mini MK3 i zvuk na Windowsu.">
+<meta name="theme-color" content="#14161a">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="alternate" hreflang="en" href="https://nerd-instruments.net/manual.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="logo.svg" alt=""><span>PadSampler</span></a>
+    <nav class="nav">
+      <a href="./">Home</a>
+      <a class="active" href="manual.html">Manual</a>
+      <a href="download.html">Download</a>
+      <a href="license.html">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap docs">
+  <aside class="toc">
+    <ol>
+      <li><a href="#pocetak">Prvi koraci</a></li>
+      <li><a href="#ekran">Ekran</a></li>
+      <li><a href="#semplovi">Učitavanje semplova</a></li>
+      <li><a href="#biblioteka">Biblioteka semplova</a></li>
+      <li><a href="#klipovi">Sviranje klipova</a></li>
+      <li><a href="#tempo">Tempo i razvlačenje</a></li>
+      <li><a href="#mikser">Mikser</a></li>
+      <li><a href="#drums">Drums (bubnjevi)</a></li>
+      <li><a href="#keys">Keys (sintisajzer)</a></li>
+      <li><a href="#print">Print to pad</a></li>
+      <li><a href="#sesije">Sesije i set lista</a></li>
+      <li><a href="#link">Ableton Link</a></li>
+      <li><a href="#launchpad">Launchpad Mini MK3</a></li>
+      <li><a href="#klavijatura">MIDI klavijatura</a></li>
+      <li><a href="#windows">Podešavanja na Windowsu</a></li>
+      <li><a href="#telefon">Telefon</a></li>
+      <li><a href="#nastup">Savjeti za nastup</a></li>
+      <li><a href="#problemi">Rješavanje problema</a></li>
+    </ol>
+    <p class="lang"><a href="manual.html">← Manual in English</a></p>
+  </aside>
+
+  <article class="doc">
+    <h1>PadSampler uputstvo</h1>
+    <p class="muted">Za PadSampler 2.0 na Androidu i Windowsu. Obje verzije rade isto; razlike su navedene.
+      Natpisi u aplikaciji su na engleskom, pa su ovdje ostavljeni kako ih vidiš na ekranu.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="pocetak">1. Prvi koraci</h2>
+    <ol>
+      <li><b>Instalacija.</b> Windows: pokreni instaler sa <a href="download.html">stranice za preuzimanje</a>.
+        Android: instaliraj sa Google Playa.</li>
+      <li><b>Izlaz zvuka.</b> Android: žičane slušalice ili USB zvučna kartica daju najmanje kašnjenje;
+        Bluetooth jako kasni i nije za sviranje uživo. Windows: otvori ⚙ i izaberi zvučnu karticu
+        (vidi <a href="#windows">Podešavanja na Windowsu</a>).</li>
+      <li><b>Po želji: spoji Launchpad Mini MK3</b> preko USB-a. Na Android tabletu i telefonu treba USB-C OTG kabl ili adapter.
+        PadSampler ga sam pronađe.</li>
+      <li>Stavi semplove na padove (<a href="#semplovi">sljedeća poglavlja</a>), podesi tempo i sviraj.</li>
+    </ol>
+    <div class="tip">Na Androidu aplikacija drži ekran upaljenim, a zvuk radi i u pozadini. Prvi put može tražiti da
+      ignoriše optimizaciju baterije; dozvoli, da sistem ne ugasi zvuk usred nastupa.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="ekran">2. Ekran</h2>
+    <figure>
+      <img src="images/session.png" width="1920" height="1200" loading="lazy" alt="Session ekran">
+      <figcaption>Session ekran, svira scena 2.</figcaption>
+    </figure>
+    <h3>Gornja traka (ista na svim ekranima)</h3>
+    <ul>
+      <li><b>SESSION · MIXER · DRUMS · KEYS</b>: četiri ekrana.</li>
+      <li><b>Ime sesije</b>: ime trenutne sesije.</li>
+      <li><b>8 tačkica</b>: osmine trenutnog takta, pokazuju gdje je ritam.</li>
+      <li><b>LINK</b>: Ableton Link uključen/isključen (vidi <a href="#link">Ableton Link</a>).</li>
+      <li><b>− BPM +</b>: tempo, od 60 do 240 BPM. Dodir na broj otvara unos tempa.</li>
+    </ul>
+    <h3>Lijeva traka</h3>
+    <ul>
+      <li><b>☰</b> otvara meni: učitavanje semplova, sačuvaj / izvezi / učitaj / nova sesija, set lista, opcije Linka,
+        status (MIDI i izlaz zvuka) i About.</li>
+      <li><b>edit / done</b>: režim za stavljanje semplova na padove.</li>
+      <li><b>STOP</b> (crveno, dolje): odmah zaustavlja sve, i Drums i Keys. Uvijek pri ruci.</li>
+    </ul>
+    <h3>Master</h3>
+    <p>Glavni fejder i metar su desno, ispod je <b>M</b> (mute).</p>
+    <p>Poruke (sačuvano, printano, greške) se pojave na nekoliko sekundi dolje na ekranu.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="semplovi">3. Učitavanje semplova</h2>
+    <ol>
+      <li>Dodirni <b>edit</b> lijevo (ili ☰ → Load samples). Padovi dobiju žuti okvir i ne sviraju dok je edit uključen.</li>
+      <li>Dodirni pad. Otvori se dijalog pada:
+        <ul>
+          <li><b>Browse library</b>: pretraga i preslušavanje tvojih foldera sa semplovima (sljedeće poglavlje).</li>
+          <li><b>Choose a file from storage</b>: izbor WAV, AIFF ili MP3 fajla direktno.</li>
+          <li><b>Loop</b> (ponavlja se dok ga ne zaustaviš) ili <b>One-shot</b> (odsvira jednom do kraja).</li>
+          <li><b>Original BPM of this sample</b>: tempo u kojem je sempl napravljen. <b>Set for all samples</b> ga postavi za sve padove.</li>
+          <li><b>Edit in Drums / Edit in Keys</b>: za padove napravljene sa <a href="#print">Print to pad</a>.</li>
+          <li><b>Remove sample</b>: uklanja sempl.</li>
+        </ul>
+      </li>
+      <li>Kad završiš, dodirni <b>done</b>.</li>
+    </ol>
+    <p>Semplovi se kopiraju u sesiju, pa rade i ako originalne fajlove pomjeriš ili obrišeš.
+      Na padu piše ime foldera sempla, LOOP ili SHOT, i tonalitet ako je u imenu fajla ili foldera.</p>
+    <div class="tip"><b>Loop ili one-shot se bira sam:</b> sempl postaje loop ako mu ime sadrži "loop" ili ako mu je
+      dužina blizu cijelog broja taktova. Uvijek se može promijeniti u dijalogu pada.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="biblioteka">4. Biblioteka semplova</h2>
+    <p>Biblioteka pravi spisak foldera u kojima držiš semplove, da ih brzo nađeš i preslušaš.</p>
+    <ul>
+      <li><b>Add folder</b>: jednom izabereš folder sa semplovima. PadSampler ga pretraži, sa svim podfolderima.
+        <b>Rescan</b> dodaje nove fajlove.</li>
+      <li>Lijevo je stablo foldera (<b>All samples</b> = sve). Na uskom ekranu se otvara dugmetom <b>Folders</b>.
+        Desno su semplovi izabranog foldera i njegovih podfoldera.</li>
+      <li><b>Pretraga</b>: sve riječi moraju biti u imenu fajla ili putanji.</li>
+      <li>Filteri: <b>All / Loops / One-shots</b>, <b>Near N BPM</b> (loopovi blizu tempa sesije)
+        i kategorije <b>Drums, Bass, Keys, Vocals, FX</b> (iz imena fajlova).</li>
+      <li>Dodir na red <b>pušta</b> sempl, ponovni dodir ga zaustavlja. Može svirati originalnom brzinom ili u tempu sesije.
+        Preslušavanje ide direktno na izlaz, ne zavisi od master fejdera i ne čeka takt.</li>
+      <li><b>Use</b> stavlja sempl na pad. <b>Fill column</b> popuni cijelu kolonu iz jednog foldera.</li>
+      <li><b>Remove a library folder…</b> ispod stabla uklanja folder iz biblioteke (tvoji fajlovi se ne diraju).</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="klipovi">5. Sviranje klipova</h2>
+    <ul>
+      <li><b>Kolona je track</b>, <b>red je scena</b>. U jednoj koloni svira jedan klip odjednom.</li>
+      <li>Dodir na pad: klip kreće na <b>sljedećem taktu</b>. Dok čeka, trepće. Drugi klip u istoj koloni zamijeni
+        onaj koji svira tačno na taktu (uz kratko utišavanje).</li>
+      <li>Dodir na klip koji svira: staje na sljedećem taktu. Dodir na klip koji čeka: start se poništava.</li>
+      <li><b>▶ 1 … ▶ 6</b> (desno od mreže) pokreću cijelu scenu na sljedećem taktu.</li>
+      <li><b>Donji red</b>: po jedno dugme za svaki track. Dugme za režim dolje desno mijenja red između
+        <b>STOP</b> (zaustavi track na sljedećem taktu), <b>SOLO</b> i <b>MUTE</b>.</li>
+      <li><b>STOP</b> lijevo zaustavlja sve odmah.</li>
+      <li>Pad koji svira svijetli i na donjoj ivici pokazuje dokle je stigao.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="tempo">6. Tempo i razvlačenje</h2>
+    <ul>
+      <li>Svaki sempl ima <b>originalni BPM</b>. Kad je tempo sesije drugačiji, PadSampler razvuče ili skupi sempl na
+        taj tempo bez promjene visine tona (Rubber Band).</li>
+      <li>Originalni BPM se čita iz imena fajla ili foldera, npr. <code>Funky Drums 124 BPM.wav</code>.
+        Ako ga nema, procijeni se iz dužine loopa (1, 2, 4, 8 ili 16 taktova). Može se ispraviti u dijalogu pada.</li>
+      <li>Prvi sempl u sesiji sa poznatim BPM-om postavi i tempo sesije.</li>
+      <li>Tempo se može mijenjati i dok sve svira. Takt se promijeni odmah, semplovi se preračunaju u pozadini
+        (prvo oni koji sviraju) i pređu na novu verziju na sljedećem taktu.</li>
+      <li>Loop koji je blizu cijelog broja taktova razvuče se tačno na taj broj taktova, pa nikad ne „pobjegne“.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="mikser">7. Mikser</h2>
+    <figure>
+      <img src="images/mixer.png" width="1920" height="1200" loading="lazy" alt="Mikser">
+    </figure>
+    <ul>
+      <li>Za svaki od 8 trackova: <b>PAN</b>, metar, <b>fejder</b> sa vrijednošću u dB, <b>M</b> (mute) i <b>S</b> (solo).</li>
+      <li>Fejder i pan se povlače. Dupli dodir na pan ga vrati na sredinu.</li>
+      <li>Kanal <b>Master</b> je desno.</li>
+      <li>Fejderi, pan, mute i solo se čuvaju u sesiji.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="drums">8. Drums (bubnjevi)</h2>
+    <figure>
+      <img src="images/drums.png" width="1920" height="1200" loading="lazy" alt="Drums step sekvencer">
+    </figure>
+    <h3>Pattern</h3>
+    <ul>
+      <li>8 zvukova (traka) × 16 koraka po taktu. Dodir na korak ga pali ili gasi.</li>
+      <li><b>PLAY</b> pokreće bubanj na sljedećem taktu. Svira dok ga ne zaustaviš (ili STOP). Promjena ekrana ga ne zaustavlja.</li>
+      <li><b>LENGTH</b>: 1, 2, 4 ili 8 taktova. Kod dužeg patterna se bira koji takt vidiš. Produžavanje kopira postojeće taktove u nove.</li>
+      <li><b>SWING</b> 0–100 %: svaka druga šesnaestina kasni.</li>
+      <li><b>Traka jačine</b> ispod mreže određuje jačinu svakog koraka izabranog zvuka. Tiši koraci su blijeđi.</li>
+      <li><b>undo / redo</b> (na Windowsu i <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>).</li>
+      <li><b>clear all</b> briše sve korake.</li>
+    </ul>
+    <h3>Zvukovi</h3>
+    <ul>
+      <li>Dodir na ime zvuka ga odsvira i izabere. <b>M</b> utišava traku; crta ispod imena je jačina trake.</li>
+      <li><b>KIT ▾</b> učitava ugrađeni kit: <b>808, 909, Electro, Lo-Fi</b>. Koraci ostaju.</li>
+      <li><b>…</b> pored zvuka otvara njegov dijalog:
+        <ul>
+          <li><b>BUILT-IN SOUND</b>: vrsta (Kick, Snare, Clap, Rim, Closed HH, Open HH, Tom, Cymbal, Cowbell, Zap, Shaker)
+            i oblikovanje sa <b>TUNE, DECAY, TONE, SNAP, GRIT</b>. ▶ ga pušta. Dupli dodir vraća potenciometar na početnu vrijednost.</li>
+          <li><b>YOUR OWN SAMPLE</b>: tvoj sempl iz biblioteke ili fajla.</li>
+          <li><b>Clear steps</b> (briše korake), <b>Remove sound</b> (uklanja zvuk).</li>
+        </ul>
+      </li>
+    </ul>
+    <h3>Import MIDI</h3>
+    <p><b>IMPORT MIDI</b> čita <code>.mid</code> fajl. Note bubnjeva (General MIDI) idu na odgovarajuće trake: kick, snare,
+      clap/rim, zatvoren hi-hat, otvoren hi-hat, tom, činela, perkusije. Ako fajl ima više dijelova, biraš jedan.
+      Uvoz zamjenjuje korake; tvoji zvukovi ostaju.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="keys">9. Keys (sintisajzer)</h2>
+    <figure>
+      <img src="images/keys-synth.png" width="1920" height="1200" loading="lazy" alt="Panel sintisajzera">
+      <figcaption>Panel sintisajzera. Potenciometar se povlači gore/dolje; dupli dodir ga vraća na početak.</figcaption>
+    </figure>
+    <h3>Sintisajzer</h3>
+    <ul>
+      <li><b>PRESET</b>: ◀ ▶ redom kroz presete; <b>…</b> otvara spisak (27 ugrađenih po grupama Bass, Lead, Pad, Keys, FX),
+        snimanje i brisanje svojih.</li>
+      <li><b>GLIDE</b>, <b>VOICES</b> (mono = jedan glas, legato; ili do 8 glasova za akorde), <b>VOLUME</b>.</li>
+      <li><b>OSCILLATORS 1–3</b>: <b>WAVE</b> (trougao, saw, kvadrat, širok i uzak puls; dodir mijenja), <b>OCT</b>, <b>DETUNE</b> (oscilatori 2 i 3).</li>
+      <li><b>MIXER</b>: jačina svakog oscilatora i <b>NOISE</b> (šum).</li>
+      <li><b>FILTER</b>: ladder low-pass 24 dB: <b>CUTOFF</b>, <b>EMPHASIS</b> (rezonanca), <b>CONTOUR</b> (koliko ga otvara anvelopa),
+        <b>KEY TRK</b>, i svoja ATTACK / DECAY / SUSTAIN / RELEASE.</li>
+      <li><b>LOUDNESS</b>: anvelopa jačine.</li>
+      <li><b>hide</b> sklapa panel, da piano roll dobije više mjesta.</li>
+    </ul>
+    <h3>ARP / FX</h3>
+    <ul>
+      <li><b>Arpeggiator</b>: uključen/isključen, MODE (gore, dolje, gore/dolje, slučajno, kako je odsvirano), RATE (1/4 do 1/32, i triole),
+        OCTAVES 1–4, GATE, HOLD. Svira u taktu, i iz patterna i u Print to pad.</li>
+      <li><b>COLOR</b>: DRIVE i CHORUS. <b>DELAY</b>: TIME (vezano za tempo), FEEDBACK, MIX (ping-pong). <b>REVERB</b>: SIZE, MIX.</li>
+      <li>Učitavanje preseta ne mijenja arpeggiator i efekte.</li>
+    </ul>
+    <h3>Piano roll</h3>
+    <figure>
+      <img src="images/keys.png" width="1920" height="1200" loading="lazy" alt="Piano roll">
+    </figure>
+    <ul>
+      <li><b>KEY</b> i skala (Major, Minor, Dorian, Phrygian, Mixolydian, Harmonic minor, pentatonike, Blues, Chromatic):
+        piano roll prikazuje samo note skale. <b>OCTAVE − / +</b> pomjera prikaz.</li>
+      <li>Dodir na prazno polje dodaje notu, dodir na notu je briše. Tipke lijevo sviraju dok ih držiš.</li>
+      <li><b>PLAY</b>, <b>LENGTH</b>, <b>SWING</b>, traka jačine, undo / redo i <b>clear all</b> rade kao u Drums.</li>
+      <li><b>SELECT</b>: prevuci okvir oko nota ili dodirni note da ih izabereš, pa ih prevuci da ih pomjeriš, ili koristi
+        <b>ALL</b>, <b>◀ ▶</b>, <b>to bar</b> i <b>DEL</b>.</li>
+      <li><b>IMPORT MIDI</b> učitava melodiju iz <code>.mid</code> fajla (ako ima više dijelova, biraš jedan).</li>
+    </ul>
+    <h3>Snimanje uživo</h3>
+    <ol>
+      <li>Pritisni <b>● REC</b>. Ako Keys ne svira, dobiješ metronom i jedan takt odbrojavanja.</li>
+      <li>Sviraj na tipkama na ekranu, Launchpadu ili MIDI klavijaturi. Pattern se vrti i svaki prolaz dodaje note.</li>
+      <li>Ponovo pritisni REC da završiš snimanje; pattern svira dalje.</li>
+    </ol>
+    <p><b>REC GRID</b> (1/16 ili 1/8) određuje kako se poravnaju počeci nota. Jedan prolaz snimanja je jedan korak za undo.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="print">10. Print to pad</h2>
+    <p><b>PRINT TO PAD</b> (na Drums i Keys) pretvori pattern u WAV loop i stavi ga na pad, pa ga pokrećeš kao svaki drugi klip.</p>
+    <ul>
+      <li>U mreži koja se otvori izaberi pad. Pad koji već ima sempl se zamijeni.</li>
+      <li>Loop traje tačno koliko pattern na trenutnom tempu i nema šava: repovi delay-a i reverba se nastave na početak.</li>
+      <li>Za Keys biraš i kategoriju (Bass, Lead, Keys, Pad, Brass, Synth, FX); ona postane ime pada.</li>
+      <li>Pad pamti pattern i zvukove. U edit režimu otvori pad i izaberi <b>Edit in Drums</b> ili
+        <b>Edit in Keys</b>, izmijeni i ponovo printaj.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="sesije">11. Sesije i set lista</h2>
+    <p>Sesija je jedna pjesma: semplovi na padovima, tempo, mikser, Drums i Keys. Sve je u ☰ → SESSION:</p>
+    <ul>
+      <li><b>Save session…</b>: daš ime. Isto ime prepisuje staru sesiju.</li>
+      <li><b>Load session…</b>: spisak sesija sa <b>Load</b>, <b>Export</b> i <b>Delete</b>.
+        Učitavanje zaustavlja sviranje i zamijeni sve.</li>
+      <li><b>New session…</b>: prazna sesija.</li>
+      <li><b>Export session…</b>: izabereš folder; PadSampler napravi <code>.padsession</code> fajl (cijela sesija u jednom fajlu)
+        i kopiju svih semplova po folderima (Drums, Bass, …), zgodno za DAW.</li>
+      <li><b>Import session file…</b> (u Load session) otvara <code>.padsession</code>. Tako se sesije prenose između tableta i računara.
+        Uvoz nikad ne prepisuje: sesija sa istim imenom dobije broj.</li>
+    </ul>
+    <h3>Set lista</h3>
+    <p>☰ → <b>Set list…</b>: dodaj sesije redom kako ide nastup, premještaj sa ▲ ▼. <b>◀ Prev / Next ▶</b>
+      ili dodir na pjesmu je učitava.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="link">12. Ableton Link</h2>
+    <p>Link drži PadSampler u taktu sa Ableton Liveom i drugim Link aplikacijama na istoj mreži. Nema glavnog: svako može promijeniti tempo.</p>
+    <ul>
+      <li>Dodirni <b>LINK</b> u gornjoj traci. Postane zeleno i pokaže koliko je drugih aplikacija spojeno. Pri pokretanju aplikacije Link je uvijek isključen.</li>
+      <li>Dok je Link uključen, tempo i takt dolaze od Linka. Klipovi i dalje kreću na taktu, ali na taktu Linka.</li>
+      <li><b>Start / stop</b>: klip pokrenut ovdje pokreće transport i kod drugih; STOP u Liveu zaustavi sve klipove ovdje; STOP ovdje zaustavi druge.</li>
+      <li><b>Link audio</b> (☰ → ABLETON LINK): šalje master izlaz PadSamplera u Ableton Live kao izvor
+        "PadSampler Master". U Liveu ga izaberi kao ulaz audio tracka.</li>
+      <li><b>Link offset</b> (☰ → ABLETON LINK): pomjeri PadSampler ranije ili kasnije (±200 ms) ako zvuči malo neusklađeno sa drugima.
+        Kašnjenje izlaza je već automatski uračunato.</li>
+    </ul>
+    <div class="tip">Svi uređaji moraju biti na istom Wi-Fi-ju. Za nastup i snimanje hotspot na telefonu ili zaseban ruter radi
+      mnogo bolje od opterećene kućne ili klupske mreže.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="launchpad">13. Launchpad Mini MK3</h2>
+    <p>Spoji Launchpad preko USB-a. PadSampler ga prebaci u programmer mode i upali. U ☰ meniju (STATUS) piše da li je spojen.</p>
+    <h3>Dugmad na svim ekranima</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Dugme</th><th>Radnja</th></tr>
+      <tr><td>▲ / ▼</td><td>Tempo +10 / −10</td></tr>
+      <tr><td>▶ / ◀</td><td>Tempo +1 / −1</td></tr>
+      <tr><td>Session</td><td>Prelaz Session ↔ Mixer</td></tr>
+      <tr><td>Drums</td><td>Ekran Drums</td></tr>
+      <tr><td>Keys</td><td>Ekran Keys</td></tr>
+    </table></div>
+    <h3>Session</h3>
+    <ul>
+      <li>Gornji red: svjetlo putuje kroz osmine takta (vizuelni metronom).</li>
+      <li>6 redova ispod: klipovi, 6 scena × 8 trackova, u boji stanja (prigušeno = učitan, trepće = čeka, pulsira = svira).</li>
+      <li>Desna kolona: pokretanje scena 1–6.</li>
+      <li>Donji red: stop, solo ili mute po tracku. Dugme dolje desno (Stop Solo Mute) mijenja režim: crveno = STOP, plavo = SOLO, žuto = MUTE.</li>
+    </ul>
+    <h3>Mixer</h3>
+    <ul>
+      <li>Svaka kolona je fejder sa 7 koraka (gore = 0 dB). Fejder tracka koji svira pulsira.</li>
+      <li>Donji red: mute po tracku.</li>
+    </ul>
+    <h3>Drums</h3>
+    <ul>
+      <li>Gornja 4 reda: 32 koraka (2 takta) izabranog zvuka. Desna kolona: strane za patterne od 4 i 8 taktova.</li>
+      <li>Treći red odozdo: 8 zvukova (pritisak = svira i bira). Drugi red odozdo: mute po zvuku.</li>
+      <li>Donji red: Play/Stop, dužina 1/2/4/8 taktova i (zadnji pad) brisanje izabranog zvuka.</li>
+      <li>Dugme dolje desno: Play/Stop.</li>
+    </ul>
+    <h3>Keys</h3>
+    <ul>
+      <li>Mreža je klavijatura u tvojoj skali (tonika je žuta). Svaki red je nekoliko stepena skale više.</li>
+      <li>Donji red: Play/Stop, oktava − / +, i STEP režim (zadnji pad): gornja 4 reda postanu 32 koraka izabrane note,
+        redovi ispod biraju notu.</li>
+      <li>Dugme dolje desno: Play/Stop. Dugme iznad njega: REC. ▼ prikazuje / sakriva potenciometre.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="klavijatura">14. MIDI klavijatura</h2>
+    <ul>
+      <li>Svaka USB MIDI klavijatura (class compliant) svira Keys sintisajzer, na svim ekranima. Rade velocity, pitch bend (±2 polutona)
+        i mod točak (otvara filter).</li>
+      <li><b>MIDI IN</b> na Keys ekranu: Auto (svi ulazi osim Launchpada), jedan uređaj, ili Off.</li>
+      <li><b>MIDI LEARN</b>: dodirni <b>LEARN</b> (pored VOLUME), dodirni potenciometar, pa pomjeri potenciometar ili klizač na klavijaturi.
+        Može se vezati svaki potenciometar sintisajzera, arpeggiatora i efekata. Veze se pamte za svaku klavijaturu.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="windows">15. Podešavanja na Windowsu</h2>
+    <p>Dugme <b>⚙</b> u gornjoj traci otvara podešavanja:</p>
+    <ul>
+      <li><b>AUDIO OUTPUT</b>: <b>Driver</b> (WASAPI ili ASIO), <b>Device</b> (uređaj), <b>Buffer</b> (manji = manje kašnjenje, ali veći rizik
+        od pucketanja), <b>Sample rate</b>. Pritisni <b>Apply audio settings</b>. Ako se uređaj ne može otvoriti, vrati se prethodni izlaz.</li>
+      <li><b>MIDI CONTROLLER</b>: Auto pronalazi Launchpad po imenu; može se izabrati i port. <b>Refresh list</b> poslije spajanja.</li>
+      <li><b>SCREEN</b>: prozor ili cijeli ekran (i <kbd>F11</kbd>). Ekran se ne gasi dok PadSampler radi.</li>
+    </ul>
+    <div class="tip"><b>Najmanje kašnjenje:</b> zvučna kartica sa ASIO drajverom i buffer od 128–256.
+      Podešavanja i biblioteka su u <code>%APPDATA%\PadSampler</code>.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="telefon">16. Telefon</h2>
+    <p>Na telefonu (položeno) PadSampler ima sažet raspored:</p>
+    <ul>
+      <li>Master kanal je samo na Session i Mixer. Kanali miksera su uži i bez pana
+        (pan podešen na tabletu ili računaru i dalje važi).</li>
+      <li>Drums i Keys: rjeđe korištena dugmad (IMPORT MIDI, clear all) su u meniju <b>⋯</b>. <b>VEL</b> otvara swing i
+        traku jačine preko mreže. Trake i piano roll se skroluju gore-dolje.</li>
+      <li>Redovi dugmadi koji ne stanu skroluju se lijevo-desno.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="nastup">17. Savjeti za nastup</h2>
+    <ul>
+      <li>Svaku pjesmu sačuvaj kao sesiju i stavi ih u set listu.</li>
+      <li>Android: dozvoli PadSampleru da ignoriše optimizaciju baterije (na Xiaomiju u postavkama baterije za aplikaciju izaberi
+        „Bez ograničenja“). Uključi „Ne uznemiravaj“.</li>
+      <li>Koristi žičane izlaze, ne Bluetooth.</li>
+      <li>Prije nastupa isprobaj cijeli set na uređaju na kojem sviraš, sa istim izlazom i kontrolerom.</li>
+      <li>Link koristi samo na mreži koju kontrolišeš (hotspot na telefonu ili svoj ruter).</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="problemi">18. Rješavanje problema</h2>
+    <h3>Nema zvuka</h3>
+    <ul>
+      <li>Provjeri master fejder, M (mute) i fejdere trackova u mikseru.</li>
+      <li>Windows: otvori ⚙ i provjeri drajver i uređaj. Red na dnu podešavanja pokazuje da li zvuk radi.</li>
+    </ul>
+    <h3>Pucketanje ili prekidi</h3>
+    <ul>
+      <li>Windows: povećaj buffer u ⚙. Zatvori druge zahtjevne programe.</li>
+      <li>Android: zatvori druge aplikacije. Promjena tempa sa puno dugih semplova traje malo; to se radi u pozadini.</li>
+    </ul>
+    <h3>Launchpad ne svijetli</h3>
+    <ul>
+      <li>Provjeri kabl (Android: OTG adapter). Izvadi ga i ponovo spoji.</li>
+      <li>Windows: ⚙ → MIDI CONTROLLER → Refresh list, izaberi Auto. Na Windowsu samo jedan program može koristiti Launchpad, pa zatvori drugi muzički softver koji ga koristi.</li>
+    </ul>
+    <h3>Link ne vidi Ableton Live</h3>
+    <ul>
+      <li>Oba uređaja na istoj mreži; u Liveu uključi Link u Preferences → Link, Tempo &amp; MIDI.</li>
+      <li>Neke javne mreže ne dozvoljavaju uređajima da se vide. Koristi hotspot na telefonu.</li>
+    </ul>
+    <h3>Loop nije u taktu</h3>
+    <ul>
+      <li>Provjeri originalni BPM u dijalogu pada (edit → dodir na pad) i ispravi ga.</li>
+    </ul>
+
+    <p class="muted">Nešto fali ili nije tačno? Prijavi na <a href="https://github.com/rasxxb-hash/padsampler/issues">GitHubu</a>.</p>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>© 2026 Nerd Instruments · PadSampler je slobodan softver pod GNU GPL v3 ili novijom.</p>
+    <nav>
+      <a href="manual.html">Manual (English)</a>
+      <a href="uputstvo.html">Uputstvo</a>
+      <a href="download.html">Download</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="license.html">License &amp; source</a>
+    </nav>
+    <p class="tm">PadSampler nije povezan sa firmama Ableton, Focusrite/Novation ni Steinberg. Ableton i Link su zaštićena imena firme Ableton AG.
+      Launchpad je zaštićeno ime firme Focusrite Audio Engineering Ltd. ASIO je zaštićeno ime firme Steinberg Media Technologies GmbH.</p>
+  </div>
+</footer>
+</body>
+</html>

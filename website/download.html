@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download PadSampler</title>
+<meta name="description" content="Download PadSampler for Windows (free) or get it for Android on Google Play.">
+<meta name="theme-color" content="#14161a">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="logo.svg" alt=""><span>PadSampler</span></a>
+    <nav class="nav">
+      <a href="./">Home</a>
+      <a href="manual.html">Manual</a>
+      <a class="active" href="download.html">Download</a>
+      <a href="license.html">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap page">
+  <h1>Download</h1>
+  <p class="muted">The Windows version is free. The Android version is sold on Google Play for a small price, which supports development.
+    Both are built from the same <a href="license.html">open source code</a>.</p>
+
+  <h2 id="windows">Windows</h2>
+  <div class="panel">
+    <span class="label">Free · Windows 10 / 11, 64-bit</span>
+    <h3>PadSampler for Windows</h3>
+    <p class="muted">Installer with everything included (no Java or other software needed). About 100 MB.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://github.com/rasxxb-hash/padsampler/releases/latest">Download the latest version</a>
+      <a class="btn" href="https://github.com/rasxxb-hash/padsampler/releases">All versions</a>
+    </div>
+    <p class="muted">On the release page, download <code>PadSampler-x.y.z.exe</code> (or the <code>.msi</code>).</p>
+  </div>
+  <h3>Installing</h3>
+  <ol>
+    <li>Run the downloaded <code>.exe</code>. It installs for your user only, no administrator rights needed.</li>
+    <li>Windows SmartScreen may say "Windows protected your PC", because the installer is not signed with a paid certificate.
+      Click <b>More info</b> → <b>Run anyway</b>.</li>
+    <li>Start PadSampler from the Start menu or desktop shortcut, open <b>⚙</b> and choose your audio output
+      (see the <a href="manual.html#windows">manual</a>).</li>
+  </ol>
+  <p>To update, install the new version over the old one; your sessions and settings stay. To uninstall:
+    Windows Settings → Apps → PadSampler. Your sessions remain in <code>%APPDATA%\PadSampler</code> until you delete that folder.</p>
+  <div class="tip">For the lowest latency use an audio interface with an ASIO driver. WASAPI works with any sound card.</div>
+
+  <h2 id="android">Android</h2>
+  <div class="panel">
+    <span class="label">Tablet &amp; phone · Android 8.0 or newer</span>
+    <h3>PadSampler on Google Play</h3>
+    <p class="muted">Coming soon. Best on a tablet; phones work in landscape with a compact layout.</p>
+    <a class="btn disabled" href="#android">Coming soon to Google Play</a>
+  </div>
+
+  <h2 id="linux">Linux</h2>
+  <p class="muted">A Linux version is planned.</p>
+
+  <h2>What you need</h2>
+  <ul>
+    <li><b>Audio:</b> wired headphones, speakers or an audio interface. Bluetooth has too much delay for playing live.</li>
+    <li><b>Optional:</b> Novation Launchpad Mini MK3 (USB; on Android with a USB-C OTG adapter), any class-compliant USB MIDI keyboard.</li>
+    <li><b>Optional:</b> Ableton Live or another Link app on the same Wi-Fi for tempo sync.</li>
+  </ul>
+
+  <h2>Build it yourself</h2>
+  <p>PadSampler is free software. The <a href="https://github.com/rasxxb-hash/padsampler#building-from-source">build instructions</a>
+    for Android and Windows are on GitHub.</p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>© 2026 Nerd Instruments · PadSampler is free software under the GNU GPL v3 or later.</p>
+    <nav>
+      <a href="manual.html">Manual</a>
+      <a href="uputstvo.html">Uputstvo (srpski)</a>
+      <a href="download.html">Download</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="license.html">License &amp; source</a>
+    </nav>
+    <p class="tm">Windows is a trademark of Microsoft Corporation. Android and Google Play are trademarks of Google LLC.
+      Launchpad is a trademark of Focusrite Audio Engineering Ltd. ASIO is a trademark of Steinberg Media Technologies GmbH.</p>
+  </div>
+</footer>
+</body>
+</html>

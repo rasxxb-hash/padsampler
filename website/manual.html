@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PadSampler Manual</title>
+<meta name="description" content="The complete PadSampler manual: session, mixer, drums, keys synth, print to pad, sessions, Ableton Link, Launchpad Mini MK3 and Windows audio settings.">
+<meta name="theme-color" content="#14161a">
+<link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="alternate" hreflang="sr-Latn" href="https://nerd-instruments.net/uputstvo.html">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="logo.svg" alt=""><span>PadSampler</span></a>
+    <nav class="nav">
+      <a href="./">Home</a>
+      <a class="active" href="manual.html">Manual</a>
+      <a href="download.html">Download</a>
+      <a href="license.html">Source</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap docs">
+  <aside class="toc">
+    <ol>
+      <li><a href="#start">Getting started</a></li>
+      <li><a href="#screen">The screen</a></li>
+      <li><a href="#samples">Loading samples</a></li>
+      <li><a href="#library">Sample library</a></li>
+      <li><a href="#clips">Playing clips</a></li>
+      <li><a href="#tempo">Tempo and time-stretch</a></li>
+      <li><a href="#mixer">Mixer</a></li>
+      <li><a href="#drums">Drums</a></li>
+      <li><a href="#keys">Keys</a></li>
+      <li><a href="#print">Print to pad</a></li>
+      <li><a href="#sessions">Sessions and set list</a></li>
+      <li><a href="#link">Ableton Link</a></li>
+      <li><a href="#launchpad">Launchpad Mini MK3</a></li>
+      <li><a href="#midikeys">MIDI keyboard</a></li>
+      <li><a href="#windows">Windows settings</a></li>
+      <li><a href="#phone">Phone layout</a></li>
+      <li><a href="#live">Tips for live use</a></li>
+      <li><a href="#trouble">Troubleshooting</a></li>
+    </ol>
+    <p class="lang"><a href="uputstvo.html">Uputstvo na srpskom →</a></p>
+  </aside>
+
+  <article class="doc">
+    <h1>PadSampler Manual</h1>
+    <p class="muted">For PadSampler 2.0 on Android and Windows. Both versions work the same way; differences are noted.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="start">1. Getting started</h2>
+    <ol>
+      <li><b>Install.</b> Windows: run the installer from the <a href="download.html">download page</a>.
+        Android: install from Google Play.</li>
+      <li><b>Connect your audio output.</b> Android: wired headphones or a USB audio interface give the lowest latency;
+        Bluetooth adds a lot of delay and is not suitable for playing live. Windows: open ⚙ and pick your audio interface
+        (see <a href="#windows">Windows settings</a>).</li>
+      <li><b>Optional: plug in a Launchpad Mini MK3</b> (USB). On Android tablets and phones use a USB-C OTG cable or adapter.
+        PadSampler finds it on its own.</li>
+      <li>Load some samples onto the pads (<a href="#samples">next sections</a>), set the tempo and play.</li>
+    </ol>
+    <div class="tip">On Android the app keeps the screen on and keeps audio running in the background. The first time it
+      may ask to ignore battery optimization; allow it so the system doesn't stop the audio during a show.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="screen">2. The screen</h2>
+    <figure>
+      <img src="images/session.png" width="1920" height="1200" loading="lazy" alt="Session screen">
+      <figcaption>Session screen with scene 2 playing.</figcaption>
+    </figure>
+    <h3>Top bar (the same on every screen)</h3>
+    <ul>
+      <li><b>SESSION · MIXER · DRUMS · KEYS</b>: the four screens.</li>
+      <li><b>Session name</b>: the name of the current session.</li>
+      <li><b>8 dots</b>: the eighth notes of the current bar. They show where the beat is.</li>
+      <li><b>LINK</b>: Ableton Link on/off (see <a href="#link">Ableton Link</a>).</li>
+      <li><b>− BPM +</b>: tempo, 60 to 240 BPM. Tap the number to type a tempo.</li>
+    </ul>
+    <h3>Left rail</h3>
+    <ul>
+      <li><b>☰</b> opens the menu: load samples, save / export / load / new session, set list, Link options, status
+        (MIDI and audio output) and About.</li>
+      <li><b>edit / done</b>: edit mode for putting samples on pads.</li>
+      <li><b>STOP</b> (red, bottom): stops everything immediately, including Drums and Keys. Always within reach.</li>
+    </ul>
+    <h3>Master</h3>
+    <p>The master fader and meter are on the right, with <b>M</b> (mute) below.</p>
+    <p>Messages (saved, printed, errors) appear for a few seconds at the bottom of the screen.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="samples">3. Loading samples</h2>
+    <ol>
+      <li>Tap <b>edit</b> on the left (or ☰ → Load samples). Pads get a yellow outline and don't play while edit mode is on.</li>
+      <li>Tap a pad. The pad dialog opens:
+        <ul>
+          <li><b>Browse library</b>: search and preview your sample folders (next section).</li>
+          <li><b>Choose a file from storage</b>: pick a WAV, AIFF or MP3 file directly.</li>
+          <li><b>Loop</b> (repeats until stopped) or <b>One-shot</b> (plays to the end once).</li>
+          <li><b>Original BPM of this sample</b>: the tempo the sample was made at. <b>Set for all samples</b> applies it to every pad.</li>
+          <li><b>Edit in Drums / Edit in Keys</b>: for pads made with <a href="#print">Print to pad</a>.</li>
+          <li><b>Remove sample</b>.</li>
+        </ul>
+      </li>
+      <li>Tap <b>done</b> when finished.</li>
+    </ol>
+    <p>Samples are copied into the session, so they keep working even if you move or delete the original files.
+      The pad shows the folder name of the sample, LOOP or SHOT, and the key if it is in the file or folder name.</p>
+    <div class="tip"><b>Loop or one-shot is chosen for you:</b> a sample becomes a loop if its file name contains "loop",
+      or if its length is close to a whole number of bars. You can always change it in the pad dialog.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="library">4. Sample library</h2>
+    <p>The library indexes the folders where you keep your samples, so you can find and audition them fast.</p>
+    <ul>
+      <li><b>Add folder</b>: choose a folder with samples once. PadSampler scans it, including all subfolders.
+        <b>Rescan</b> picks up new files.</li>
+      <li>Left: the folder tree (<b>All samples</b> = everything). On a narrow screen open it with <b>Folders</b>.
+        Right: the samples in the selected folder and its subfolders.</li>
+      <li><b>Search</b>: all words must match the file name or path.</li>
+      <li>Filters: <b>All / Loops / One-shots</b>, <b>Near N BPM</b> (loops close to the session tempo),
+        and categories <b>Drums, Bass, Keys, Vocals, FX</b> (from the file names).</li>
+      <li>Tap a row to <b>preview</b>, tap again to stop. Preview can play at the original speed or at the session tempo.
+        Preview goes straight to the output and is not affected by the master fader or bar timing.</li>
+      <li><b>Use</b> puts the sample on the pad. <b>Fill column</b> fills a whole column from one folder.</li>
+      <li><b>Remove a library folder…</b> under the tree removes a folder from the library (your files are not touched).</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="clips">5. Playing clips</h2>
+    <ul>
+      <li>A <b>column is a track</b>, a <b>row is a scene</b>. One clip per track plays at a time.</li>
+      <li>Tap a pad: the clip starts on the <b>next bar</b>. While it waits, it blinks. Another clip in the same column
+        replaces the playing one exactly on the bar (with a short fade).</li>
+      <li>Tap a playing clip: it stops on the next bar. Tap a waiting clip: the start is cancelled.</li>
+      <li><b>▶ 1 … ▶ 6</b> (right of the grid) launch a whole scene on the next bar.</li>
+      <li><b>Bottom row</b>: one button per track. The mode button at the bottom right switches the row between
+        <b>STOP</b> (stop the track on the next bar), <b>SOLO</b> and <b>MUTE</b>.</li>
+      <li><b>STOP</b> on the left stops everything right away.</li>
+      <li>A playing pad lights up and shows its progress at the bottom edge.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="tempo">6. Tempo and time-stretch</h2>
+    <ul>
+      <li>Every sample has an <b>original BPM</b>. When the session tempo is different, PadSampler time-stretches the
+        sample to the tempo without changing its pitch (Rubber Band).</li>
+      <li>The original BPM is read from the file or folder name, for example <code>Funky Drums 124 BPM.wav</code>.
+        If there's none, it is estimated from the length of the loop (1, 2, 4, 8 or 16 bars). You can correct it in the pad dialog.</li>
+      <li>The first sample in a session with a known BPM also sets the session tempo.</li>
+      <li>You can change the tempo while playing. The beat changes immediately; samples are re-stretched in the
+        background (playing ones first) and switch to the new version on the next bar.</li>
+      <li>A loop that is close to a whole number of bars is stretched to exactly that many bars, so it never drifts.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="mixer">7. Mixer</h2>
+    <figure>
+      <img src="images/mixer.png" width="1920" height="1200" loading="lazy" alt="Mixer screen">
+    </figure>
+    <ul>
+      <li>For each of the 8 tracks: <b>PAN</b>, level meter, <b>fader</b> with dB value, <b>M</b> (mute) and <b>S</b> (solo).</li>
+      <li>Drag the fader or the pan knob. Double-tap the pan knob to center it.</li>
+      <li>The <b>Master</b> channel is on the right.</li>
+      <li>Fader, pan, mute and solo are saved with the session.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="drums">8. Drums</h2>
+    <figure>
+      <img src="images/drums.png" width="1920" height="1200" loading="lazy" alt="Drums step sequencer">
+    </figure>
+    <h3>Pattern</h3>
+    <ul>
+      <li>8 sounds (lanes) × 16 steps per bar. Tap a step to switch it on or off.</li>
+      <li><b>PLAY</b> starts the drums on the next bar. Drums play until you stop them (or press STOP). Changing screens doesn't stop them.</li>
+      <li><b>LENGTH</b>: 1, 2, 4 or 8 bars. For longer patterns choose which bar you see. Making a pattern longer copies the existing bars into the new ones.</li>
+      <li><b>SWING</b> 0–100 %: delays every second sixteenth.</li>
+      <li>The <b>velocity bar</b> under the grid sets the strength of each step for the selected sound. Softer steps are paler.</li>
+      <li><b>undo / redo</b> (Windows also <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>).</li>
+      <li><b>clear all</b> clears every step.</li>
+    </ul>
+    <h3>Sounds</h3>
+    <ul>
+      <li>Tap a sound name to hear and select it. <b>M</b> mutes the lane; the bar under the name is the lane volume.</li>
+      <li><b>KIT ▾</b> loads a built-in kit: <b>808, 909, Electro, Lo-Fi</b>. Steps stay as they are.</li>
+      <li><b>…</b> next to a sound opens its dialog:
+        <ul>
+          <li><b>BUILT-IN SOUND</b>: choose a type (Kick, Snare, Clap, Rim, Closed HH, Open HH, Tom, Cymbal, Cowbell, Zap, Shaker)
+            and shape it with <b>TUNE, DECAY, TONE, SNAP, GRIT</b>. ▶ plays it. Double-tap a knob to reset it.</li>
+          <li><b>YOUR OWN SAMPLE</b>: from the library or a file.</li>
+          <li><b>Clear steps</b>, <b>Remove sound</b>.</li>
+        </ul>
+      </li>
+    </ul>
+    <h3>Import MIDI</h3>
+    <p><b>IMPORT MIDI</b> reads a <code>.mid</code> file. Drum notes (General MIDI) go to the matching lanes: kick, snare,
+      clap/rim, closed hat, open hat, tom, cymbal, percussion. If the file has several parts, you pick one. The import replaces
+      the steps; your sounds stay.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="keys">9. Keys</h2>
+    <figure>
+      <img src="images/keys-synth.png" width="1920" height="1200" loading="lazy" alt="Keys synth panel">
+      <figcaption>The synth panel. Drag a knob up or down; double-tap resets it.</figcaption>
+    </figure>
+    <h3>The synth</h3>
+    <ul>
+      <li><b>PRESET</b>: ◀ ▶ step through presets; <b>…</b> shows the list (27 built-in, grouped as Bass, Lead, Pad, Keys, FX) and lets you save or delete your own.</li>
+      <li><b>GLIDE</b>, <b>VOICES</b> (mono = one voice with legato, or up to 8 for chords), <b>VOLUME</b>.</li>
+      <li><b>OSCILLATORS 1–3</b>: <b>WAVE</b> (triangle, saw, square, wide and narrow pulse; tap to change), <b>OCT</b>, <b>DETUNE</b> (oscillators 2 and 3).</li>
+      <li><b>MIXER</b>: level of each oscillator and <b>NOISE</b>.</li>
+      <li><b>FILTER</b>: 24 dB ladder low-pass: <b>CUTOFF</b>, <b>EMPHASIS</b> (resonance), <b>CONTOUR</b> (how much the filter envelope opens it),
+        <b>KEY TRK</b>, and its own ATTACK / DECAY / SUSTAIN / RELEASE.</li>
+      <li><b>LOUDNESS</b>: the volume envelope.</li>
+      <li><b>hide</b> folds the panel away to give the piano roll more room.</li>
+    </ul>
+    <h3>ARP / FX</h3>
+    <ul>
+      <li><b>Arpeggiator</b>: on/off, MODE (up, down, up/down, random, as played), RATE (1/4 to 1/32, with triplets), OCTAVES 1–4, GATE, HOLD.
+        It plays in time with the bar, also from the pattern and in Print to pad.</li>
+      <li><b>COLOR</b>: DRIVE and CHORUS. <b>DELAY</b>: TIME (synced to tempo), FEEDBACK, MIX (ping-pong). <b>REVERB</b>: SIZE, MIX.</li>
+      <li>Loading a preset doesn't change the arpeggiator and effects.</li>
+    </ul>
+    <h3>Piano roll</h3>
+    <figure>
+      <img src="images/keys.png" width="1920" height="1200" loading="lazy" alt="Keys piano roll">
+    </figure>
+    <ul>
+      <li><b>KEY</b> and scale (Major, Minor, Dorian, Phrygian, Mixolydian, Harmonic minor, pentatonics, Blues, Chromatic):
+        the piano roll shows only the notes of the scale. <b>OCTAVE − / +</b> moves the view.</li>
+      <li>Tap an empty cell to add a note, tap a note to delete it. The keys on the left play while held.</li>
+      <li><b>PLAY</b>, <b>LENGTH</b>, <b>SWING</b>, velocity bar, undo / redo and <b>clear all</b> work like in Drums.</li>
+      <li><b>SELECT</b>: drag a box around notes or tap notes to select them, then drag to move them, or use
+        <b>ALL</b>, <b>◀ ▶</b>, <b>to bar</b> and <b>DEL</b>.</li>
+      <li><b>IMPORT MIDI</b> loads a melody from a <code>.mid</code> file (you pick the part if there are several).</li>
+    </ul>
+    <h3>Recording live</h3>
+    <ol>
+      <li>Press <b>● REC</b>. If Keys isn't playing, you get a metronome and one bar of count-in.</li>
+      <li>Play on the screen keys, the Launchpad or a MIDI keyboard. The pattern loops and every pass adds notes (overdub).</li>
+      <li>Press REC again to stop recording; the pattern keeps playing.</li>
+    </ol>
+    <p><b>REC GRID</b> (1/16 or 1/8) sets how note starts are quantized. One recording pass is one undo step.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="print">10. Print to pad</h2>
+    <p><b>PRINT TO PAD</b> (on Drums and Keys) renders the pattern into a WAV loop and puts it on a pad, so you can
+      launch it like any other clip.</p>
+    <ul>
+      <li>Pick the pad in the grid that opens. A pad that already has a sample is replaced.</li>
+      <li>The loop is exactly the pattern length at the current tempo, and seamless: delay and reverb tails continue into the start.</li>
+      <li>For Keys you also pick a category (Bass, Lead, Keys, Pad, Brass, Synth, FX); it becomes the pad name.</li>
+      <li>The pad remembers the pattern and the sounds. In edit mode open the pad and choose <b>Edit in Drums</b> or
+        <b>Edit in Keys</b> to change it and print again.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="sessions">11. Sessions and set list</h2>
+    <p>A session is one song: samples on pads, tempo, mixer, Drums and Keys. All in ☰ → SESSION:</p>
+    <ul>
+      <li><b>Save session…</b>: give it a name. The same name overwrites.</li>
+      <li><b>Load session…</b>: list of your sessions with <b>Load</b>, <b>Export</b> and <b>Delete</b>.
+        Loading stops playback and replaces everything.</li>
+      <li><b>New session…</b>: an empty session.</li>
+      <li><b>Export session…</b>: choose a folder; PadSampler writes a <code>.padsession</code> file (the whole session in one file)
+        and a copy of all samples sorted in folders (Drums, Bass, …), handy for a DAW.</li>
+      <li><b>Import session file…</b> (in Load session) opens a <code>.padsession</code>. Use it to move sessions between tablet and computer.
+        An import never overwrites: a session with the same name gets a number.</li>
+    </ul>
+    <h3>Set list</h3>
+    <p>☰ → <b>Set list…</b>: add your sessions in the order of the show, reorder with ▲ ▼. <b>◀ Prev / Next ▶</b>
+      or a tap on a song loads it.</p>
+
+    <!-- ===================================================== -->
+    <h2 id="link">12. Ableton Link</h2>
+    <p>Link keeps PadSampler in time with Ableton Live and other Link apps on the same network. There is no master: anyone can change the tempo.</p>
+    <ul>
+      <li>Tap <b>LINK</b> in the top bar. It turns green and shows how many other apps are connected. Link is always off when the app starts.</li>
+      <li>While Link is on, tempo and bar position come from Link. Clips still start on the bar, on Link's bar.</li>
+      <li><b>Start / stop</b>: starting a clip here starts the transport in the other apps; STOP in Live stops all clips here; STOP here stops the others.</li>
+      <li><b>Link audio</b> (☰ → ABLETON LINK): sends PadSampler's master output to Ableton Live as the source
+        "PadSampler Master". In Live choose it as the input of an audio track.</li>
+      <li><b>Link offset</b> (☰ → ABLETON LINK): shift PadSampler earlier or later (±200 ms) if it sounds slightly off from the others.
+        Output latency is already compensated automatically.</li>
+    </ul>
+    <div class="tip">All devices must be on the same Wi-Fi. For shows and recording, a phone hotspot or a dedicated router works
+      much better than a busy home or venue network.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="launchpad">13. Launchpad Mini MK3</h2>
+    <p>Plug the Launchpad in over USB. PadSampler switches it to programmer mode and lights it up. The ☰ menu (STATUS) shows whether it is connected.</p>
+    <h3>Buttons on every screen</h3>
+    <div class="table-wrap"><table>
+      <tr><th>Button</th><th>Action</th></tr>
+      <tr><td>▲ / ▼</td><td>Tempo +10 / −10</td></tr>
+      <tr><td>▶ / ◀</td><td>Tempo +1 / −1</td></tr>
+      <tr><td>Session</td><td>Switch between Session and Mixer</td></tr>
+      <tr><td>Drums</td><td>Drums screen</td></tr>
+      <tr><td>Keys</td><td>Keys screen</td></tr>
+    </table></div>
+    <h3>Session</h3>
+    <ul>
+      <li>Top row: a light that runs through the eighth notes of the bar (visual metronome).</li>
+      <li>The 6 rows below it: the clips, 6 scenes × 8 tracks, in the color of the clip state (dim = loaded, blinking = waiting, pulsing = playing).</li>
+      <li>Right column: launch scenes 1–6.</li>
+      <li>Bottom row: stop, solo or mute per track. The bottom right button (Stop Solo Mute) switches the mode: red = STOP, blue = SOLO, yellow = MUTE.</li>
+    </ul>
+    <h3>Mixer</h3>
+    <ul>
+      <li>Each column is a fader with 7 steps (top = 0 dB). A playing track's fader pulses.</li>
+      <li>Bottom row: mute per track.</li>
+    </ul>
+    <h3>Drums</h3>
+    <ul>
+      <li>Top 4 rows: 32 steps (2 bars) of the selected sound. Right column: pages for 4 and 8 bar patterns.</li>
+      <li>Third row from the bottom: the 8 sounds (press = play and select). Second row from the bottom: mute per sound.</li>
+      <li>Bottom row: Play/Stop, length 1/2/4/8 bars, and (last pad) clear the selected sound.</li>
+      <li>Bottom right button: Play/Stop.</li>
+    </ul>
+    <h3>Keys</h3>
+    <ul>
+      <li>The grid is a keyboard in your scale (the key note is yellow). Each row is a few scale steps higher.</li>
+      <li>Bottom row: Play/Stop, octave − / +, and STEP mode (last pad): the top 4 rows become 32 steps for the selected note,
+        the rows below select the note.</li>
+      <li>Bottom right button: Play/Stop. The button above it: REC. ▼ shows / hides the synth knobs.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="midikeys">14. MIDI keyboard</h2>
+    <ul>
+      <li>Any USB class-compliant MIDI keyboard plays the Keys synth, on every screen. Velocity, pitch bend (±2 semitones)
+        and the mod wheel (opens the filter) work.</li>
+      <li><b>MIDI IN</b> on the Keys screen: Auto (all inputs except the Launchpad), one device, or Off.</li>
+      <li><b>MIDI LEARN</b>: tap <b>LEARN</b> (next to VOLUME), tap a knob, then move a knob or slider on your keyboard. Every
+        synth, arpeggiator and effect knob can be mapped. The mapping is saved per keyboard.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="windows">15. Windows settings</h2>
+    <p>The <b>⚙</b> button in the top bar opens the settings:</p>
+    <ul>
+      <li><b>AUDIO OUTPUT</b>: <b>Driver</b> (WASAPI or ASIO), <b>Device</b>, <b>Buffer</b> (smaller = lower latency, more risk of
+        clicks), <b>Sample rate</b>. Press <b>Apply audio settings</b>. If the device can't be opened, the previous output is restored.</li>
+      <li><b>MIDI CONTROLLER</b>: Auto finds the Launchpad by name; you can also pick a port. <b>Refresh list</b> after plugging in.</li>
+      <li><b>SCREEN</b>: window or full screen (also <kbd>F11</kbd>). The screen doesn't turn off while PadSampler runs.</li>
+    </ul>
+    <div class="tip"><b>Lowest latency:</b> use an audio interface with an ASIO driver and a buffer of 128–256 frames.
+      Settings and the sample library are stored in <code>%APPDATA%\PadSampler</code>.</div>
+
+    <!-- ===================================================== -->
+    <h2 id="phone">16. Phone layout</h2>
+    <p>On a phone (landscape) PadSampler shows a compact layout:</p>
+    <ul>
+      <li>The master channel is shown only on Session and Mixer. Mixer channels are narrower and have no pan knob
+        (pan set on a tablet or computer still applies).</li>
+      <li>Drums and Keys: rarely used buttons (IMPORT MIDI, clear all) are in the <b>⋯</b> menu. <b>VEL</b> opens swing and
+        the velocity bar over the grid. Lanes and the piano roll scroll up and down.</li>
+      <li>Rows of buttons that don't fit scroll sideways.</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="live">17. Tips for live use</h2>
+    <ul>
+      <li>Save every song as a session and put them in a set list.</li>
+      <li>Android: allow PadSampler to ignore battery optimization (on Xiaomi also set battery saver for the app to
+        "No restrictions"). Turn on Do Not Disturb.</li>
+      <li>Use wired outputs, not Bluetooth.</li>
+      <li>Test the whole set on the real device before the show, with the same output and controller.</li>
+      <li>Use Link only on a network you control (phone hotspot or own router).</li>
+    </ul>
+
+    <!-- ===================================================== -->
+    <h2 id="trouble">18. Troubleshooting</h2>
+    <h3>No sound</h3>
+    <ul>
+      <li>Check the master fader and M (mute) and the track faders in the Mixer.</li>
+      <li>Windows: open ⚙ and check the driver and device. The line at the bottom of the settings shows whether audio is running.</li>
+    </ul>
+    <h3>Clicks or dropouts</h3>
+    <ul>
+      <li>Windows: increase the buffer in ⚙. Close other heavy programs.</li>
+      <li>Android: close other apps. Changing tempo with many long samples takes a moment of processing; it happens in the background.</li>
+    </ul>
+    <h3>The Launchpad doesn't light up</h3>
+    <ul>
+      <li>Check the cable (Android: OTG adapter). Unplug it and plug it in again.</li>
+      <li>Windows: ⚙ → MIDI CONTROLLER → Refresh list, choose Auto. Only one program can use the Launchpad at a time on Windows, so close other music software that uses it.</li>
+    </ul>
+    <h3>Link doesn't find Ableton Live</h3>
+    <ul>
+      <li>Both devices on the same network; in Live turn on Link in Preferences → Link, Tempo &amp; MIDI.</li>
+      <li>Some public or venue networks block devices from seeing each other. Use a phone hotspot.</li>
+    </ul>
+    <h3>A loop is out of time</h3>
+    <ul>
+      <li>Check its original BPM in the pad dialog (edit mode → tap the pad) and correct it.</li>
+    </ul>
+
+    <p class="muted">Something missing or wrong? Open an issue on <a href="https://github.com/rasxxb-hash/padsampler/issues">GitHub</a>.</p>
+  </article>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>© 2026 Nerd Instruments · PadSampler is free software under the GNU GPL v3 or later.</p>
+    <nav>
+      <a href="manual.html">Manual</a>
+      <a href="uputstvo.html">Uputstvo (srpski)</a>
+      <a href="download.html">Download</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="license.html">License &amp; source</a>
+    </nav>
+    <p class="tm">PadSampler is not affiliated with Ableton, Focusrite/Novation or Steinberg. Ableton and Link are trademarks of Ableton AG.
+      Launchpad is a trademark of Focusrite Audio Engineering Ltd. ASIO is a trademark of Steinberg Media Technologies GmbH.</p>
+  </div>
+</footer>
+</body>
+</html>

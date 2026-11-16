@@ -1,0 +1,26 @@
+*.iml
+.gradle/
+/local.properties
+/.idea/
+.DS_Store
+/build/
+/app/build/
+/app/.cxx/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# --- generisano / lokalno (ne ide na GitHub)
+.kotlin/
+**/build/
+**/.gradle/
+**/.kotlin/
+**/.cxx/
+# DLL i fontovi se kopiraju pri buildu (copyEngine, copyFonts)
+desktop-app/resources/
+keystore.properties
+*.log
+
+# Steinberg ASIO SDK: build ga ne koristi (RtAudio nosi svoja ASIO zaglavlja); ne distribuira se
+desktop/third_party/asio-sdk/
