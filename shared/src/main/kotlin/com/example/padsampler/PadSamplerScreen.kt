@@ -106,6 +106,11 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
     // Uski ekran (telefon u landscape-u): kompaktna gornja traka i uža lijeva kolona
     val ui = LocalUiPlatform.current
     val compact = ui.screenWidthDp() < 1000
+    // Android: štednja baterije uključena -> jednom pri pokretanju napomena (☰ -> STATUS otvara podešavanja)
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(4000)
+        if (ui.batteryRestricted() == true) vm.showMessage("Battery saver is on: Android may pause audio in the background. Fix it in ☰ → Status.")
+    }
 
     // Izbor fajla preko platforme (Android: SAF). Fajl se kopira u privatni folder aplikacije.
     val pickFile = ui.rememberFilePicker { ref ->
@@ -226,7 +231,9 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
             onSetList = { vm.refreshSessions(); setListDialog = true },
             onLinkAudio = { vm.toggleLinkAudio() },
             onLinkOffset = { vm.changeLinkOffset(it) },
-            onAbout = { aboutDialog = true }
+            onAbout = { aboutDialog = true },
+            batteryRestricted = remember(menuOpen) { ui.batteryRestricted() },
+            onBattery = { ui.openBatterySettings() }
         )
     }
     if (browserSlot != null || drumBrowserLane != null) BrowserScreen(vm)

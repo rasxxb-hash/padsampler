@@ -35,14 +35,14 @@ tasks.named("preBuild") { dependsOn(copyLegal) }
 
 android {
     namespace = "com.example.padsampler"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         // ID na Google Playu (od domena nerd-instruments.net); NE mijenjati poslije objave. Paketi u kodu ostaju
         // com.example.padsampler (namespace, JNI imena u jni_bridge.cpp).
         applicationId = "net.nerdinstruments.padsampler"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36   // Google Play: nove aplikacije i ažuriranja od 31. 8. 2026
         versionCode = appVersionCode
         versionName = appVersion
 

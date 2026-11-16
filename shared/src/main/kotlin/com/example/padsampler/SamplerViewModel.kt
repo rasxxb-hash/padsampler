@@ -76,6 +76,9 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
     private val _message = MutableStateFlow("")
     val message: StateFlow<String> = _message
 
+    /** Kratka obavijest dolje na ekranu (MessageToast), npr. napomena o bateriji pri pokretanju. */
+    fun showMessage(text: String) { _message.value = text }
+
     /** Koliko semplova se još razvlači na novi tempo (0 = gotovo). */
     private val _stretching = MutableStateFlow(0)
     val stretching: StateFlow<Int> = _stretching

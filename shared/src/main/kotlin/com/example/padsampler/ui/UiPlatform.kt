@@ -37,6 +37,15 @@ interface UiPlatform {
 
     /** Dijalog podešavanja (prikazuje se samo kad je hasSettings = true). */
     @Composable fun SettingsDialog(onClose: () -> Unit) {}
+
+    /**
+     * Android: true = štednja baterije je uključena za PadSampler (sistem može pauzirati zvuk u pozadini),
+     * false = isključena. null = platforma to nema (računar). ☰ meni tada ne prikazuje stavku.
+     */
+    fun batteryRestricted(): Boolean? = null
+
+    /** Otvara sistemska podešavanja aplikacije (baterija), da korisnik sam isključi štednju. */
+    fun openBatterySettings() {}
 }
 
 val LocalUiPlatform = staticCompositionLocalOf<UiPlatform> {

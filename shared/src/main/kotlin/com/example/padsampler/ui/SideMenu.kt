@@ -121,7 +121,9 @@ fun BoxScope.SideMenu(
     onSetList: () -> Unit,
     onLinkAudio: () -> Unit,
     onLinkOffset: (Int) -> Unit,
-    onAbout: () -> Unit
+    onAbout: () -> Unit,
+    batteryRestricted: Boolean? = null,
+    onBattery: () -> Unit = {}
 ) {
     // zatamnjenje: dodir zatvara meni
     Box(
@@ -191,6 +193,16 @@ fun BoxScope.SideMenu(
         MenuSection("STATUS")
         Text(midiStatus, color = TextDim, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 14.dp, vertical = 3.dp))
         Text(info, color = TextDim, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 14.dp, vertical = 3.dp))
+        // Android: štednja baterije može pauzirati zvuk u pozadini (Xiaomi); dodir otvara podešavanja aplikacije
+        when (batteryRestricted) {
+            true -> MenuItem(
+                "Battery saver is on",
+                "Android may pause audio in the background. Tap, then set battery to Unrestricted / No restrictions",
+                color = MuteYellow
+            ) { onBattery() }
+            false -> Text("Battery: unrestricted", color = TextDim, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 14.dp, vertical = 3.dp))
+            null -> {}
+        }
 
         MenuSection("ABOUT")
         MenuItem("About PadSampler", "Version, license, source code") { onAbout(); onClose() }

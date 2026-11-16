@@ -4,11 +4,8 @@ import android.Manifest
 import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.provider.Settings
 import androidx.core.content.ContextCompat
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -44,7 +41,7 @@ class MainActivity : ComponentActivity() {
         hideSystemBars()
         loadAndroidFonts(this)
         setContent {
-            val uiPlatform = remember { AndroidUiPlatform() }
+            val uiPlatform = remember { AndroidUiPlatform(applicationContext) }
             CompositionLocalProvider(LocalUiPlatform provides uiPlatform) {
                 MaterialTheme(colorScheme = darkColorScheme()) {
                     ProvideTextStyle(TextStyle(fontFamily = AppFonts.inter)) {
@@ -99,18 +96,8 @@ class MainActivity : ComponentActivity() {
         try {
             ContextCompat.startForegroundService(this, Intent(this, AudioService::class.java))
         } catch (_: Exception) {}
-
-        // Jednom: zamoli da se isključi štednja baterije za app (inače je Xiaomi može uspavati)
-        try {
-            val prefs = getSharedPreferences("padsampler", MODE_PRIVATE)
-            val pm = getSystemService(POWER_SERVICE) as PowerManager
-            if (!prefs.getBoolean("battery_asked", false) && !pm.isIgnoringBatteryOptimizations(packageName)) {
-                prefs.edit().putBoolean("battery_asked", true).apply()
-                startActivity(
-                    Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS, Uri.parse("package:$packageName"))
-                )
-            }
-        } catch (_: Exception) {}
+        // Štednja baterije: nema direktnog zahtjeva (Google Play to ne dozvoljava muzičkim aplikacijama);
+        // ☰ meni (STATUS) pokazuje stanje i otvara podešavanja (AndroidUiPlatform.openBatterySettings).
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {

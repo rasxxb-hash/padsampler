@@ -10,7 +10,7 @@ Ciljni uređaji: Xiaomi Redmi Pad SE 11" (izlaz na slušalice, stereo, žičane)
 - Audio: zajednički C++ motor (`Mixer`, `SampleBank`, Link). Android: **Oboe**; računar: **RtAudio** (WASAPI/ASIO).
   NE koristiti ExoPlayer/MediaPlayer/SoundPool za pad zvukove.
 - MIDI: Android `android.media.midi` (USB class-compliant, bez dodatnih dozvola); računar Java MIDI (`DesktopMidi`)
-- Gradle Kotlin DSL, AGP 8.7.3, Kotlin 2.0.21, minSdk 26; desktop: Compose Multiplatform 1.7.1, CMake + MSVC (VS 2022 Build Tools)
+- Gradle Kotlin DSL, AGP 8.7.3, Kotlin 2.0.21, minSdk 26, compileSdk/targetSdk 36 (Google Play traži 36 od 31. 8. 2026; AGP upozorenje utišano u gradle.properties; u manifestu `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY` drži landscape na Android 16 tabletima); desktop: Compose Multiplatform 1.7.1, CMake + MSVC (VS 2022 Build Tools)
 
 ## Struktura
 - `app/src/main/cpp/` : ZAJEDNIČKI C++ (Android i računar, bez kopija): `mixer.*` i `decoder.*` (čisti C++, testirani na hostu), `stretcher.*` i `sample_bank.*` (time-stretch u pozadini, Rubber Band u `rubberband-lib/`, GPL), `link_sync.*` (Link u `link-lib/`), `studio.*` (Studio: pattern sequencer, drum kit, offline render; `AuxSource` miksera), `synth.*` (Minimoog-sintisajzer za Keys, `Arpeggiator`, efekti `KeysFx`), `jni_bridge.cpp` (isti most za obje platforme; `PADSAMPLER_DESKTOP` bira motor). Samo Android: `audio_engine.*` (Oboe).
@@ -71,5 +71,6 @@ Ciljni uređaji: Xiaomi Redmi Pad SE 11" (izlaz na slušalice, stereo, žičane)
 - Projekt je **GPL-3.0-or-later**, © 2026 Nerd Instruments (`LICENSE`). Tuđe biblioteke i fontovi: `THIRD_PARTY_NOTICES.md` + tekstovi licenci u `licenses/`. Nova biblioteka ili font = dopuniti oba (i ekran About u aplikaciji).
 - Android applicationId: `net.nerdinstruments.padsampler` (od 16. 11. 2026; NE mijenjati poslije objave na Playu). Paketi u kodu ostaju `com.example.padsampler` (JNI imena).
 - Sajt `website/` (statičan HTML/CSS, bez JS-a i bez tuđih servisa): `index`, `manual` (EN), `uputstvo` (srpski, latinica), `download`, `privacy` (Play to traži), `license`, `404`, `_headers` (Cloudflare). Slike ekrana: `docs/images/` (kopija u `website/images/`, i u README.md). Nova ili promijenjena funkcija = ažurirati OBA uputstva (i README ako je bitno).
+- Google Play: sve u `docs/play-store/` (`LISTING.md` = tekstovi, upitnici, koraci; ikona 512, feature graphic, slike tableta). AAB: `.gradlew.bat bundleRelease`.
 - Izvorni kod: GitHub `rasxxb-hash/padsampler`; sajt: nerd-instruments.net (Cloudflare Pages, folder `website/`); Windows installer na GitHub Releases (>25 MB, ne može na Pages); Android se prodaje na Google Play.
 - `desktop/third_party/asio-sdk/` se ne objavljuje (build ga ne koristi; RtAudio nosi ASIO fajlove pod GPL-3.0 opcijom ASIO SDK-a).

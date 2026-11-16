@@ -320,3 +320,7 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 ### About i licence (16. 11. 2026)
 - ☰ -> ABOUT -> "About PadSampler": verzija (appVersion), © 2026 Nerd Instruments, GPL-3.0-or-later napomena (bez garancije), linkovi na izvorni kod (github.com/rasxxb-hash/padsampler) i sajt (nerd-instruments.net; otvara browser preko `LocalUriHandler`), puni tekst GPL v3, spisak tuđih biblioteka i fontova (dodir = tekst licence) i napomena o zaštićenim imenima.
 - Tekstovi dolaze iz korijena projekta (`LICENSE`, `THIRD_PARTY_NOTICES.md`, `licenses/`) i kopiraju se pri buildu u Java resurse `/legal/` (`copyLegal` u app i desktop-app build.gradle.kts); spisak u `data/Legal.kt` mora odgovarati `THIRD_PARTY_NOTICES.md`.
+
+### Google Play: Android 16 i baterija (16. 11. 2026)
+- `targetSdk` 36 (Play traži od 31. 8. 2026). Manifest: `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY` drži landscape na Android 16 tabletima (privremeni izuzetak; za targetSdk 37 raspored mora raditi i uspravno).
+- Bez dozvole `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (Play je ne dozvoljava muzičkim aplikacijama; foreground servis je dovoljan). Umjesto direktnog zahtjeva: ☰ -> STATUS pokazuje "Battery: unrestricted" ili žuto "Battery saver is on" (dodir otvara stranicu aplikacije u podešavanjima: Xiaomi "Battery saver" -> No restrictions). Dok je štednja uključena, 4 s poslije pokretanja kratka poruka. `UiPlatform.batteryRestricted/openBatterySettings` (računar: null, nema stavke).
