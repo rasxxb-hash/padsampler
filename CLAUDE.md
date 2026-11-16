@@ -41,7 +41,7 @@ Ciljni uređaji: Xiaomi Redmi Pad SE 11" (izlaz na slušalice, stereo, žičane)
 - Audio nit (`Mixer::render`): NIKAD alokacija memorije, mutex, logovanje, JNI pozivi ili I/O.
 - Svi brojevi za Launchpad (SysEx, note, CC, boje) moraju doći iz PDF-a u `docs/`. Brojevi su provjereni; izbor MIDI porta (bez "DAW") treba potvrditi na uređaju.
 - Sve radi offline. Nema mrežnih poziva u aplikaciji (osim Ableton Linka na lokalnoj mreži). Nema tajnih ključeva u kodu. (CMake konfiguracija desktopa jednom preuzima RtAudio, to je samo build.)
-- Aplikacija mora ostati upotrebljiva na kraju svake faze. Mali koraci (projekt trenutno NIJE git repozitorij).
+- Aplikacija mora ostati upotrebljiva na kraju svake faze. Mali koraci. Projekt je git repozitorij (od 16. 11. 2026, `main` -> GitHub `rasxxb-hash/padsampler`, javno); commit/push samo kad korisnik traži. Izdanje: podići appVersion, build, `gh release create vX.Y.Z <exe>` (gh: `C:Program FilesGitHub CLIgh.exe`).
 
 ## Domenska logika (session mod, kao Ableton)
 - Kolona = track, red = scena, pad = clip. U jednoj koloni svira jedan clip odjednom.
