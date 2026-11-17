@@ -144,7 +144,7 @@ It uses third-party libraries and fonts under their own licenses (Rubber Band, A
 RtAudio, dr_mp3, Audiowide, Inter and others) — see [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) and the
 [`licenses/`](licenses) folder. The same information is in the app under **☰ → About**.
 
-The Android version on Google Play is a paid convenience build of exactly this source code. You are free to build
+The Android version on Google Play is a free build of exactly this source code. You are also free to build
 it yourself.
 
 PadSampler is an independent project and is not affiliated with Ableton, Novation/Focusrite or Steinberg.

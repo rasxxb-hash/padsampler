@@ -76,7 +76,7 @@ MADE FOR THE STAGE
 Wired headphones, speakers or a USB audio interface are recommended. Bluetooth audio adds too much delay for live playing.
 
 OPEN SOURCE
-PadSampler is free software under the GNU GPL v3. The source code is at github.com/rasxxb-hash/padsampler. The Windows version is free at nerd-instruments.net. Buying it here supports development.
+PadSampler is free software under the GNU GPL v3. The source code is at github.com/rasxxb-hash/padsampler. The Windows version is also free, at nerd-instruments.net.
 
 Manual: nerd-instruments.net/manual
 
@@ -89,7 +89,7 @@ First release of PadSampler for Android.
 ```
 
 ## Kategorija i kontakt
-- App or game: **App**; Free or paid: **Paid** (cijena u Pricing; poslije objave se ne može prebaciti sa Free na Paid).
+- App or game: **App**; Free or paid: **Free**. Prodaja nije moguća: Bosna i Hercegovina nema merchant registraciju na Googleovoj listi (provjereno 17. 11. 2026, support.google.com/googleplay/android-developer/answer/9306917). Besplatna aplikacija se poslije ne može prebaciti na plaćenu.
 - Category: **Music & Audio**
 - Tags (do 5): Music production, Music & audio, DJ, Drums, Synthesizer (bira se sa ponuđene liste).
 - Website: `https://nerd-instruments.net`
@@ -134,6 +134,6 @@ First release of PadSampler for Android.
 ## Prije objave (novi lični nalog)
 1. **Closed testing**: najmanje **12 testera** koji imaju aplikaciju instaliranu **14 dana zaredom**; tek onda "Apply for production".
    Testing → Closed testing → napravi track, dodaj email liste testera (Gmail adrese), uploaduj AAB, pošalji im link.
-2. **Payments profile** (Setup → Payments profile) za plaćenu aplikaciju; zatim Pricing.
+2. **Cijena: Free** (Monetize with Play → Products → App pricing). Payments/merchant profil se NE pravi (BiH nije podržana).
 3. **Play App Signing**: pri prvom uploadu prihvati da Google drži ključ za potpis; naš `release.jks` postaje *upload key*. Ključ i dalje čuvaj (bez njega nema novih uploada, osim preko resetovanja upload ključa kod Googlea).
 4. Svako novo izdanje: podići `appVersion` u `desktop-app/gradle.properties` (versionCode raste), `.\gradlew.bat bundleRelease`.
