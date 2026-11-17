@@ -134,6 +134,11 @@ Audio device options (WASAPI/ASIO, device, buffer size) are in the app under ⚙
 | `native-tests/` | C++ tests for the mixer, decoder, sample bank, Link, Studio and synth |
 | `docs/` | Detailed behaviour specification (in Bosnian) |
 
+## Support development
+
+PadSampler is free on every platform and has no ads. If it helps your music, you can
+[buy me a coffee via PayPal](https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=rasxxb%40gmail.com&item_name=Coffee+for+PadSampler+development&currency_code=USD).
+
 ## License
 
 PadSampler is free software: you can redistribute it and/or modify it under the terms of the

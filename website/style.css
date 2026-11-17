@@ -188,3 +188,10 @@ pre code { background: none; border: 0; padding: 0; }
 .hero-photo .tagline, .hero-photo .sub { text-shadow: 0 1px 12px rgba(0, 0, 0, .7); }
 .hero .shot { position: relative; margin-top: calc(-1 * clamp(80px, 17vw, 240px)); }
 @media (max-width: 600px) { .hero-photo { padding-top: 40px; } }
+
+/* ---------- support (PayPal) ---------- */
+.support {
+  margin-top: 28px; padding: 18px 22px; border: 1px dashed var(--border); border-radius: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.support p { margin: 0; flex: 1 1 280px; }
