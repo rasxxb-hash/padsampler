@@ -3,6 +3,8 @@ package com.example.padsampler.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -18,7 +20,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AlertDialogDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -41,6 +52,7 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.padsampler.SamplerViewModel
@@ -58,6 +70,7 @@ import com.example.padsampler.model.TrackColors
  * DRUMS: 8 zvukova x 16 koraka (jedan takt; duži pattern ima izbor takta). Lijevo zvuk: dodir svira i bira,
  * "…" učitava zvuk, M utišava, traka ispod imena je jačina. Gore: Play/Stop, dužina, takt, brisanje.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun DrumsScreen(vm: SamplerViewModel, live: LiveState, modifier: Modifier = Modifier) {
     val d by vm.drums.state.collectAsState()
@@ -113,7 +126,7 @@ fun DrumsScreen(vm: SamplerViewModel, live: LiveState, modifier: Modifier = Modi
             } else {
                 KitMenu(vm, d)
                 FlatButton("IMPORT MIDI") { pickMidi() }
-                FlatButton("clear all") { clearDialog = true }
+                FlatButton("CLEAR ALL") { clearDialog = true }
                 FlatButton("PRINT TO PAD", color = Accent, textColor = Ink) { printDialog = true }
             }
         }
@@ -216,28 +229,49 @@ fun DrumsScreen(vm: SamplerViewModel, live: LiveState, modifier: Modifier = Modi
         val pick = LocalUiPlatform.current.rememberFilePicker { ref -> vm.assignDrumFile(lane, ref) }
         // ugrađeni zvuk: podešavanja se drže ovdje dok se vuče (stanje se upiše kad se pusti)
         var spec by remember(lane) { mutableStateOf(snd?.synth) }
-        AlertDialog(
-            onDismissRequest = { soundDialog = null },
-            title = { Text("Drum sound ${lane + 1}") },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Text(if (snd != null) "${snd.label}  ·  ${snd.name}" else "Empty")
+        // širok prozor (kao Print to pad): svi zvukovi bez skrolovanja, veći potenciometri
+        Dialog(onDismissRequest = { soundDialog = null }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+          Surface(
+            shape = AlertDialogDefaults.shape,
+            color = AlertDialogDefaults.containerColor,
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+            modifier = Modifier.padding(vertical = 12.dp).widthIn(max = 1100.dp).fillMaxWidth(0.94f)
+          ) {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 24.dp, vertical = 20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text("Drum sound ${lane + 1}", style = MaterialTheme.typography.titleLarge, color = AlertDialogDefaults.titleContentColor)
+                    Text(if (snd != null) "${snd.label}  ·  ${snd.name}" else "Empty", color = TextDim)
                     // ---- ugrađeni (sintetizovani) zvuk
                     Text("BUILT-IN SOUND", color = TextFaint, fontSize = 10.sp, letterSpacing = 1.sp)
-                    Row(
-                        modifier = Modifier.hScroll(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        for (kind in DrumSynthKind.values()) {
-                            StudioChip(kind.label, spec?.kind == kind) {
-                                val s = (spec ?: DrumSynthSpec(kind)).copy(kind = kind)
-                                spec = s
-                                vm.editDrumSynth(lane, s, commit = true)
+                    // tri reda: elektronski (808/909...), akustični i perkusije; dugmad se prelome u novi red ako ne stanu
+                    for (group in 0..2) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                when (group) { 0 -> "ELECTRONIC"; 1 -> "ACOUSTIC"; else -> "PERCUSSION" }, color = TextFaint, fontSize = 9.sp,
+                                letterSpacing = 1.sp, modifier = Modifier.width(84.dp)
+                            )
+                            FlowRow(
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                for (kind in DrumSynthKind.values().filter { (if (it.perc) 2 else if (it.acoustic) 1 else 0) == group }) {
+                                    StudioChip(kind.label, spec?.kind == kind) {
+                                        val s = (spec ?: DrumSynthSpec(kind)).copy(kind = kind)
+                                        spec = s
+                                        vm.editDrumSynth(lane, s, commit = true)
+                                    }
+                                }
                             }
                         }
                     }
                     spec?.let { s ->
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.hScroll().padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(18.dp)
+                        ) {
                             val knobs = listOf<Triple<String, Float, (Float) -> DrumSynthSpec>>(
                                 Triple("TUNE", s.tune) { v -> s.copy(tune = v) },
                                 Triple("DECAY", s.decay) { v -> s.copy(decay = v) },
@@ -249,10 +283,10 @@ fun DrumsScreen(vm: SamplerViewModel, live: LiveState, modifier: Modifier = Modi
                                 SimpleKnob(
                                     label, value, Accent, default = if (label == "GRIT") 0f else 0.5f,
                                     onChange = { v -> val n = with(v); spec = n; vm.editDrumSynth(lane, n, commit = false) },
-                                    onRelease = { v -> val n = with(v); spec = n; vm.editDrumSynth(lane, n, commit = true) }
+                                    onRelease = { v -> val n = with(v); spec = n; vm.editDrumSynth(lane, n, commit = true) },
+                                    knobSize = 64.dp
                                 )
                             }
-                            Spacer(Modifier.width(6.dp))
                             FlatButton("▶") { vm.drums.hit(lane) }
                         }
                     }
@@ -264,24 +298,27 @@ fun DrumsScreen(vm: SamplerViewModel, live: LiveState, modifier: Modifier = Modi
                         }
                         TextButton(onClick = { pick() }) { Text("Choose a file") }
                     }
-                    if (snd != null) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        if (snd != null) {
                             TextButton(onClick = { vm.drums.clearLane(lane); soundDialog = null }) { Text("Clear steps") }
                             TextButton(onClick = { vm.drums.removeSound(lane); soundDialog = null }) { Text("Remove sound") }
                         }
+                        Spacer(Modifier.weight(1f))
+                        TextButton(onClick = { soundDialog = null }) { Text("Close") }
                     }
                 }
-            },
-            confirmButton = { TextButton(onClick = { soundDialog = null }) { Text("Close") } }
-        )
+          }
+        }
     }
     val midiChoice by vm.midiChoice.collectAsState()
     midiChoice?.takeIf { it.drums }?.let { MidiPartDialog(vm, it) }
     if (printDialog) {
         StudioPrintDialog(
             vm, "Print drums to pad",
-            "${d.bars} bar${if (d.bars > 1) "s" else ""} at the current tempo, as a loop. Choose the pad:",
-            onPrint = { slot, _ -> vm.printDrumsToPad(slot) }
+            "${d.bars} bar${if (d.bars > 1) "s" else ""} at the current tempo, as a loop.",
+            categories = DrumLayout.CATEGORIES,
+            category = d.category,
+            onPrint = { slot, cat -> vm.printDrumsToPad(slot, cat) }
         ) { printDialog = false }
     }
     if (clearDialog) {
@@ -432,7 +469,8 @@ private fun GainBar(value: Float, color: Color, onChange: (Float) -> Unit) {
 
 @Composable
 internal fun StudioChip(
-    label: String, selected: Boolean, dot: Boolean = false, modifier: Modifier = Modifier, onClick: () -> Unit
+    label: String, selected: Boolean, dot: Boolean = false, modifier: Modifier = Modifier,
+    fontSize: TextUnit = 12.sp, onClick: () -> Unit
 ) {
     val shape = rShape(9)
     Row(
@@ -449,15 +487,18 @@ internal fun StudioChip(
         Text(
             label,
             color = if (selected) AccentBright else TextMain,
-            fontSize = 12.sp, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1
+            fontSize = fontSize, fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal, maxLines = 1
         )
     }
 }
 
 /**
- * Print to pad: izbor pada (6 scena x 8 trackova kao u Sessionu). Predložen je zadnji pad na koji je printano
- * (ili onaj otvoren sa "Edit in Drums"), inače prvi prazan.
+ * Print to pad: ime (labela pada i folder u izvozu) i izbor pada (6 scena x 8 trackova kao u Sessionu).
+ * Predložen je zadnji pad na koji je printano (ili onaj otvoren sa "Edit in Drums/Keys"), inače prvi prazan.
+ * Vlastiti Dialog (ne AlertDialog: on je najviše 560 dp širok, pa 8 kolona ne stane): širok skoro kao ekran,
+ * padovi se rastežu po širini, a sadržaj se skroluje (telefon).
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun StudioPrintDialog(
     vm: SamplerViewModel,
@@ -475,21 +516,39 @@ internal fun StudioPrintDialog(
         mutableStateOf(last ?: (0 until Layout.SLOTS).firstOrNull { it !in pads } ?: 0)
     }
     val occupied = pads[sel]
-    AlertDialog(
-        onDismissRequest = onClose,
-        title = { Text(title) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+    Dialog(onDismissRequest = onClose, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        Surface(
+            shape = AlertDialogDefaults.shape,
+            color = AlertDialogDefaults.containerColor,
+            tonalElevation = AlertDialogDefaults.TonalElevation,
+            modifier = Modifier.padding(vertical = 12.dp).widthIn(max = 1100.dp).fillMaxWidth(0.94f)
+        ) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Text(title, style = MaterialTheme.typography.titleLarge, color = AlertDialogDefaults.titleContentColor)
                 Text(info, color = TextDim, fontSize = 12.sp)
                 if (categories != null) {
-                    Text("Category (pad label and folder in the export):", color = TextDim, fontSize = 12.sp)
-                    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        for (c in categories) StudioChip(c, c == cat) { cat = c }
+                    Text("Name (pad label and folder in the session export):", color = TextDim, fontSize = 12.sp)
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        // zadnje ime koje nije na listi (upisano ili iz starije sesije) ostaje ponuđeno
+                        val all = if (category.isNotBlank() && category !in categories) listOf(category) + categories else categories
+                        for (c in all) StudioChip(c, c == cat) { cat = c }
                     }
+                    OutlinedTextField(
+                        value = cat, onValueChange = { cat = it.take(24) }, singleLine = true,
+                        label = { Text("Or type your own name") },
+                        modifier = Modifier.widthIn(max = 420.dp).fillMaxWidth()
+                    )
                 }
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Pad:", color = TextDim, fontSize = 12.sp)
+                Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
                     for (scene in 0 until Layout.SCENES) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
                             for (track in 0 until Layout.TRACKS) {
                                 val slot = Layout.slot(scene, track)
                                 val cfg = pads[slot]
@@ -497,8 +556,8 @@ internal fun StudioPrintDialog(
                                 val shape = rShape(6)
                                 Box(
                                     modifier = Modifier
-                                        .width(64.dp)
-                                        .height(34.dp)
+                                        .weight(1f)
+                                        .height(42.dp)
                                         .clip(shape)
                                         .background(if (cfg != null) color.copy(alpha = 0.45f) else EmptyPadColor)
                                         .border(
@@ -510,7 +569,7 @@ internal fun StudioPrintDialog(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        cfg?.label ?: "", color = TextMain, fontSize = 9.sp, maxLines = 1,
+                                        cfg?.label ?: "", color = TextMain, fontSize = 11.sp, maxLines = 1,
                                         overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 3.dp)
                                     )
                                 }
@@ -523,20 +582,32 @@ internal fun StudioPrintDialog(
                         if (occupied != null) "  ·  replaces \"${occupied.label}\"" else "  ·  empty",
                     color = if (occupied != null) EditBorder else TextDim, fontSize = 12.sp
                 )
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    TextButton(onClick = onClose) { Text("Cancel") }
+                    TextButton(onClick = { onPrint(sel, cat); onClose() }) { Text("Print") }
+                }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = { onPrint(sel, cat); onClose() }) { Text("Print") }
-        },
-        dismissButton = { TextButton(onClick = onClose) { Text("Cancel") } }
-    )
+        }
+    }
 }
 
 /** KIT: ugrađeni kitovi (sintetizovani zvukovi na svih 8 traka). Natpis = kit ako su sve trake iz njega. */
 @Composable
 private fun KitMenu(vm: SamplerViewModel, d: DrumsState) {
     var open by remember { mutableStateOf(false) }
-    val current = DrumKits.all.firstOrNull { kit ->
+    var saving by remember { mutableStateOf(false) }
+    var deleting by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(Unit) { vm.refreshUserKits() }
+    val userKits by vm.userKits.collectAsState()
+    // moj kit: isti zvukovi (ime, labela, ugrađena podešavanja) i jačine na svih 8 traka
+    val currentUser = userKits.firstOrNull { kit ->
+        d.sounds.indices.all { lane ->
+            val a = d.sounds[lane]; val b = kit.sounds.getOrNull(lane)
+            if (a == null || b == null) a == b
+            else a.name == b.name && a.label == b.label && a.synth == b.synth && a.gain == b.gain
+        }
+    }?.name
+    val current = currentUser ?: DrumKits.all.firstOrNull { kit ->
         d.sounds.indices.all { lane -> d.sounds[lane]?.let { it.synth == kit.sounds.getOrNull(lane) } == true }
     }?.name
     Box {
@@ -548,7 +619,61 @@ private fun KitMenu(vm: SamplerViewModel, d: DrumsState) {
                     onClick = { vm.loadDrumKit(kit); open = false }
                 )
             }
+            HorizontalDivider()
+            Text(
+                "MY KITS", color = TextFaint, fontSize = 10.sp, letterSpacing = 1.sp,
+                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+            )
+            for (kit in userKits) {
+                DropdownMenuItem(
+                    text = { Text(kit.name + if (kit.name == currentUser) "  ✓" else "") },
+                    trailingIcon = {
+                        Text("✕", color = TextDim, modifier = Modifier.clip(rShape(6)).clickable { open = false; deleting = kit.name }.padding(8.dp))
+                    },
+                    onClick = { vm.loadUserDrumKit(kit); open = false }
+                )
+            }
+            DropdownMenuItem(
+                text = { Text("Save current kit…", color = Accent) },
+                onClick = { open = false; saving = true }
+            )
         }
+    }
+    if (saving) {
+        var name by remember { mutableStateOf(currentUser ?: "") }
+        AlertDialog(
+            onDismissRequest = { saving = false },
+            title = { Text("Save kit") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text(
+                        "Saves the sounds of all 8 lanes (your samples and built-in sounds) with their volumes. " +
+                            "Load it later from KIT ▾ in any session. Steps are not saved.",
+                        color = TextDim, fontSize = 13.sp
+                    )
+                    OutlinedTextField(
+                        value = name, onValueChange = { name = it.take(40) }, singleLine = true,
+                        label = { Text("Kit name") }
+                    )
+                    if (userKits.any { it.name.equals(name.trim(), ignoreCase = true) }) {
+                        Text("A kit with this name exists and will be replaced.", color = TextDim, fontSize = 12.sp)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(enabled = name.isNotBlank(), onClick = { vm.saveUserDrumKit(name); saving = false }) { Text("Save") }
+            },
+            dismissButton = { TextButton(onClick = { saving = false }) { Text("Cancel") } }
+        )
+    }
+    deleting?.let { n ->
+        AlertDialog(
+            onDismissRequest = { deleting = null },
+            title = { Text("Delete kit \"$n\"?") },
+            text = { Text("The kit and its copies of the samples are removed. Sessions that use these sounds keep them.") },
+            confirmButton = { TextButton(onClick = { vm.deleteUserDrumKit(n); deleting = null }) { Text("Delete") } },
+            dismissButton = { TextButton(onClick = { deleting = null }) { Text("Cancel") } }
+        )
     }
 }
 
@@ -560,7 +685,7 @@ internal fun MoreMenu(onImport: () -> Unit, onClear: () -> Unit) {
         FlatButton("⋯") { open = true }
         DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
             DropdownMenuItem(text = { Text("IMPORT MIDI") }, onClick = { open = false; onImport() })
-            DropdownMenuItem(text = { Text("clear all") }, onClick = { open = false; onClear() })
+            DropdownMenuItem(text = { Text("CLEAR ALL") }, onClick = { open = false; onClear() })
         }
     }
 }

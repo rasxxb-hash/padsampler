@@ -62,7 +62,9 @@ object SynthParams {
     const val ARP_GATE = 31; const val ARP_HOLD = 32
     const val FX_DRIVE = 33; const val FX_CHORUS = 34; const val FX_DELAY_TIME = 35; const val FX_DELAY_FB = 36
     const val FX_DELAY_MIX = 37; const val FX_REVERB_SIZE = 38; const val FX_REVERB_MIX = 39
-    const val COUNT = 40
+    /** Izraz (22. 11. 2026): vibrato sa zakašnjenjem i jačina udarca -> boja (filter). Dio zvuka (preset). */
+    const val VIBRATO = 40; const val VEL_TONE = 41
+    const val COUNT = 42
 
     /** Arp i efekti ostaju kad se učita preset (preset = zvuk sintisajzera; arp i efekti = postavka sviranja). */
     val KEEP_ON_PRESET = ARP_ON..FX_REVERB_MIX
@@ -109,7 +111,9 @@ object SynthParams {
         SynthParamDef(FX_DELAY_FB, "FEEDBACK", 0f, 0.9f, 0.35f, SynthParamDef.Kind.PERCENT),
         SynthParamDef(FX_DELAY_MIX, "MIX", 0f, 1f, 0f, SynthParamDef.Kind.PERCENT),
         SynthParamDef(FX_REVERB_SIZE, "SIZE", 0f, 1f, 0.5f, SynthParamDef.Kind.PERCENT),
-        SynthParamDef(FX_REVERB_MIX, "MIX", 0f, 1f, 0f, SynthParamDef.Kind.PERCENT)
+        SynthParamDef(FX_REVERB_MIX, "MIX", 0f, 1f, 0f, SynthParamDef.Kind.PERCENT),
+        SynthParamDef(VIBRATO, "VIBRATO", 0f, 1f, 0f, SynthParamDef.Kind.PERCENT),
+        SynthParamDef(VEL_TONE, "VEL>TONE", 0f, 1f, 0f, SynthParamDef.Kind.PERCENT)
     )
 
     fun defaults(): List<Float> = all.map { it.def }
@@ -140,7 +144,8 @@ object KeysLayout {
     const val MAX_OCTAVE = 6
     /** Dužine nota za unos (u koracima-šesnaestinama): 1/16, 1/8, 1/4, 1/2, 1 takt. */
     val NOTE_LENGTHS = listOf(1, 2, 4, 8, 16)
-    val CATEGORIES = listOf("Bass", "Lead", "Keys", "Pad", "Brass", "Synth", "FX")
+    /** Imena za Print to pad (labela pada i folder u izvozu sesije). */
+    val CATEGORIES = listOf("Bass", "Chords", "Melodic", "Lead", "Keys", "Pads", "Arp", "Brass", "Synth", "FX")
 
     // Launchpad: redovi 1..7 klavijatura u skali, red 0: Play, oktava -, oktava +
     const val COL_PLAY = 0

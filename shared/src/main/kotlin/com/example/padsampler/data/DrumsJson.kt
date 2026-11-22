@@ -28,6 +28,7 @@ object DrumsJson {
             .put("steps", JSONArray(s.steps.map { JSONArray(it.sorted()) }))
             .put("mutes", JSONArray(s.mutes))
             .put("swing", s.swing)
+            .put("category", s.category)
             // jačine različite od 1, po traci: [[korak, jačina], ...]
             .put("vel", JSONArray(s.velocities.mapIndexed { lane, m ->
                 JSONArray(m.filter { it.key in s.steps[lane] && it.value < 1f }.toSortedMap()
@@ -74,7 +75,8 @@ object DrumsJson {
             DrumsState(
                 sounds = sounds, steps = steps, velocities = velocities, mutes = mutes, bars = bars,
                 swing = o.optInt("swing", 0).coerceIn(0, DrumLayout.MAX_SWING),
-                selected = o.optInt("selected", 0).coerceIn(0, DrumLayout.LANES - 1)
+                selected = o.optInt("selected", 0).coerceIn(0, DrumLayout.LANES - 1),
+                category = o.optString("category", "Drums").ifBlank { "Drums" }
             )
         } catch (e: Exception) {
             null

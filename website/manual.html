@@ -76,6 +76,10 @@
     <ul>
       <li><b>SESSION · MIXER · DRUMS · KEYS</b>: the four screens.</li>
       <li><b>Session name</b>: the name of the current session.</li>
+      <li><b>SET 0:00</b> (left column, above the clock): the set timer. It starts by itself with the first clip (or Drums / Keys) and keeps running until
+        you reset it. Tap it to choose a set length (15–120 min) and whether it shows the elapsed (<code>32:14 / 45:00</code>)
+        or the remaining time. The last 5 minutes turn orange; after the end it turns red and counts the extra time
+        (<code>+2:10</code>). No sounds, no pop-ups.</li>
       <li><b>8 dots</b>: the eighth notes of the current bar. They show where the beat is.</li>
       <li><b>LINK</b>: Ableton Link on/off (see <a href="#link">Ableton Link</a>).</li>
       <li><b>− BPM +</b>: tempo, 60 to 240 BPM. Tap the number to type a tempo.</li>
@@ -85,7 +89,9 @@
       <li><b>☰</b> opens the menu: load samples, save / export / load / new session, set list, Link options, status
         (MIDI and audio output) and About.</li>
       <li><b>edit / done</b>: edit mode for putting samples on pads.</li>
-      <li><b>STOP</b> (red, bottom): stops everything immediately, including Drums and Keys. Always within reach.</li>
+      <li><b>Clock and battery</b>: the current time and the battery level on Android and Windows laptops (orange below 20 %, red below 10 %,
+        a mint lightning bolt while charging).</li>
+      <li><b>KILL SWITCH</b> (red, bottom left): stops everything immediately, including Drums and Keys. Always within reach.</li>
     </ul>
     <h3>Master</h3>
     <p>The master fader and meter are on the right, with <b>M</b> (mute) below.</p>
@@ -94,7 +100,7 @@
     <!-- ===================================================== -->
     <h2 id="samples">3. Loading samples</h2>
     <ol>
-      <li>Tap <b>edit</b> on the left (or ☰ → Load samples). Pads get a yellow outline and don't play while edit mode is on.</li>
+      <li>Tap <b>EDIT</b> on the left (or ☰ → Load samples). Pads get a yellow outline and don't play while edit mode is on.</li>
       <li>Tap a pad. The pad dialog opens:
         <ul>
           <li><b>Browse library</b>: search and preview your sample folders (next section).</li>
@@ -105,7 +111,7 @@
           <li><b>Remove sample</b>.</li>
         </ul>
       </li>
-      <li>Tap <b>done</b> when finished.</li>
+      <li>Tap <b>DONE</b> when finished.</li>
     </ol>
     <p>Samples are copied into the session, so they keep working even if you move or delete the original files.
       The pad shows the folder name of the sample, LOOP or SHOT, and the key if it is in the file or folder name.</p>
@@ -139,7 +145,7 @@
       <li><b>▶ 1 … ▶ 6</b> (right of the grid) launch a whole scene on the next bar.</li>
       <li><b>Bottom row</b>: one button per track. The mode button at the bottom right switches the row between
         <b>STOP</b> (stop the track on the next bar), <b>SOLO</b> and <b>MUTE</b>.</li>
-      <li><b>STOP</b> on the left stops everything right away.</li>
+      <li><b>KILL SWITCH</b> on the left stops everything right away.</li>
       <li>A playing pad lights up and shows its progress at the bottom edge.</li>
     </ul>
 
@@ -162,7 +168,17 @@
       <img src="images/mixer.png" width="1920" height="1200" loading="lazy" alt="Mixer screen">
     </figure>
     <ul>
-      <li>For each of the 8 tracks: <b>PAN</b>, level meter, <b>fader</b> with dB value, <b>M</b> (mute) and <b>S</b> (solo).</li>
+      <li>For each of the 8 tracks: <b>FX</b>, <b>PAN</b>, level meter, <b>fader</b> with dB value, <b>M</b> (mute) and <b>S</b> (solo).</li>
+      <li><b>FX</b> opens the effects of that track: <b>REVERB</b> and <b>DELAY</b> (how much of the track goes into the shared
+        reverb and delay: more reverb = further away, so you can place every track in space instead of everything sounding flat)
+        and a 3-band <b>EQ</b> (<b>LOW</b>, <b>MID</b>, <b>HIGH</b>, ±12 dB). The delay follows the tempo (1/8 dotted) and bounces
+        left and right. On a phone the FX button is smaller. <b>Reset</b> turns all effects of the track off; double-tap a knob to reset it. The FX button lights up
+        when an effect is on. Effects that are off use no CPU. Everything is saved with the session.</li>
+      <li>A <b>limiter</b> on the master is always on (no settings): when the mix gets too loud it turns it down just enough,
+        so it never distorts by clipping. Quieter mixes pass untouched.</li>
+      <li><b>Master</b> has a DJ <b>FILTER</b> for the whole mix (also Drums and Keys): turn left to make it darker (low-pass,
+        down to the bass), right to make it thinner (high-pass). In the middle it is <b>OFF</b>; double-tap to return there.
+        Great for transitions and build-ups.</li>
       <li>Drag the fader or the pan knob. Double-tap the pan knob to center it.</li>
       <li>The <b>Master</b> channel is on the right.</li>
       <li>Fader, pan, mute and solo are saved with the session.</li>
@@ -176,17 +192,22 @@
     <h3>Pattern</h3>
     <ul>
       <li>8 sounds (lanes) × 16 steps per bar. Tap a step to switch it on or off.</li>
-      <li><b>PLAY</b> starts the drums on the next bar. Drums play until you stop them (or press STOP). Changing screens doesn't stop them.</li>
+      <li><b>PLAY</b> starts the drums on the next bar. Drums play until you stop them (or press KILL SWITCH). Changing screens doesn't stop them.</li>
       <li><b>LENGTH</b>: 1, 2, 4 or 8 bars. For longer patterns choose which bar you see. Making a pattern longer copies the existing bars into the new ones.</li>
       <li><b>SWING</b> 0–100 %: delays every second sixteenth.</li>
       <li>The <b>velocity bar</b> under the grid sets the strength of each step for the selected sound. Softer steps are paler.</li>
       <li><b>undo / redo</b> (Windows also <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>).</li>
-      <li><b>clear all</b> clears every step.</li>
+      <li><b>CLEAR ALL</b> clears every step.</li>
     </ul>
     <h3>Sounds</h3>
     <ul>
       <li>Tap a sound name to hear and select it. <b>M</b> mutes the lane; the bar under the name is the lane volume.</li>
-      <li><b>KIT ▾</b> loads a built-in kit: <b>808, 909, Electro, Lo-Fi</b>. Steps stay as they are.</li>
+      <li><b>KIT ▾</b> loads a built-in kit: <b>808, 909, Electro, Lo-Fi</b>, or an acoustic kit: <b>Acoustic, Rock, Jazz</b> (lane 7 = crash, lane 8 = ride), or <b>Percussion</b> (congas, bongos, clave, tambourine, agogo, timbale; great on a second track next to a drum kit). Steps stay as they are.
+        <b>My kits</b>: <b>KIT ▾ → Save current kit…</b> saves all 8 lanes (your samples and built-in sounds) with their volumes under a name.
+        It then appears under MY KITS in every session: one tap loads the whole kit back. ✕ deletes it. Steps are not part of a kit.
+        In the sound window (tap a lane name) the built-in sounds are in three rows: ELECTRONIC, ACOUSTIC (kick, snare, side stick,
+        hi-hats, tom, crash, ride) and PERCUSSION (conga low / high, bongo low / high, timbale, clave, tambourine, agogo; SNAP
+        on congas and bongos = slap).</li>
       <li><b>…</b> next to a sound opens its dialog:
         <ul>
           <li><b>BUILT-IN SOUND</b>: choose a type (Kick, Snare, Clap, Rim, Closed HH, Open HH, Tom, Cymbal, Cowbell, Zap, Shaker)
@@ -209,14 +230,14 @@
     </figure>
     <h3>The synth</h3>
     <ul>
-      <li><b>PRESET</b>: ◀ ▶ step through presets; <b>…</b> shows the list (27 built-in, grouped as Bass, Lead, Pad, Keys, FX) and lets you save or delete your own.</li>
-      <li><b>GLIDE</b>, <b>VOICES</b> (mono = one voice with legato, or up to 8 for chords), <b>VOLUME</b>.</li>
+      <li><b>PRESET</b>: ◀ ▶ step through presets; <b>…</b> shows the list (60 built-in, grouped as Bass, Lead, Pad, Keys, Orchestra, FX; Orchestra = analog-style trumpet, brass section, sax, clarinet, flute, oboe, violin, cello, strings, pizzicato and harmonica) and lets you save or delete your own.</li>
+      <li><b>GLIDE</b>, <b>VOICES</b> (mono = one voice with legato, or up to 8 for chords), <b>VIBRATO</b> (pitch wobble that starts a moment after the note, like a real player), <b>VOLUME</b>.</li>
       <li><b>OSCILLATORS 1–3</b>: <b>WAVE</b> (triangle, saw, square, wide and narrow pulse; tap to change), <b>OCT</b>, <b>DETUNE</b> (oscillators 2 and 3).</li>
       <li><b>MIXER</b>: level of each oscillator and <b>NOISE</b>.</li>
       <li><b>FILTER</b>: 24 dB ladder low-pass: <b>CUTOFF</b>, <b>EMPHASIS</b> (resonance), <b>CONTOUR</b> (how much the filter envelope opens it),
         <b>KEY TRK</b>, and its own ATTACK / DECAY / SUSTAIN / RELEASE.</li>
-      <li><b>LOUDNESS</b>: the volume envelope.</li>
-      <li><b>hide</b> folds the panel away to give the piano roll more room.</li>
+      <li><b>LOUDNESS</b>: the volume envelope. <b>VEL&gt;TONE</b>: how much harder playing makes the sound brighter (like a horn).</li>
+      <li><b>▲</b> (top right of the panel) folds it away to give the piano roll more room.</li>
     </ul>
     <h3>ARP / FX</h3>
     <ul>
@@ -233,7 +254,7 @@
       <li><b>KEY</b> and scale (Major, Minor, Dorian, Phrygian, Mixolydian, Harmonic minor, pentatonics, Blues, Chromatic):
         the piano roll shows only the notes of the scale. <b>OCTAVE − / +</b> moves the view.</li>
       <li>Tap an empty cell to add a note, tap a note to delete it. The keys on the left play while held.</li>
-      <li><b>PLAY</b>, <b>LENGTH</b>, <b>SWING</b>, velocity bar, undo / redo and <b>clear all</b> work like in Drums.</li>
+      <li><b>PLAY</b>, <b>LENGTH</b>, <b>SWING</b>, velocity bar, undo / redo and <b>CLEAR ALL</b> work like in Drums.</li>
       <li><b>SELECT</b>: drag a box around notes or tap notes to select them, then drag to move them, or use
         <b>ALL</b>, <b>◀ ▶</b>, <b>to bar</b> and <b>DEL</b>.</li>
       <li><b>IMPORT MIDI</b> loads a melody from a <code>.mid</code> file (you pick the part if there are several).</li>
@@ -251,9 +272,9 @@
     <p><b>PRINT TO PAD</b> (on Drums and Keys) renders the pattern into a WAV loop and puts it on a pad, so you can
       launch it like any other clip.</p>
     <ul>
-      <li>Pick the pad in the grid that opens. A pad that already has a sample is replaced.</li>
+      <li>Pick the pad in the window that opens (all 6 × 8 pads; on a phone, scroll the window). A pad that already has a sample is replaced.</li>
       <li>The loop is exactly the pattern length at the current tempo, and seamless: delay and reverb tails continue into the start.</li>
-      <li>For Keys you also pick a category (Bass, Lead, Keys, Pad, Brass, Synth, FX); it becomes the pad name.</li>
+      <li>Pick a name: Drums, Beat, Percussion, Hats, Fill or FX on Drums; Bass, Chords, Melodic, Lead, Keys, Pads, Arp, Brass, Synth or FX on Keys, or type your own. It becomes the pad label and the folder name when you export the session.</li>
       <li>The pad remembers the pattern and the sounds. In edit mode open the pad and choose <b>Edit in Drums</b> or
         <b>Edit in Keys</b> to change it and print again.</li>
     </ul>
@@ -281,7 +302,7 @@
     <ul>
       <li>Tap <b>LINK</b> in the top bar. It turns green and shows how many other apps are connected. Link is always off when the app starts.</li>
       <li>While Link is on, tempo and bar position come from Link. Clips still start on the bar, on Link's bar.</li>
-      <li><b>Start / stop</b>: starting a clip here starts the transport in the other apps; STOP in Live stops all clips here; STOP here stops the others.</li>
+      <li><b>Start / stop</b>: starting a clip here starts the transport in the other apps; STOP in Live stops all clips here; KILL SWITCH here stops the others.</li>
       <li><b>Link audio</b> (☰ → ABLETON LINK): sends PadSampler's master output to Ableton Live as the source
         "PadSampler Master". In Live choose it as the input of an audio track.</li>
       <li><b>Link offset</b> (☰ → ABLETON LINK): shift PadSampler earlier or later (±200 ms) if it sounds slightly off from the others.
@@ -335,8 +356,11 @@
       <li>Any USB class-compliant MIDI keyboard plays the Keys synth, on every screen. Velocity, pitch bend (±2 semitones)
         and the mod wheel (opens the filter) work.</li>
       <li><b>MIDI IN</b> on the Keys screen: Auto (all inputs except the Launchpad), one device, or Off.</li>
-      <li><b>MIDI LEARN</b>: tap <b>LEARN</b> (next to VOLUME), tap a knob, then move a knob or slider on your keyboard. Every
+      <li><b>MIDI LEARN</b>: tap <b>MIDI LEARN</b> (on the right, under ARP / FX), tap a knob, then move a knob or slider on your keyboard. Every
         synth, arpeggiator and effect knob can be mapped. The mapping is saved per keyboard.</li>
+      <li><b>MIDI presets</b>: in the MIDI LEARN bar tap <b>presets</b>. Save the current mapping under a name, tap a preset to load it
+        for the connected keyboard, or <b>export</b> it to a <code>.padmidi</code> file and <b>Import file…</b> it on another tablet,
+        on Windows, or share it with other players who have the same keyboard.</li>
     </ul>
 
     <!-- ===================================================== -->
@@ -347,6 +371,9 @@
         clicks), <b>Sample rate</b>. Press <b>Apply audio settings</b>. If the device can't be opened, the previous output is restored.</li>
       <li><b>MIDI CONTROLLER</b>: Auto finds the Launchpad by name; you can also pick a port. <b>Refresh list</b> after plugging in.</li>
       <li><b>SCREEN</b>: window or full screen (also <kbd>F11</kbd>). The screen doesn't turn off while PadSampler runs.</li>
+      <li><b>VERSION</b>: shows your version. <b>Check for updates</b> asks GitHub for the latest version; if there is a newer one,
+        <b>Download</b> opens the download page. PadSampler never checks by itself, only when you press the button.
+        Installing the new version over the old one keeps your sessions and settings.</li>
     </ul>
     <div class="tip"><b>Lowest latency:</b> use an audio interface with an ASIO driver and a buffer of 128–256 frames.
       Settings and the sample library are stored in <code>%APPDATA%\PadSampler</code>.</div>
@@ -357,7 +384,7 @@
     <ul>
       <li>The master channel is shown only on Session and Mixer. Mixer channels are narrower and have no pan knob
         (pan set on a tablet or computer still applies).</li>
-      <li>Drums and Keys: rarely used buttons (IMPORT MIDI, clear all) are in the <b>⋯</b> menu. <b>VEL</b> opens swing and
+      <li>Drums and Keys: rarely used buttons (IMPORT MIDI, CLEAR ALL) are in the <b>⋯</b> menu. <b>VEL</b> opens swing and
         the velocity bar over the grid. Lanes and the piano roll scroll up and down.</li>
       <li>Rows of buttons that don't fit scroll sideways.</li>
     </ul>

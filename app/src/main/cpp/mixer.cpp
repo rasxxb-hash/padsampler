@@ -17,6 +17,135 @@ inline bool validSlot(int s) { return s >= 0 && s < kNumSlots; }
 inline bool validTrack(int t) { return t >= 0 && t < kTracks; }
 }  // namespace
 
+// ------------------------------------------------------------------ send efekti (reverb + delay)
+
+namespace {
+constexpr int kFxMaxRate = 96000;
+constexpr double kSendDelayMaxSec = 2.5;            // 1/8 sa tačkom do ~20 BPM
+constexpr int kRevComb[8] = {1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617};   // Freeverb (44.1 kHz)
+constexpr int kRevAp[4] = {556, 441, 341, 225};
+constexpr int kRevSpread = 23;
+constexpr float kRevRoom = 0.86f;      // veća prostorija, rep ~3 s
+constexpr float kRevDamp = 0.35f;
+constexpr float kRevReturn = 1.0f;     // kao Freeverb (wet 1/3 * 3)
+constexpr double kDlyBeats = 0.75;     // 1/8 sa tačkom
+constexpr float kDlyFeedback = 0.55f;  // korisnik: delay izraženiji (bilo 0.42)
+constexpr float kDlyInput = 1.0f;      // (bilo 0.8)
+constexpr float kLimThreshold = 0.966f;   // limiter mastera: -0.3 dBFS
+constexpr double kLimReleaseSec = 0.12;
+constexpr double kPiD = 3.14159265358979323846;
+inline float flushDenormal(float x) { return std::fabs(x) < 1e-15f ? 0.0f : x; }
+}  // namespace
+
+SendFx::SendFx() {
+    const double scale = static_cast<double>(kFxMaxRate) / 44100.0;
+    for (int i = 0; i < 8; ++i) {
+        mCombL[i].buf.assign(static_cast<size_t>((kRevComb[i] + kRevSpread) * scale) + 2, 0.0f);
+        mCombR[i].buf.assign(mCombL[i].buf.size(), 0.0f);
+    }
+    for (int i = 0; i < 4; ++i) {
+        mApL[i].buf.assign(static_cast<size_t>((kRevAp[i] + kRevSpread) * scale) + 2, 0.0f);
+        mApR[i].buf.assign(mApL[i].buf.size(), 0.0f);
+    }
+    mDly.assign(static_cast<size_t>(kFxMaxRate * kSendDelayMaxSec) * 2 + 4, 0.0f);
+}
+
+void SendFx::setup(int sampleRate) {
+    const double scale = static_cast<double>(std::min(sampleRate, kFxMaxRate)) / 44100.0;
+    auto fit = [](size_t cap, double want) { return std::max(1, std::min(static_cast<int>(cap), static_cast<int>(want))); };
+    for (int i = 0; i < 8; ++i) {
+        mCombL[i].len = fit(mCombL[i].buf.size(), kRevComb[i] * scale);
+        mCombR[i].len = fit(mCombR[i].buf.size(), (kRevComb[i] + kRevSpread) * scale);
+        mCombL[i].pos = mCombR[i].pos = 0;
+    }
+    for (int i = 0; i < 4; ++i) {
+        mApL[i].len = fit(mApL[i].buf.size(), kRevAp[i] * scale);
+        mApR[i].len = fit(mApR[i].buf.size(), (kRevAp[i] + kRevSpread) * scale);
+        mApL[i].pos = mApR[i].pos = 0;
+    }
+    mDlyPos = 0;
+    mDlyFrames = 0.0;
+}
+
+void SendFx::clear() {
+    for (int i = 0; i < 8; ++i) {
+        std::fill(mCombL[i].buf.begin(), mCombL[i].buf.end(), 0.0f);
+        std::fill(mCombR[i].buf.begin(), mCombR[i].buf.end(), 0.0f);
+        mCombL[i].store = mCombR[i].store = 0.0f;
+    }
+    for (int i = 0; i < 4; ++i) {
+        std::fill(mApL[i].buf.begin(), mApL[i].buf.end(), 0.0f);
+        std::fill(mApR[i].buf.begin(), mApR[i].buf.end(), 0.0f);
+    }
+    std::fill(mDly.begin(), mDly.end(), 0.0f);
+    mDlyLpL = mDlyLpR = 0.0f;
+}
+
+void SendFx::process(const float* revIn, const float* dlyIn, float* out, int32_t frames, int sampleRate,
+                     double framesPerBeat) {
+    if (frames <= 0 || sampleRate <= 0) return;
+    if (sampleRate != mRate) {
+        mRate = sampleRate;
+        setup(sampleRate);
+        clear();
+    }
+    const int dlyLen = static_cast<int>(mDly.size() / 2);
+    const double dlyTarget = std::max(1.0, std::min(static_cast<double>(dlyLen - 2), kDlyBeats * std::max(1.0, framesPerBeat)));
+    if (mDlyFrames <= 0.0) mDlyFrames = dlyTarget;
+    const double kd = 1.0 - std::exp(-1.0 / (0.08 * sampleRate));   // promjena tempa: vrijeme klizi
+    const float dlyLp = static_cast<float>(1.0 - std::exp(-2.0 * kPiD * 4500.0 / sampleRate));
+
+    for (int32_t f = 0; f < frames; ++f) {
+        // ---- delay: ping-pong (ulaz mono u lijevi, odjeci se smjenjuju L / D)
+        mDlyFrames += (dlyTarget - mDlyFrames) * kd;
+        double rp = mDlyPos - mDlyFrames;
+        while (rp < 0) rp += dlyLen;
+        const int i0 = static_cast<int>(rp) % dlyLen;
+        const int i1 = (i0 + 1) % dlyLen;
+        const float fr = static_cast<float>(rp - std::floor(rp));
+        const float dl = mDly[2 * i0] * (1.0f - fr) + mDly[2 * i1] * fr;
+        const float dr = mDly[2 * i0 + 1] * (1.0f - fr) + mDly[2 * i1 + 1] * fr;
+        mDlyLpL = flushDenormal(mDlyLpL + (dl - mDlyLpL) * dlyLp);
+        mDlyLpR = flushDenormal(mDlyLpR + (dr - mDlyLpR) * dlyLp);
+        const float dIn = (dlyIn[2 * f] + dlyIn[2 * f + 1]) * 0.5f;
+        mDly[2 * mDlyPos] = dIn * kDlyInput + mDlyLpR * kDlyFeedback;
+        mDly[2 * mDlyPos + 1] = mDlyLpL * kDlyFeedback;
+        if (++mDlyPos >= dlyLen) mDlyPos = 0;
+
+        // ---- reverb (Freeverb: 8 comb + 4 allpass po kanalu), samo povrat
+        const float in = (revIn[2 * f] + revIn[2 * f + 1]) * 0.015f;
+        float ol = 0.0f, orr = 0.0f;
+        for (int i = 0; i < 8; ++i) {
+            Comb& cl = mCombL[i];
+            const float a = cl.buf[cl.pos];
+            cl.store = flushDenormal(a * (1.0f - kRevDamp) + cl.store * kRevDamp);
+            cl.buf[cl.pos] = in + cl.store * kRevRoom;
+            if (++cl.pos >= cl.len) cl.pos = 0;
+            ol += a;
+            Comb& cr = mCombR[i];
+            const float b = cr.buf[cr.pos];
+            cr.store = flushDenormal(b * (1.0f - kRevDamp) + cr.store * kRevDamp);
+            cr.buf[cr.pos] = in + cr.store * kRevRoom;
+            if (++cr.pos >= cr.len) cr.pos = 0;
+            orr += b;
+        }
+        for (int i = 0; i < 4; ++i) {
+            Allpass& al = mApL[i];
+            const float a = al.buf[al.pos];
+            al.buf[al.pos] = flushDenormal(ol + a * 0.5f);
+            ol = a - ol;
+            if (++al.pos >= al.len) al.pos = 0;
+            Allpass& ar = mApR[i];
+            const float b = ar.buf[ar.pos];
+            ar.buf[ar.pos] = flushDenormal(orr + b * 0.5f);
+            orr = b - orr;
+            if (++ar.pos >= ar.len) ar.pos = 0;
+        }
+        out[2 * f] += ol * kRevReturn + dl;
+        out[2 * f + 1] += orr * kRevReturn + dr;
+    }
+}
+
 Mixer::Mixer() {
     for (auto& s : mSamples) s.store(nullptr, std::memory_order_relaxed);
     for (auto& s : mInUse) s.store(nullptr, std::memory_order_relaxed);
@@ -180,6 +309,36 @@ void Mixer::setTrackPan(int track, float pan) {
     c.type = Command::SetTrackPan;
     c.a = track;
     c.f = pan;
+    mQueue.push(c);
+}
+void Mixer::setTrackReverbSend(int track, float amount) {
+    Command c;
+    c.type = Command::SetTrackSend;
+    c.a = track;
+    c.b = 0;
+    c.f = amount;
+    mQueue.push(c);
+}
+void Mixer::setTrackDelaySend(int track, float amount) {
+    Command c;
+    c.type = Command::SetTrackSend;
+    c.a = track;
+    c.b = 1;
+    c.f = amount;
+    mQueue.push(c);
+}
+void Mixer::setTrackEq(int track, int band, float amount) {
+    Command c;
+    c.type = Command::SetTrackEq;
+    c.a = track;
+    c.b = band;
+    c.f = amount;
+    mQueue.push(c);
+}
+void Mixer::setMasterFilter(float amount) {
+    Command c;
+    c.type = Command::SetMasterFilter;
+    c.f = amount;
     mQueue.push(c);
 }
 void Mixer::setTrackMute(int track, bool mute) {
@@ -369,6 +528,19 @@ void Mixer::apply(const Command& c) {
         case Command::SetTrackPan:
             if (validTrack(c.a)) mTracks[c.a].pan = std::min(1.0f, std::max(-1.0f, c.f));
             break;
+        case Command::SetTrackSend:
+            if (validTrack(c.a) && std::isfinite(c.f)) {
+                const float v = std::min(1.0f, std::max(0.0f, c.f));
+                if (c.b == 0) mTracks[c.a].sendRev = v; else mTracks[c.a].sendDly = v;
+            }
+            break;
+        case Command::SetTrackEq:
+            if (validTrack(c.a) && c.b >= 0 && c.b < 3 && std::isfinite(c.f))
+                mTracks[c.a].eq[c.b] = std::min(1.0f, std::max(-1.0f, c.f));
+            break;
+        case Command::SetMasterFilter:
+            if (std::isfinite(c.f)) mFilter = std::min(1.0f, std::max(-1.0f, c.f));
+            break;
         case Command::SetTrackMute:
             if (validTrack(c.a)) mTracks[c.a].mute = c.b != 0;
             break;
@@ -431,6 +603,108 @@ void Mixer::onBar() {
                 const int64_t len = lengthBars(*v.sample);
                 if ((mBarCount - mStartBar[tr.playing]) % len == 0) v.pos = 0.0;
             }
+        }
+    }
+}
+
+// DJ filter mastera (trackovi + Drums + Keys), u mjestu, prije master fadera (audio nit: bez alokacije). Topology-preserving SVF (Zavalishin/Cytomic):
+// stabilan i kad se frekvencija mijenja dok svira. Lijevo od sredine low-pass (20 kHz -> 100 Hz), desno high-pass
+// (20 Hz -> 8 kHz), logaritamski. Prvih 10 % hoda potenciometra pretapa suho -> filtrirano, pa prelazak preko
+// sredine (LP <-> HP) nema klik. Koeficijenti se računaju svakih 16 frameova.
+void Mixer::applyMasterFilter(float* buf, int32_t seg, float smoothCoef, double outRate) {
+    constexpr int kCoefEvery = 16;
+    constexpr float kRes = 1.0f;  // k = 1/Q; Q = 1: blago naglašen rub, kao DJ mikseri
+    const float maxFc = static_cast<float>(0.45 * outRate);
+    float a1 = 1.0f, a2 = 0.0f, a3 = 0.0f, wet = 0.0f;
+    bool hp = false;
+    for (int32_t f = 0; f < seg; ++f) {
+        if (f % kCoefEvery == 0) {
+            // izglađivanje po bloku od 16 (isti nagib kao gain: smoothCoef po frameu)
+            const float step = 1.0f - std::pow(1.0f - smoothCoef, static_cast<float>(kCoefEvery));
+            mFilterSmooth += (mFilter - mFilterSmooth) * step;
+            if (std::fabs(mFilter - mFilterSmooth) < 1e-4f) mFilterSmooth = mFilter;
+            const float x = mFilterSmooth;
+            const float a = std::fabs(x);
+            hp = x > 0.0f;
+            wet = std::min(1.0f, a * 10.0f);
+            float fc = hp ? 20.0f * std::pow(400.0f, a) : 20000.0f * std::pow(0.005f, a);
+            fc = std::min(fc, maxFc);
+            const float g = static_cast<float>(std::tan(3.14159265358979 * fc / outRate));
+            a1 = 1.0f / (1.0f + g * (g + kRes));
+            a2 = g * a1;
+            a3 = g * a2;
+        }
+        for (int ch = 0; ch < 2; ++ch) {
+            const float v0 = buf[2 * f + ch];
+            const float v3 = v0 - mSvfIc2[ch];
+            const float v1 = a1 * mSvfIc1[ch] + a2 * v3;
+            const float v2 = mSvfIc2[ch] + a2 * mSvfIc1[ch] + a3 * v3;
+            mSvfIc1[ch] = 2.0f * v1 - mSvfIc1[ch];
+            mSvfIc2[ch] = 2.0f * v2 - mSvfIc2[ch];
+            const float y = hp ? (v0 - kRes * v1 - v2) : v2;
+            buf[2 * f + ch] = v0 + (y - v0) * wet;
+        }
+    }
+    // bez denormala (tiho stanje na x86 bez FTZ zna usporiti)
+    for (int ch = 0; ch < 2; ++ch) {
+        if (std::fabs(mSvfIc1[ch]) < 1e-20f) mSvfIc1[ch] = 0.0f;
+        if (std::fabs(mSvfIc2[ch]) < 1e-20f) mSvfIc2[ch] = 0.0f;
+    }
+}
+
+// EQ jednog kanala, u mjestu, prije fadera (audio nit: bez alokacije). Tri RBJ biquada (TDF2): low shelf 200 Hz,
+// peak 1 kHz (Q 0.8), high shelf 5 kHz; -1..1 = -12..+12 dB. Pojačanje se izglađuje, koeficijenti jednom po segmentu.
+void Mixer::applyTrackEq(Track& tr, float* buf, int32_t seg, double outRate) {
+    const float k = static_cast<float>(1.0 - std::exp(-static_cast<double>(seg) / (0.02 * outRate)));
+    for (int band = 0; band < 3; ++band) {
+        tr.eqSmooth[band] += (tr.eq[band] - tr.eqSmooth[band]) * k;
+        if (std::fabs(tr.eq[band] - tr.eqSmooth[band]) < 1e-4f) tr.eqSmooth[band] = tr.eq[band];
+        if (tr.eqSmooth[band] == 0.0f && tr.eq[band] == 0.0f) {
+            std::memset(tr.eqZ[band], 0, sizeof(tr.eqZ[band]));
+            continue;   // ravno: ne računa se
+        }
+        static const double kFreq[3] = {200.0, 1000.0, 5000.0};
+        const double fc = std::min(kFreq[band], 0.45 * outRate);
+        const double A = std::pow(10.0, tr.eqSmooth[band] * 12.0 / 40.0);
+        const double w = 2.0 * 3.14159265358979 * fc / outRate;
+        const double cw = std::cos(w), sw = std::sin(w);
+        double b0, b1, b2, a0, a1, a2;
+        if (band == 1) {
+            const double alpha = sw / (2.0 * 0.8);
+            b0 = 1.0 + alpha * A; b1 = -2.0 * cw; b2 = 1.0 - alpha * A;
+            a0 = 1.0 + alpha / A; a1 = -2.0 * cw; a2 = 1.0 - alpha / A;
+        } else {
+            const double beta = 2.0 * std::sqrt(A) * (sw / 2.0 * std::sqrt(2.0));   // shelf, S = 1
+            if (band == 0) {
+                b0 = A * ((A + 1) - (A - 1) * cw + beta);
+                b1 = 2 * A * ((A - 1) - (A + 1) * cw);
+                b2 = A * ((A + 1) - (A - 1) * cw - beta);
+                a0 = (A + 1) + (A - 1) * cw + beta;
+                a1 = -2 * ((A - 1) + (A + 1) * cw);
+                a2 = (A + 1) + (A - 1) * cw - beta;
+            } else {
+                b0 = A * ((A + 1) + (A - 1) * cw + beta);
+                b1 = -2 * A * ((A - 1) + (A + 1) * cw);
+                b2 = A * ((A + 1) + (A - 1) * cw - beta);
+                a0 = (A + 1) - (A - 1) * cw + beta;
+                a1 = 2 * ((A - 1) - (A + 1) * cw);
+                a2 = (A + 1) - (A - 1) * cw - beta;
+            }
+        }
+        const float B0 = float(b0 / a0), B1 = float(b1 / a0), B2 = float(b2 / a0), A1 = float(a1 / a0), A2 = float(a2 / a0);
+        for (int ch = 0; ch < 2; ++ch) {
+            float z1 = tr.eqZ[band][ch][0], z2 = tr.eqZ[band][ch][1];
+            for (int32_t f = 0; f < seg; ++f) {
+                const float x = buf[2 * f + ch];
+                const float y = B0 * x + z1;
+                z1 = B1 * x - A1 * y + z2;
+                z2 = B2 * x - A2 * y;
+                buf[2 * f + ch] = y;
+            }
+            if (std::fabs(z1) < 1e-20f) z1 = 0.0f;
+            if (std::fabs(z2) < 1e-20f) z2 = 0.0f;
+            tr.eqZ[band][ch][0] = z1;
+            tr.eqZ[band][ch][1] = z2;
         }
     }
 }
@@ -501,6 +775,7 @@ void Mixer::renderSegment(float* out, int32_t seg, int64_t untilBar) {
 
     bool anySolo = false;
     for (const auto& tr : mTracks) anySolo = anySolo || tr.solo;
+    bool anySend = false;   // neko je u ovom segmentu poslao u efekte (sabirnice očišćene)
 
     for (int t = 0; t < kTracks; ++t) {
         Track& tr = mTracks[t];
@@ -513,10 +788,27 @@ void Mixer::renderSegment(float* out, int32_t seg, int64_t untilBar) {
             tr.gainSmooth = target;  // nema zvuka, nema šta da klikne
             tr.panL = panLTarget;
             tr.panR = panRTarget;
+            tr.revSmooth = tr.sendRev;
+            tr.dlySmooth = tr.sendDly;
+            for (int b = 0; b < 3; ++b) tr.eqSmooth[b] = tr.eq[b];
+            std::memset(tr.eqZ, 0, sizeof(tr.eqZ));
             continue;
         }
-        const float* buf = mTrackBuf[t].data();
+        float* buf = mTrackBuf[t].data();
+        // EQ kanala (prije fadera); ravan EQ se ne računa
+        if (tr.eq[0] != 0.0f || tr.eq[1] != 0.0f || tr.eq[2] != 0.0f ||
+            tr.eqSmooth[0] != 0.0f || tr.eqSmooth[1] != 0.0f || tr.eqSmooth[2] != 0.0f) {
+            applyTrackEq(tr, buf, seg, outRate);
+        } else {
+            std::memset(tr.eqZ, 0, sizeof(tr.eqZ));
+        }
         float peak = mPeak[t];
+        const bool sends = tr.sendRev > 0.0f || tr.revSmooth > 0.0f || tr.sendDly > 0.0f || tr.dlySmooth > 0.0f;
+        if (sends && !anySend) {
+            std::fill_n(mRevBus.data(), static_cast<size_t>(seg) * 2, 0.0f);
+            std::fill_n(mDlyBus.data(), static_cast<size_t>(seg) * 2, 0.0f);
+            anySend = true;
+        }
         for (int32_t f = 0; f < seg; ++f) {
             tr.gainSmooth += (target - tr.gainSmooth) * smoothCoef;
             tr.panL += (panLTarget - tr.panL) * smoothCoef;
@@ -526,16 +818,62 @@ void Mixer::renderSegment(float* out, int32_t seg, int64_t untilBar) {
             peak = std::max(peak, std::max(std::fabs(l), std::fabs(r)));
             out[2 * f] += l;
             out[2 * f + 1] += r;
+            if (sends) {
+                tr.revSmooth += (tr.sendRev - tr.revSmooth) * smoothCoef;
+                tr.dlySmooth += (tr.sendDly - tr.dlySmooth) * smoothCoef;
+                if (tr.revSmooth < 1e-5f && tr.sendRev == 0.0f) tr.revSmooth = 0.0f;
+                if (tr.dlySmooth < 1e-5f && tr.sendDly == 0.0f) tr.dlySmooth = 0.0f;
+                mRevBus[2 * f] += l * tr.revSmooth;
+                mRevBus[2 * f + 1] += r * tr.revSmooth;
+                mDlyBus[2 * f] += l * tr.dlySmooth;
+                mDlyBus[2 * f + 1] += r * tr.dlySmooth;
+            }
         }
         mPeak[t] = peak;
     }
 
+    // povrat send efekata (reverb + delay); kad niko ne šalje, računa se još rep, pa se gasi (ne troši procesor)
+    if (anySend) {
+        mFxTail = static_cast<int64_t>(std::max(8.0 * outRate, 12.0 * kDlyBeats * mFramesPerBar / 4.0));
+    } else if (mFxTail > 0) {
+        std::fill_n(mRevBus.data(), static_cast<size_t>(seg) * 2, 0.0f);
+        std::fill_n(mDlyBus.data(), static_cast<size_t>(seg) * 2, 0.0f);
+    }
+    if (mFxTail > 0) {
+        if (mFxClean) { mSendFx.clear(); mFxClean = false; }
+        mSendFx.process(mRevBus.data(), mDlyBus.data(), out, seg, mRate, mFramesPerBar / 4.0);
+        mFxTail -= seg;
+        if (mFxTail <= 0) { mFxTail = 0; mFxClean = true; }
+    }
+
+    // DJ filter na cijelom miksu (out već ima i Drums/Keys iz AuxSource-a); na sredini se ne računa
+    if (mFilter != 0.0f || mFilterSmooth != 0.0f) {
+        applyMasterFilter(out, seg, smoothCoef, outRate);
+    } else {
+        mSvfIc1[0] = mSvfIc1[1] = mSvfIc2[0] = mSvfIc2[1] = 0.0f;
+    }
+
+    // Limiter na masteru (uvijek uključen, bez podešavanja): vrh nikad preko kLimThreshold. Napad trenutan (bez
+    // kašnjenja, bez lookahead-a), otpuštanje ~120 ms; stereo vezano (slika se ne pomjera). Ispod praga: gain tačno 1.
+    const float limRelease = static_cast<float>(1.0 - std::exp(-1.0 / (kLimReleaseSec * outRate)));
     const float masterTarget = mMasterMute ? 0.0f : mMasterGain;
     for (int32_t f = 0; f < seg; ++f) {
         mMasterSmooth += (masterTarget - mMasterSmooth) * smoothCoef;
         float l = out[2 * f] * mMasterSmooth;
         float r = out[2 * f + 1] * mMasterSmooth;
-        l = std::max(-1.0f, std::min(1.0f, l));
+        const float pk = std::max(std::fabs(l), std::fabs(r));
+        const float want = pk > kLimThreshold ? kLimThreshold / pk : 1.0f;
+        if (want < mLimGain) {
+            mLimGain = want;                                   // odmah utišaj (nema prebačaja)
+        } else if (mLimGain < 1.0f) {
+            mLimGain += (want - mLimGain) * limRelease;        // polako nazad
+            if (mLimGain > 0.99999f) mLimGain = 1.0f;
+        }
+        if (mLimGain < 1.0f) {
+            l *= mLimGain;
+            r *= mLimGain;
+        }
+        l = std::max(-1.0f, std::min(1.0f, l));   // sigurnost (NaN/inf ne dolaze ovdje)
         r = std::max(-1.0f, std::min(1.0f, r));
         out[2 * f] = l;
         out[2 * f + 1] = r;

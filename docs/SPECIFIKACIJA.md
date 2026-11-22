@@ -86,7 +86,7 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 - Kasnije: izvoz/uvoz sesije u folder (za kopiju na računar).
 
 ## Lijeva traka i ☰ meni (12. 11. 2026)
-- Lijevo je uska traka: ☰ (meni), "edit" / "done" (dodjela semplova padovima, žuto dok je uključeno) i dole STOP ALL (uvijek pri ruci).
+- Lijevo je uska traka: ☰ (meni), "EDIT" / "DONE" (dodjela semplova padovima, žuto dok je uključeno) i dole KILL SWITCH (do 22. 11. 2026 "STOP ALL"; gasi sve odmah: trackove, Drums, Keys, snimanje; uvijek pri ruci).
 - ☰ otvara meni s lijeve strane preko ekrana (dodir pored menija ili ✕ ga zatvara). Stavke su običan tekst: SAMPLES (Load samples / Finish editing), SESSION (Save, Export, Load, New, Set list), ABLETON LINK (samo dok je Link uključen: Link audio, Link offset), STATUS (MIDI i audio izlaz).
 - Poruke aplikacije (snimljeno, printano, greške) se pojave kao kratka obavijest dolje na sredini i nestanu poslije 5 s. Dok je edit mod uključen, iznad stoji uputstvo.
 
@@ -109,7 +109,7 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 - Kašnjenje izlaza (Oboe `calculateLatencyMillis`) se uračunava automatski. Ručni "offset" (-200..+200 ms, korak 5 ms) u ☰ meniju (ABLETON LINK) dok je Link uključen; pamti se.
 - Potrebno: ista Wi-Fi mreža (ruter ili hotspot), dozvole INTERNET + CHANGE_WIFI_MULTICAST_STATE (Android multicast lock se uzima dok je Link uključen).
 - Licenca Linka: GPL v2+ (kao Rubber Band), lična upotreba. Kod u `app/src/main/cpp/link-lib/`, omotač `link_sync.*`.
-- **Start/stop (kao Ableton)**: STOP kod drugog učesnika = svi klipovi ovdje odmah staju. PLAY kod drugog = takt kreće od 1 (faza Linka). Klip pokrenut ovdje (tablet ili Launchpad, i scena) pokreće transport kod svih na početku sljedećeg takta. STOP ALL ovdje zaustavlja transport kod svih. Učitavanje sesije ne dira transport. Pridruživanje sesiji koja stoji ne zaustavlja klipove.
+- **Start/stop (kao Ableton)**: STOP kod drugog učesnika = svi klipovi ovdje odmah staju. PLAY kod drugog = takt kreće od 1 (faza Linka). Klip pokrenut ovdje (tablet ili Launchpad, i scena) pokreće transport kod svih na početku sljedećeg takta. KILL SWITCH ovdje zaustavlja transport kod svih. Učitavanje sesije ne dira transport. Pridruživanje sesiji koja stoji ne zaustavlja klipove.
 - **Link Audio**: dok je Link uključen, u ☰ meniju "Link audio: on/off" (pamti se). Uključeno: master miks (bez preslušavanja iz browsera) ide u Link sesiju kao kanal "PadSampler Master" (stereo, 16 bit, poravnato na takt); u Abletonu se bira kao ulaz tracka. Šalje se samo dok neko taj kanal sluša.
 - Iskustvo (11. 11. 2026): preko kućnog Wi-Fi-ja Link Audio je imao dropove pri snimanju; preko hotspota na telefonu (računar i tablet na njemu) radi bez problema. Za nastup/snimanje preporuka: hotspot ili zaseban ruter.
 - U ☰ meniju dok je Link uključen: i "Link offset" (− / ms / +), ručni pomak kašnjenja.
@@ -174,14 +174,14 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
   - red 2: 8 zvukova (pritisak svira i bira zvuk); red 1: mute po zvuku (zeleno / crveno).
   - red 0: kolona 1 Play/Stop (treperi dok čeka takt), kolone 2..5 dužina 1/2/4/8 taktova (bijelo = izabrano), kolona 8 briše korake izabranog zvuka.
   - Strelice (tempo) rade kao u Sessionu; dugme Stop Solo Mute (CC 19) na Drums ekranu ne radi ništa.
-- **Aplikacija** (tab DRUMS): 8 zvukova x 16 koraka (jedan takt, duži pattern ima izbor takta, tačka = takt koji svira). Dodir na ime svira i bira zvuk, "…" učitava zvuk (biblioteka ili fajl) / briše korake / uklanja zvuk, M = mute, traka ispod imena = jačina. Play/Stop, dužina, "clear all".
+- **Aplikacija** (tab DRUMS): 8 zvukova x 16 koraka (jedan takt, duži pattern ima izbor takta, tačka = takt koji svira). Dodir na ime svira i bira zvuk, "…" učitava zvuk (biblioteka ili fajl) / briše korake / uklanja zvuk, M = mute, traka ispod imena = jačina. Play/Stop, dužina, "CLEAR ALL".
 - Produžavanje patterna (npr. 1 -> 2 takta) ponavlja postojeće taktove ako je novi dio prazan (kao Ableton). Koraci iza dužine se čuvaju.
-- Play kreće na sljedećem taktu; STOP ALL zaustavlja i Drums. Sa Linkom Play pokreće i transport kod drugih.
+- Play kreće na sljedećem taktu; KILL SWITCH zaustavlja i Drums. Sa Linkom Play pokreće i transport kod drugih.
 - Kit i pattern su dio sesije (vidi "Print to pad").
 
 ### Print to pad i Drums u sesiji (faza S3, urađeno)
 - DRUMS ekran, dugme **PRINT TO PAD**: mreža padova (6 x 8 kao Session), izabere se pad (predložen zadnji printani ili prvi prazan; zauzet pad se zamjenjuje, piše šta). Pattern se renderuje offline: tačno N taktova na trenutnom tempu (sa Linkom tačan tempo Linka), rep zadnjih udaraca je na početku (loop bez šava), 24-bit wav na izlaznoj frekvenciji, utišani zvukovi se ne čuju. Ako bi zbir prešao 0 dB, cijeli loop se utiša taman ispod (bez klipovanja).
-- Pad dobije loop sa `srcBpm` = tempo printa, labelu "Drums", i pamti pattern + kit (`PadConfig.studio`). U edit modu dijalog tog pada ima **Edit in Drums**: pattern i kit idu u Drums (zamjenjuju trenutni), pa se može izmijeniti i ponovo printati (predložen je isti pad).
+- Pad dobije loop sa `srcBpm` = tempo printa, labelu = izabrano ime (Drums, Beat, Percussion, Hats, Fill, FX; `DrumLayout.CATEGORIES`, pamti se u `DrumsState.category`, od 2.0.2), i pamti pattern + kit (`PadConfig.studio`). U edit modu dijalog tog pada ima **Edit in Drums**: pattern i kit idu u Drums (zamjenjuju trenutni), pa se može izmijeniti i ponovo printati (predložen je isti pad).
 - Drums (kit + pattern) su dio sesije: `pads.json` polje "drums", zvukovi su u `samples/` sa semplovima (pa ih nose i spremanje sesije, `.padsession` izvoz i uvoz). Učitavanje sesije učitava i njene Drums; New session ih briše.
 - Fajlovi u `samples/` koje ništa ne koristi (zamijenjeni zvukovi, stari printovi) brišu se sami pri spremanju (samo stariji od 2 minute).
 - Stari `drums.json` + `drums/` (faza S2) se jednom automatski prebace u sesiju.
@@ -196,23 +196,23 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 
 ### Odvojen transport (12. 11. 2026)
 - Drums i Keys imaju svaki svoj Play/Stop (C++ `Studio::play(part)` / `stop(part)` / `transport(part)`, part -1 = svi). Play na DRUMS svira samo bubanj, na KEYS samo Keys.
-- Promjena ekrana NE zaustavlja pattern (korisnik, 12. 11. 2026): Drums i Keys sviraju dok ih korisnik sam ne zaustavi (Play/Stop na njihovom ekranu ili STOP ALL); mogu svirati i zajedno. Test: `studio_test` "odvojen transport".
+- Promjena ekrana NE zaustavlja pattern (korisnik, 12. 11. 2026): Drums i Keys sviraju dok ih korisnik sam ne zaustavi (Play/Stop na njihovom ekranu ili KILL SWITCH); mogu svirati i zajedno. Test: `studio_test` "odvojen transport".
 
 ### Keys ekran (faza S6)
-- Aplikacija (tab KEYS): Play/Stop (samo Keys; Drums ima svoj Play, 12. 11. 2026), dužina 1/2/4/8 taktova i izbor takta, clear all, PRINT TO PAD (izbor pada + kategorija: Bass, Lead, Keys, Pad, Brass, Synth, FX = labela pada i folder u izvozu).
-- Panel sintisajzera: PRESET (ime, ◀ ▶, … = lista ugrađenih i svojih, snimanje i brisanje svojih), GLIDE, VOICES, VOLUME; OSCILLATORS 1-3 (WAVE, OCT, DETUNE); MIXER (nivoi osc 1-3, NOISE); FILTER (CUTOFF, EMPHASIS, CONTOUR, KEY TRK + ADSR filtera); LOUDNESS (ADSR). Potenciometar: povuci gore/dolje, dupli dodir = početna vrijednost, dodir na WAVE = sljedeći talas.
+- Aplikacija (tab KEYS): Play/Stop (samo Keys; Drums ima svoj Play, 12. 11. 2026), dužina 1/2/4/8 taktova i izbor takta, CLEAR ALL, PRINT TO PAD (izbor pada + ime: Bass, Chords, Melodic, Lead, Keys, Pads, Arp, Brass, Synth, FX = labela pada i folder u izvozu; staro "Pad" se čita kao "Pads").
+- Panel sintisajzera: PRESET (ime, ◀ ▶, … = lista ugrađenih i svojih, snimanje i brisanje svojih), GLIDE, VOICES, VIBRATO, VOLUME; OSCILLATORS 1-3 (WAVE, OCT, DETUNE); MIXER (nivoi osc 1-3, NOISE); FILTER (CUTOFF, EMPHASIS, CONTOUR, KEY TRK + ADSR filtera); LOUDNESS (ADSR, VEL>TONE). Potenciometar: povuci gore/dolje, dupli dodir = početna vrijednost, dodir na WAVE = sljedeći talas.
 - Ugrađeni preseti: Init, Classic Bass, Sub Bass, Acid Bass, Fat Lead, Brass, Warm Pad, Pluck Keys, Noise Sweep FX. Svoji preseti: `synth_presets.json` u folderu aplikacije (važe za sve sesije, ne idu u izvoz sesije).
 - KEY (tonika), skala (Major, Minor, Dorian, Phrygian, Mixolydian, Harm. minor, Penta major/minor, Blues, Chromatic), OCTAVE −/+ (prikaz od tonike, Ableton imena C3 = 60), NOTE = dužina nove note (1/16, 1/8, 1/4, 1/2, 1 takt).
 - Piano roll: dvije oktave od tonike, samo note skale (od najviše); lijevo klavijatura (svira dok se drži), desno 16 koraka izabranog takta. Dodir: nova nota izabrane dužine (ne preklapa sljedeću notu iste visine) ili briše notu koja je tu. Note van prikaza ostaju (piše koliko ih je).
 - Launchpad (CC 97 bijelo na Keys ekranu): redovi 1..7 klavijatura u skali (svaki red 3 stepena skale više, hromatski 5 polutonova; tonika plava 45, ostale note tamno plave 43, nota koja svira bijela); svira dok se drži. Red 0: kolona 0 Play/Stop (kao Drums), 1 oktava −, 2 oktava + (sivo, ugašeno na granici). Bez metronoma, desna kolona i ostalo ugašeno.
 - Launchpad STEP mod (red 0, kolona 7: žuto = STEP, sivo = PLAY): redovi 7..4 = 32 koraka izabrane note (kao Drums; početak note plavo 45, nastavak 43, playhead bijelo, četvrtine sivo), pritisak dodaje notu dužine NOTE iz aplikacije ili briše postojeću; redovi 3..1 = klavijatura u skali (svira i bira notu; izabrana zelena 21; bira se i klavijaturom u aplikaciji, tamo je zeleno uokvirena). Desna kolona = strane za 4 i 8 taktova. Mod i izabrana nota se ne spremaju.
-- Aplikacija: panel potenciometara se sklapa (hide / show knobs, ostaje traka sa presetom); piano roll ima red najmanje 30 dp i skroluje se kad ne stane; panel i red sa skalom se skroluju vodoravno u uskom prozoru.
+- Aplikacija: panel potenciometara se sklapa (▲ / KNOBS ▾, do 22. 11. 2026 "hide" / "show knobs"; ostaje traka sa presetom); piano roll ima red najmanje 30 dp i skroluje se kad ne stane; panel i red sa skalom se skroluju vodoravno u uskom prozoru.
 
 ### MIDI klavijatura (11. 11. 2026)
 - Svaki MIDI ulaz koji nije Launchpad (Novation Launchkey/FLkey JESU klavijature) svira Keys sintisajzer, na SVIM ekranima. Izbor na KEYS ekranu: MIDI IN = Auto (svi osim Launchpada), jedan uređaj ili Off; pamti se (postavka "midiKeyboard"). Na računaru se ne otvara uređaj izabran kao Launchpad kontroler (Windows dozvoljava jedno otvaranje).
 - Svi kanali. Note On/Off -> Keys (velocity = jačina, linearno), u Launchpad STEP modu nota postaje izabrana nota. Pitch bend ±2 polutona, CC 1 (mod točak) otvara filter do +3 oktave, CC 120/123 gase note. Pitch bend i mod se ne spremaju i ne utiču na Print.
 - Android: `AndroidKeyboard` (android.media.midi, samo USB class compliant, bez "DAW" portova); računar: `DesktopKeyboard` (Java MIDI, provjera uređaja svake sekunde). Zajedničko: `midi/MidiKeyboard.kt` (interfejs, `KeyboardParser` sa running status), `Platform.createKeyboard`, `Platform.getString/putString`.
-- MIDI LEARN (KEYS panel, dugme LEARN pored VOLUME): žuta traka iznad panela; dodir na potenciometar ga označi (žuto), prvi CC sa klavijature se veže za njega (jedan CC = jedan potenciometar, i obrnuto). Ispod potenciometra piše "CC n". "clear knob", "clear all" (za trenutni uređaj), "done". Mapiranje je po uređaju (ime), u `midi_map.json` u folderu aplikacije (sve sesije), `data/MidiMapStore`. CC 0..127 ide na položaj potenciometra (log za Hz i vrijeme). Mapiran CC ima prednost nad podrazumijevanim (npr. CC 1 = mod). Sklapanje panela gasi LEARN.
+- MIDI LEARN (KEYS panel, dugme MIDI LEARN desno ispod ARP / FX, vidi se na oba taba; do 19. 11. 2026 bilo "LEARN" pored VOLUME): žuta traka iznad panela; dodir na potenciometar ga označi (žuto), prvi CC sa klavijature se veže za njega (jedan CC = jedan potenciometar, i obrnuto). Ispod potenciometra piše "CC n". "clear knob", "clear all" (za trenutni uređaj), "done". Mapiranje je po uređaju (ime), u `midi_map.json` u folderu aplikacije (sve sesije), `data/MidiMapStore`. CC 0..127 ide na položaj potenciometra (log za Hz i vrijeme). Mapiran CC ima prednost nad podrazumijevanim (npr. CC 1 = mod). Sklapanje panela gasi LEARN.
 - Print: kao Drums (tačno N taktova, loop bez šava, 24-bit wav), ime "<Kategorija> S1-T3 2 bars 120 BPM (broj).wav". Pad pamti zvuk i note ("Edit in Keys" u dijalogu pada). Stanje Keys je dio sesije (pads.json "keys").
 
 ### Fajlovi printova i izvoz po folderima (11. 11. 2026)
@@ -229,7 +229,7 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 - JSON (unazad kompatibilno): Drums `swing` i `vel` (po traci `[[korak, jačina]]`, samo jačine < 1); Keys `swing` i opcioni 4. broj u noti `[korak, dužina, nota, jačina]`.
 - Undo/redo (↶ ↷; računar i Ctrl+Z / Ctrl+Y / Ctrl+Shift+Z na DRUMS i KEYS ekranu): koraci/note, jačine, swing, dužina, mute (Drums), brisanje, i izmjene sa Launchpada. Ne ulaze: zvukovi kita i jačina trake, potenciometri sintisajzera, skala/oktava. Povlačenje (jačina, swing) je jedan korak; istorija do 100 koraka, briše se kad se učita sesija ili "Edit in Drums/Keys".
 - Mjesto: Drums ispod mreže lijevo (undo, swing) + traka jačine; Keys u redu sa skalom (početak) + traka jačine ispod piano rolla.
-- Ugrađeni preseti Keys (12. 11. 2026): 27, po grupama INIT, BASS, LEAD, PAD, KEYS, FX (`SynthPreset.category`); dijalog ih prikazuje pod naslovima grupa, ◀ ▶ ide redom.
+- Ugrađeni preseti Keys (12. 11. 2026): 27, od 19. 11. 2026 49 (22 nova: Rubber, Synthwave, Wobble, Upright Bass; Sync-ish, Soft Flute, Screamer, Chiptune; Analog Brass, Choir, Sweep Pad, Ambient Air; Clavinet, Harpsichord, Mallet, House Organ, Poly Synth, Saw Brass Stab; Filter Drop, Sci-Fi Blip, Ocean, Dark Hit), od 22. 11. 2026 60 (11 u grupi ORCHESTRA: Trumpet, Brass Section, Sax, Clarinet, Flute, Oboe, Violin, Cello, String Ensemble, Pizzicato, Harmonica; analogne imitacije, ne pravi instrumenti), po grupama INIT, BASS, LEAD, PAD, KEYS, ORCHESTRA, FX (`SynthPreset.category`); dijalog ih prikazuje pod naslovima grupa, ◀ ▶ ide redom.
 
 ### Launchpad dugmad u DRUMS / KEYS (12. 11. 2026)
 - Desna kolona dolje CC 19 = Play/Stop dijela na kojem si (Drums ili Keys); LED: mint svira, treperi čeka takt, tamna mint stoji. Pad Play u donjem redu ostaje. (Do 1.8.2 je Play bio na strelici gore; sad je strelica gore opet tempo +10.)
@@ -239,7 +239,7 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 - DRUMS na Launchpadu: izabrani zvuk (red 2) žut, ostali tamna mint. Dugme PRINT TO PAD u aplikaciji je mint.
 
 ### Snimanje uživo u KEYS (12. 11. 2026)
-- Dugme ● REC (pored PLAY) i Launchpad CC 29. Ako Keys ne svira: metronom + odbrojavanje (do početka sljedećeg takta, pa jedan puni takt), pa pattern krene i snima. Ako svira: snima odmah. Ponovni REC završava snimanje (pattern svira dalje); Stop Keysa ili STOP ALL ga takođe završava.
+- Dugme ● REC (pored PLAY) i Launchpad CC 29. Ako Keys ne svira: metronom + odbrojavanje (do početka sljedećeg takta, pa jedan puni takt), pa pattern krene i snima. Ako svira: snima odmah. Ponovni REC završava snimanje (pattern svira dalje); Stop Keysa ili KILL SWITCH ga takođe završava.
 - Snima sa svih izvora (MIDI klavijatura, Launchpad, klavijatura u aplikaciji): visina, jačina (velocity), dužina (držanje). Dosnimavanje: pattern se vrti i svaki prolaz dodaje note; ista visina na istom koraku se zamijeni, nota koja prekriva početak nove se skrati.
 - REC GRID 1/16 ili 1/8: početak note se poravna; dužina u šesnaestinama (najmanje 1). Piano roll ostaje u šesnaestinama (bez finije mreže).
 - Kašnjenje izlaza se oduzima (pozicija motora minus bafer izlaza), da nota padne gdje je čuta.
@@ -274,7 +274,7 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 - Zvukovi se SINTETIZUJU u Kotlinu (`studio/DrumSynth.kt`, offline, ne na audio niti) u kratak wav (48 kHz, 24-bit) u folderu semplova, pa ih Drums svira kao svaki sempl. Audio motor nije mijenjan; sesija, `.padsession` i Print to pad rade bez izmjena.
 - Vrste (`DrumSynthKind`): Kick, Snare, Clap, Rim, Closed HH, Open HH, Tom, Cymbal, Cowbell, Zap, Shaker. Podešavanja (`DrumSynthSpec`, sve 0..1): tune, decay, tone, snap, grit (lo-fi). Šum ima fiksno sjeme (isti zvuk za ista podešavanja). Jačine po vrsti (hi-hat/činela tiši od kicka).
 - `DrumSound.synth` pamti podešavanja (pads.json: "synth" uz zvuk trake); null = fajl korisnika.
-- Kitovi (`DrumKits`): 808, 909, Electro, Lo-Fi; 8 zvukova u rasporedu IMPORT MIDI (Kick, Snare, Clap/Rim, Closed HH, Open HH, Tom, Cymbal, Perc = Cowbell/Rim/Zap/Shaker).
+- Kitovi (`DrumKits`): 808, 909, Electro, Lo-Fi, i akustični Acoustic, Rock, Jazz (od 19. 11. 2026; traka 7 = Crash, traka 8 = Ride), i Percussion (od 22. 11. 2026, korisnik: "perkusije, 8 zvukova"; trake: Conga Lo, Conga Hi, Clave, Tambourine, Agogo, Bongo Lo, Timbale, Bongo Hi; ne prati raspored IMPORT MIDI); 8 zvukova u rasporedu IMPORT MIDI (Kick, Snare, Clap/Rim, Closed HH, Open HH, Tom, Cymbal, Perc = Cowbell/Rim/Zap/Shaker).
 - Dugme KIT ▾ u gornjem redu DRUMS (natpis "KIT: 808" kad su sve trake iz tog kita). Učitavanje kita zamijeni zvukove svih 8 traka; koraci i jačine traka ostaju.
 - Prazan Drums (nova sesija, prvo pokretanje, sesija bez ijednog zvuka) automatski dobije 808.
 
@@ -291,19 +291,20 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 - Pan se pamti u sesiji (pads.json "pans", -1..1); New session = sve na sredinu. Pan nije na Launchpadu.
 
 ### Telefon i mali prozor (13. 11. 2026)
+- Od 19. 11. 2026 kanal ima dugme FX iznad PAN-a (i na uskom ekranu, 30 dp), master ima FILTER (vidi "Efekti u mikseru").
 - Uski ekran (širina < 1000 dp: telefon u landscape-u, mali prozor na računaru): kanal miksera je kompaktan (bez PAN-a: pan podešen na tabletu/računaru i sačuvan u sesiji i dalje važi; tanji metar, slajder zauzme ostatak širine kanala, manji M/S), master uži (76 dp). Tablet i full screen nepromijenjeni.
 - Redovi koji se skroluju lijevo-desno (`Modifier.hScroll`, ui/HScroll.kt): prstom, a mišem točkićem (gore/dolje = lijevo/desno) i povlačenjem; povlačenje ne okine dugme.
 - Telefon: MASTER kanal se prikazuje samo na SESSION i MIXER (DRUMS i KEYS trebaju širinu).
 - Telefon: gornja traka DRUMS i KEYS (PLAY, REC, LENGTH...) je niža (`LocalDense`: manji vertikalni padding dugmadi), pa mreža i piano roll dobiju visinu.
-- DRUMS na telefonu: gore PLAY, LENGTH/BAR, KIT ▾, VEL, PRINT i meni ⋯ (IMPORT MIDI, clear all). Trake nisu niže od 30 dp i skroluju se gore/dolje. VEL otvara panel PREKO donjeg dijela mreže (mreža se ne skuplja; dno se može izvući iznad panela): swing, jačina udarca, bez undo/redo i traku jačine izabranog zvuka (u redovima je sakrivena). Ime zvuka uže (100 dp), pa su koraci veći.
-- KEYS na telefonu: gore PLAY, REC, LENGTH/BAR, VEL, PRINT i meni ⋯ (IMPORT MIDI, clear all). VEL otvara VELOCITY preko donjeg dijela piano rolla. Red sa zvukom (kraći: bez "SOUND", "knobs ▾") i traka swing/SELECT/KEY... (niži, bez undo/redo) skroluju se ZAJEDNO sa piano rollom (jedan vertikalni skrol); otvoren panel zauzme sav prostor ispod i skroluje se gore/dolje, piano roll se vrati sa "hide". Tipke klavijature uže (48 dp); redovi piano rolla najmanje 30 dp, ostali se skroluju.
+- DRUMS na telefonu: gore PLAY, LENGTH/BAR, KIT ▾, VEL, PRINT i meni ⋯ (IMPORT MIDI, CLEAR ALL). Trake nisu niže od 30 dp i skroluju se gore/dolje. VEL otvara panel PREKO donjeg dijela mreže (mreža se ne skuplja; dno se može izvući iznad panela): swing, jačina udarca, bez undo/redo i traku jačine izabranog zvuka (u redovima je sakrivena). Ime zvuka uže (100 dp), pa su koraci veći.
+- KEYS na telefonu: gore PLAY, REC, LENGTH/BAR, VEL, PRINT i meni ⋯ (IMPORT MIDI, CLEAR ALL). VEL otvara VELOCITY preko donjeg dijela piano rolla. Red sa zvukom (kraći: bez "SOUND", "KNOBS ▾") i traka swing/SELECT/KEY... (niži, bez undo/redo) skroluju se ZAJEDNO sa piano rollom (jedan vertikalni skrol); otvoren panel zauzme sav prostor ispod i skroluje se gore/dolje, piano roll se vrati sa "▲". Tipke klavijature uže (48 dp); redovi piano rolla najmanje 30 dp, ostali se skroluju.
 
 
 ### KEYS: tab ARP / FX i arpeggiator (13. 11. 2026)
 - Panel potenciometara ima tabove desno: SYNTH (sve kao prije) i ARP / FX (tačka na tabu = arp uključen); ispod "hide". Visina panela ostaje ista pri promjeni taba. Sklopljen panel ima dugme ARP (brzo uključi/isključi).
 - Arpeggiator (C++ `Arpeggiator` u synth.*): između ulaza (uživo: MIDI klavijatura, Launchpad, klavijatura u aplikaciji; i note patterna) i sintisajzera. Studio ga prije svakog dijela zvuka sinhronizuje sa globalnim taktom (apsolutna pozicija u dobama), pa su note na mreži; offline render (Print to pad) isto (neprekidna pozicija kroz oba prolaza).
 - Parametri (dio parametara sintisajzera, id 27-32; MIDI LEARN radi): ARP OFF/ON, MODE (UP, DOWN, UP/DN, RANDOM, PLAYED), RATE (1/4, 1/8, 1/8T, 1/16, 1/16T, 1/32), OCTAVES 1-4, GATE 5-100 %, HOLD OFF/ON. Izbori se mijenjaju tapom na potenciometar ili povlačenjem.
-- Start: nova nota kad arp ne svira kreće na sljedećem koraku; ako je pritisnuta do 1/4 koraka poslije koraka, kreće odmah (sviranje uživo malo kasni). HOLD: svira i kad se tipke puste; novi akord (sve tipke bile puštene) zamijeni stari. Stop Keysa / STOP ALL pušta sve.
+- Start: nova nota kad arp ne svira kreće na sljedećem koraku; ako je pritisnuta do 1/4 koraka poslije koraka, kreće odmah (sviranje uživo malo kasni). HOLD: svira i kad se tipke puste; novi akord (sve tipke bile puštene) zamijeni stari. Stop Keysa / KILL SWITCH pušta sve.
 - Učitavanje preseta NE mijenja arp ni efekte (`SynthParams.KEEP_ON_PRESET`, id 27-39). Arp i efekti se pamte u sesiji i u korisničkom presetu (parametri).
 - REC snima note koje su svirane (akorde), ne note arpa: arp ih svira i iz patterna, pa se RATE/MODE mogu mijenjati poslije.
 - Test: `synth_test` testArp (mreža, gate, down + oktave, start odmah, hold, offline).
@@ -324,3 +325,54 @@ Treperenje i pulsiranje na Launchpadu prate MIDI clock, koji aplikacija šalje L
 ### Google Play: Android 16 i baterija (16. 11. 2026)
 - `targetSdk` 36 (Play traži od 31. 8. 2026). Manifest: `PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY` drži landscape na Android 16 tabletima (privremeni izuzetak; za targetSdk 37 raspored mora raditi i uspravno).
 - Bez dozvole `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` (Play je ne dozvoljava muzičkim aplikacijama; foreground servis je dovoljan). Umjesto direktnog zahtjeva: ☰ -> STATUS pokazuje "Battery: unrestricted" ili žuto "Battery saver is on" (dodir otvara stranicu aplikacije u podešavanjima: Xiaomi "Battery saver" -> No restrictions). Dok je štednja uključena, 4 s poslije pokretanja kratka poruka. `UiPlatform.batteryRestricted/openBatterySettings` (računar: null, nema stavke).
+
+### Print to pad: veći prozor i imena (19. 11. 2026)
+- `StudioPrintDialog` (zajednički za Drums i Keys) je vlastiti `Dialog` (ne `AlertDialog`, koji je najviše 560 dp širok, pa 8. kolona nije stala): ~94 % širine ekrana (najviše 1100 dp), padovi se rastežu po širini (visina 42 dp), cijeli sadržaj se skroluje (telefon), dugmad Cancel / Print na dnu.
+- Ime (labela pada i folder u izvozu sesije) se bira i u Drums: Drums, Beat, Percussion, Hats, Fill, FX. Keys: Bass, Chords, Melodic, Lead, Keys, Pads, Arp, Brass, Synth, FX. Imena prelaze u novi red (FlowRow). Ispod je polje za vlastito ime (najviše 24 znaka; za folder se izbace znakovi koje fajl sistem ne dozvoljava, `safeFolder`). Zadnje ime koje nije na listi (upisano ili iz starije sesije) ostaje ponuđeno kao prvo dugme.
+
+### MIDI preseti (19. 11. 2026)
+- U traci MIDI LEARN dugme **presets** otvara dijalog "MIDI presets": spisak imenovanih preseta (ime, broj CC-ova, **export**, ✕), dodir na preset ga učita na trenutnu klavijaturu (`learnDevice`; zamjenjuje njeno mapiranje), polje "Save current mapping as" (predloženo ime = ime klavijature; isto ime = zamjena), **Import file…**.
+- Preseti su nezavisni od uređaja, u `midi_presets.json` u folderu aplikacije (`MidiMapStore.loadPresets/savePresets`). Automatsko mapiranje po klavijaturi (`midi_map.json`) ostaje kao prije.
+- Fajl `.padmidi` (JSON, isti na Androidu i računaru): `{"format": "padsampler-midi-map", "version": 1, "name": "...", "map": {"74": 12, ...}}`; ključ = CC 0..127, vrijednost = id parametra (`SynthParams`, id-ovi se ne mijenjaju, novi idu na kraj). Neispravni CC-ovi/id-ovi se preskaču; fajl bez ispravnih veza se odbija.
+- Uvoz: preset se doda (zauzeto ime sa drugačijim vezama dobije " (2)"...) i, ako je klavijatura spojena, odmah učita. Izbor fajla: `UiPlatform.rememberMidiPresetFilePicker` / `rememberMidiPresetSavePicker` (Android SAF, računar JFileChooser sa filterom *.padmidi).
+- Gotovi preseti za tuđe klavijature se NE prave (CC brojevi bez njihove dokumentacije bi bili nagađanje).
+
+### Akustični bubnjevi (19. 11. 2026)
+- Nove vrste `DrumSynthKind` (sa `acoustic = true`, dodate na KRAJ enuma): AC_KICK, AC_SNARE, SIDESTICK, AC_HAT_CLOSED, AC_HAT_OPEN, AC_TOM, CRASH, RIDE. U dijalogu zvuka su u drugom redu (ACOUSTIC), elektronski u prvom (ELECTRONIC). Perkusije (22. 11. 2026): `acoustic = true, perc = true`, na kraju enuma: CONGA_LO, CONGA_HI, BONGO_LO, BONGO_HI, TIMBALE, CLAVE, TAMBOURINE, AGOGO; treći red PERCUSSION. Sinteza: konge/bongosi = koža (`drumHead`, tonovi membrane, osnovni jak) + dlan (low-pass šum) + slap (SNAP, band-pass šum); timbale = koža + metalni obod (neharmonični tonovi) + palica; clave = čist ton 2-3,2 kHz + klik; tambura = praporci (`cymbal` 4,5-13 kHz) + tri "drmanja" + koža (SNAP); agogo = zvono (odnosi 1 : 2,42 : 3,86 : 5,21) + palica. Soba kao akustični (tambura manje).
+- Modalna sinteza (`DrumSynth`, offline): koža = tonovi kružne membrane (odnosi 1, 1.594, 2.136, 2.296, 2.653...), viši tonovi kraće traju, blag pad visine na udarcu; snare dodaje žice (filtriran šum), kick palicu i "udar zraka"; činele = 36-48 neharmoničnih tonova (fiksno sjeme), ride još i zvono. Isti potenciometri: TUNE visina, DECAY dužina, TONE svjetlina (tvrđa palica / bliže ivici), SNAP udar/žice/zvono, GRIT lo-fi.
+- Akustični zvukovi dobiju rane refleksije male sobe (do ~70 ms, bez dugog repa), da ne zvuče "suho".
+- Nije snimljen bubanj, nego sinteza: zvuči kao akustični kit, ali ne kao sempl pravog bubnja.
+
+### Moji kitovi (Drums, 19. 11. 2026)
+- KIT ▾: ispod ugrađenih kitova grupa MY KITS (dodir = učitaj, ✕ = obriši uz potvrdu) i "Save current kit…" (ime do 40 znakova; isto ime = zamjena).
+- Kit = 8 zvukova (sempl ili ugrađeni zvuk sa podešavanjima), jačine i imena traka; koraci, swing i mute NISU dio kita. Učitavanje zamijeni sve trake (prazna traka u kitu = prazna traka), koraci ostaju.
+- Spremište `UserDrumKits`: folder `drum_kits/` u folderu aplikacije, `kits.json` (ime, podfolder, zvukovi u formatu `DrumsJson`) + podfolder sa kopijama fajlova (kit radi i kad se original obriše). Važi za sve sesije; nema izvoza (korisnik, 19. 11. 2026).
+- Natpis dugmeta: "KIT: ime" kad su sve trake iste kao u kitu (ime, labela, ugrađena podešavanja, jačina).
+
+### Provjera nove verzije (Windows, 19. 11. 2026)
+- ⚙ → VERSION: "PadSampler x.y.z" (`Legal.version` = appVersion) i dugme **Check for updates**. Samo na klik (nikad automatski): GET `https://api.github.com/repos/rasxxb-hash/padsampler/releases/latest`, User-Agent "PadSampler", timeout 8 s; `tag_name` (bez "v") se poredi po brojevima sa trenutnom verzijom.
+- Rezultat: "You have the latest version." / "New version X is available." + **Download** (otvara https://nerd-instruments.net/download u pregledaču) / "Could not check: ..." (nema interneta, timeout).
+- Opisano u privacy.html (sekcija Network) i u oba uputstva. Android nema (ažurira Google Play).
+
+### Sat seta, vrijeme i baterija (19. 11. 2026)
+- Lijeva kolona (SideRail), iznad trenutnog vremena, svoj Lcd okvir: "SET", **m:ss**, ispod cilj ("/ 45:00", "left", "over") (`model/SetClock.kt`, `ui/Header.kt` SetClockRail). Do 19. 11. 2026 bio u gornjoj traci iza imena sesije; premješten da se ime sesije vidi (korisnik). Kreće sa prvim slotom u stanju PLAYING ili Drums/Keys STUDIO_PLAYING (petlja stanja, `SetClock.tick`), mjeri se po `System.nanoTime` (tempo i Link ga ne pomjeraju), teče do Reset (pauze su dio seta). Ne pamti se između pokretanja aplikacije.
+- Dodir: dijalog "Set timer" (`ui/SetClockDialog.kt`): trajanje seta off/15/20/30/45/60/75/90/120 min, prikaz elapsed ("32:14 / 45:00") ili remaining ("12:46 left"), Reset. Trajanje i prikaz se pamte (`set_target_min`, `set_show_remaining`).
+- Boje: zadnjih 5 min narandžasto (MuteOrange), poslije isteka crveno sa "+m:ss". Bez zvuka i bez dijaloga (live pravilo). Isto na telefonu (kolona 72 dp).
+- Lijeva kolona (SideRail), iznad KILL SWITCH: trenutno vrijeme HH:mm i baterija (`UiPlatform.battery()`: Android sticky ACTION_BATTERY_CHANGED, bez dozvole, osvježava se svakih 30 s; Windows: `DesktopAudio.battery()` = GetSystemPowerStatus u desktop_jni.cpp, samo laptop, stoni računar -1 = ne prikazuje se). Okvir kao polje tempa (Lcd), vrijeme mint, Inter SemiBold 15 sp (tabularne cifre), kao vrijeme na SET-u (korisnik 22. 11. 2026; ranije Audiowide 21 sp). SET je takođe mint (narandžast / crven samo pri isteku). Baterija: ikonica + %, narandžasto < 20 %, crveno < 10 %; dok se puni nacrtana munja u mint boji (ne emoji).
+
+### Efekti u mikseru (19. 11. 2026)
+- Plan (korisnik, 19. 11. 2026), po fazama, svaka mora raditi prije sljedeće: 1) DJ filter, 2) reverb + delay send, 3) EQ po kanalu, 4) limiter na masteru. Efekat na nuli ne troši procesor. "Ludi" efekti (beat repeat, stutter, tape stop) NE. Faze 1-4 gotove 19. 11. 2026.
+- Korisnik: filter SAMO na masteru (DJ prelazi), a po kanalima efekti za raspored u prostoru ("da nije sve flat"). Nije na Launchpadu.
+- **Master FILTER** (potenciometar na master kanalu, bipolaran, dupli dodir = sredina): -1..0 low-pass 20 kHz -> 100 Hz, 0 = OFF (bypass, stanje se nulira), 0..+1 high-pass 20 Hz -> 8 kHz, logaritamski. Prikaz OFF / LP n / HP n; < 2 % = 0. Djeluje na cijeli miks (trackovi, send povrati, Drums i Keys iz AuxSource-a), prije master fadera. C++ `Mixer::setMasterFilter`, `applyMasterFilter`: TPT state-variable filter (Q = 1), L/R, koeficijenti svakih 16 frameova, izglađeno; prvih 10 % hoda pretapa suho -> filtrirano (LP <-> HP bez klika). JNI `setMasterFilter`, `SamplerViewModel.setMasterFilter`; pads.json "masterFilter".
+- **FX po kanalu**: dugme FX u kanalu (svijetli kad je nešto uključeno); telefon: malo dugme 22 dp (tekst 10 sp), tablet/računar FlatButton 40 dp otvara prozor `ui/TrackFxDialog` za taj kanal: SPACE (REVERB, DELAY send 0..1, 0 = OFF) i EQ (LOW, MID, HIGH, ±12 dB), Reset (sve tog kanala na 0), Close. Dupli dodir = početna vrijednost.
+- Send (C++ `Mixer::setTrackReverbSend/setTrackDelaySend`, komanda `SetTrackSend`): poslije fadera i pana (mute/solo utiša i send), izglađeno. Zajednički `SendFx`: reverb = Freeverb (8 comb + 4 allpass, room 0.86, damp 0.35, povrat 1.0, samo wet), delay = 1/8 sa tačkom (0,75 dobe, prati tempo i Link), ping-pong (ulaz mono u lijevi, ulaz 1.0, odjeci L/D), povratna veza 0.55 (korisnik: 0.42 / 0.8 bio premalo izražen) kroz low-pass 4,5 kHz, do 2,5 s. Baferi alocirani u konstruktoru (do 96 kHz). Povrat se dodaje u miks prije master filtera. Kad niko ne šalje, rep se računa još max(8 s, 12 odjeka) pa se efekti gase; pri ponovnom paljenju baferi se brišu (bez starog repa). Send efekti djeluju na session trackove, ne na Drums/Keys uživo (Keys ima svoje FX).
+- EQ (C++ `Mixer::setTrackEq(track, band, -1..1)`, `applyTrackEq`): 3 RBJ biquada, low shelf 200 Hz, peak 1 kHz, high shelf 5 kHz, ±12 dB, prije fadera; ravan EQ = preskočen.
+- Sesija (pads.json): "revSends", "dlySends" (0..1), "eqs" (8 x 3, -1..1); New session = sve 0. `ControlState`/`SessionData`, `SamplerViewModel.setReverbSend/setDelaySend/setTrackEq/resetTrackFx`.
+- **Limiter mastera** (faza 4, uvijek uključen, bez podešavanja i bez prikaza): umjesto tvrdog klipa u `renderSegment`, poslije master fadera. Prag -0.3 dBFS (0.966), napad trenutan (bez lookahead-a, bez kašnjenja), otpuštanje 120 ms, stereo vezan; ispod praga gain tačno 1 (bit-exact). Iza njega ostaje klip na ±1 kao sigurnost. Test `mixer_test` 22; `studio_test` (choke) i `link_test` (5) koriste tiše signale (ispod praga).
+- Testovi `mixer_test`: 19 (master filter: sredina bit-exact, LP/HP > 30 dB, vrtnja), 20 (send: 0 = bit-exact, rep reverba i gašenje, 1. odjek lijevo na 3/16 takta, 2. desno i tiši, vrtnja), 21 (EQ). Prolaze i pod ASan (MSVC; testni exe treba `/link /STACK:33554432`, jer MSVC ASan ne dijeli stek između blokova u main-u).
+
+### Keys: vibrato i jačina -> boja (22. 11. 2026)
+- Korisnik htio saksofon, trube, violine: izabrana opcija analognih imitacija (bez snimljenih instrumenata i bez novih biblioteka). Za to dva nova parametra sintisajzera, na KRAJU liste (stari preseti/sesije dobiju 0 = kao prije): `kVibrato` / `SynthParams.VIBRATO` (40) i `kVelTone` / `VEL_TONE` (41); `SynthParams.COUNT` = 42 (C++ `static_assert` drži isti broj). Dio su zvuka (preset ih učitava; nisu u KEEP_ON_PRESET).
+- VIBRATO 0..1: do ±0,6 polutona, 5,5 Hz; kreće 0,2 s poslije note i raste do 0,6 s (`Voice::vibTime`, resetuje se na novoj noti, legato ga ne prekida). Računa se po bloku od 16 sampleova (bez alokacije). Panel: pored VOLUME.
+- VEL>TONE 0..1: cutoff * 2^(VEL_TONE * 3 * (velocity - 0,8)): jačina 1,0 = +0,6 oktave, 0,3 = -1,5 oktave; 0 = boja ne zavisi od jačine. Panel: LOUDNESS, peta kolona.
+- Test: `synth_test` "vibrato i jačina -> boja" (prvih 0,15 s čisto 440 Hz, poslije 425..455 Hz; jače svjetlije, isključeno ista boja).

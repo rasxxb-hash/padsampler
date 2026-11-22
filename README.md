@@ -34,21 +34,23 @@ By **[Nerd Instruments](https://nerd-instruments.net)** · Free and open source 
 
 **Mixer**
 - A fader, level meter, mute, solo and pan for every track, plus a master channel.
+- **FX** per track: reverb and tempo-synced delay sends (place each track in space) and a 3-band EQ.
+- DJ **filter** on the master (low-pass / high-pass) for transitions and build-ups, and an always-on master **limiter** (no clipping).
 
 **Drums**
 - 8-lane step sequencer, 1–8 bars, swing, velocity per step, undo/redo.
-- Built-in drum machine with 808, 909, Electro and Lo-Fi kits; every lane can be tuned and shaped
+- Built-in drum machine with 808, 909, Electro, Lo-Fi acoustic (Acoustic, Rock, Jazz) and Percussion (congas, bongos, clave, tambourine, agogo, timbale) kits, plus your own saved kits; every lane can be tuned and shaped
   (tune, decay, tone, snap, grit) — or load your own samples.
 - **Import MIDI** drum files (General MIDI mapping).
 
 **Keys**
-- A three-oscillator, Minimoog-style synth with a 24 dB ladder filter, two envelopes, glide, mono and poly modes,
-  and presets.
+- A three-oscillator, Minimoog-style synth with a 24 dB ladder filter, two envelopes, glide, vibrato, velocity-to-tone, mono and poly modes,
+  and 60 presets (including analog-style orchestra: trumpet, sax, violin, cello, strings...).
 - Piano roll with scales, record live from the screen, the Launchpad or a MIDI keyboard (count-in, metronome,
   quantize), select and move notes.
 - Arpeggiator (up, down, up/down, random, as played; rate, octaves, gate, hold).
 - Effects: drive, chorus, tempo-synced ping-pong delay, reverb.
-- **Import MIDI** files, MIDI keyboard with pitch bend and mod wheel, MIDI learn for every knob.
+- **Import MIDI** files, MIDI keyboard with pitch bend and mod wheel, MIDI learn for every knob, with mapping presets you can save, export and share (`.padmidi`).
 
 **Print to pad**
 - Render a Drums or Keys pattern to a seamless loop on any pad, in time with the session.
@@ -66,6 +68,7 @@ By **[Nerd Instruments](https://nerd-instruments.net)** · Free and open source 
 **Made for live use**
 - Everything works offline. The screen stays on, audio keeps running in the background (Android).
 - Low latency: Oboe on Android, WASAPI or ASIO on Windows.
+- Set timer (elapsed / remaining, warning before the end), clock and battery level on screen.
 - Phone layout with large touch targets.
 
 ## Requirements

@@ -148,7 +148,7 @@ int main() {
         const int64_t bar = 96000;
         // saw petlja od 1 takta, jedinstvene vrijednosti po poziciji
         std::vector<float> d(static_cast<size_t>(bar) * 2);
-        for (int64_t i = 0; i < bar; ++i) { d[2 * i] = d[2 * i + 1] = static_cast<float>(i) / bar; }
+        for (int64_t i = 0; i < bar; ++i) { d[2 * i] = d[2 * i + 1] = 0.5f * static_cast<float>(i) / bar; }  // 0..0.5: ispod praga limitera
         m.loadSample(0, d.data(), bar, kRate, 1);
         m.setSlotLoop(0, true);
         m.launch(0);
@@ -160,7 +160,7 @@ int main() {
         std::vector<float> buf(512 * 2);
         m.render(buf.data(), 512);
         const double ph = phaseOf(m);
-        const double sampleVal = buf[2 * 511];
+        const double sampleVal = 2.0 * buf[2 * 511];
         double dd = std::fabs(sampleVal - ph);
         dd = std::min(dd, 1.0 - dd);
         std::printf("   petlja %.4f vs faza %.4f\n", sampleVal, ph);

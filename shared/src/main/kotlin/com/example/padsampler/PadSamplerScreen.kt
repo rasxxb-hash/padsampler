@@ -30,6 +30,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.produceState
+import kotlinx.coroutines.delay
+import com.example.padsampler.ui.SetClockDialog
+import com.example.padsampler.ui.currentTimeText
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -100,11 +104,16 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
     var loadDialog by remember { mutableStateOf(false) }
     var newDialog by remember { mutableStateOf(false) }
     var bpmDialog by remember { mutableStateOf(false) }
+    var setClockDialog by remember { mutableStateOf(false) }
+    val setClockState by vm.setClock.state.collectAsState()
+    // trenutno vrijeme (osvježava se svake sekunde, mijenja se jednom u minuti) i baterija (Android, svakih 30 s)
+    val nowText by produceState(currentTimeText()) { while (true) { value = currentTimeText(); delay(1000) } }
     var settingsDialog by remember { mutableStateOf(false) }
     var setListDialog by remember { mutableStateOf(false) }
     var aboutDialog by remember { mutableStateOf(false) }
     // Uski ekran (telefon u landscape-u): kompaktna gornja traka i uža lijeva kolona
     val ui = LocalUiPlatform.current
+    val battery by produceState(ui.battery()) { while (true) { delay(30_000); value = ui.battery() } }
     val compact = ui.screenWidthDp() < 1000
     // Android: štednja baterije uključena -> jednom pri pokretanju napomena (☰ -> STATUS otvara podešavanja)
     androidx.compose.runtime.LaunchedEffect(Unit) {
@@ -141,7 +150,7 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
             onBpmPlus = { vm.changeBpm(+1) },
             onBpmClick = { bpmDialog = true },
             compact = compact,
-            onSettings = if (ui.hasSettings) ({ settingsDialog = true }) else null
+            onSettings = if (ui.hasSettings) ({ settingsDialog = true }) else null,
         )
 
         Row(
@@ -156,6 +165,10 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
                 onMenu = { menuOpen = true },
                 onEdit = { vm.setEditMode(!editMode) },
                 onStopAll = { vm.stopAll() },
+                now = nowText,
+                battery = battery,
+                setClock = setClockState,
+                onSetClock = { setClockDialog = true },
                 modifier = Modifier
                     .width(if (compact) 72.dp else 84.dp)
                     .fillMaxHeight()
@@ -179,6 +192,10 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
                     onMute = { vm.toggleMute(it) },
                     onSolo = { vm.toggleSolo(it) },
                     onPan = { t, v -> vm.setPan(t, v) },
+                    onReverb = { t, v -> vm.setReverbSend(t, v) },
+                    onDelay = { t, v -> vm.setDelaySend(t, v) },
+                    onEq = { t, b, v -> vm.setTrackEq(t, b, v) },
+                    onFxReset = { vm.resetTrackFx(it) },
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight()
@@ -210,6 +227,9 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
                 onChange = { vm.setMaster(it) },
                 onMute = { vm.toggleMasterMute() },
                 onSolo = {},
+                // DJ filter na cijelom miksu (i Drums i Keys)
+                filter = control.masterFilter,
+                onFilter = { vm.setMasterFilter(it) },
                 modifier = Modifier
                     .width(if (compact) 76.dp else 100.dp)
                     .fillMaxHeight()
@@ -396,6 +416,8 @@ fun PadSamplerScreen(vm: SamplerViewModel) {
     if (settingsDialog) ui.SettingsDialog { settingsDialog = false }
     if (setListDialog) SetListDialog(vm) { setListDialog = false }
     if (aboutDialog) AboutDialog { aboutDialog = false }
+
+    if (setClockDialog) SetClockDialog(vm.setClock, setClockState) { setClockDialog = false }
 
     // ---------------------------------------------------------------- dijalog za tempo
     if (bpmDialog) {

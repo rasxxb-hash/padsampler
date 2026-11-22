@@ -119,3 +119,16 @@ DJNI_FN(void, keepAwake)(JNIEnv*, jobject, jboolean on) {
     (void)on;
 #endif
 }
+
+// Baterija laptopa (gornja traka): procenat 0..100, +1000 ako je punjač spojen; -1 = nema baterije
+// (stoni računar) ili nepoznato. Poziva se rijetko (svakih 30 s) iz UI-a, ne sa audio niti.
+DJNI_FN(jint, battery)(JNIEnv*, jobject) {
+#ifdef _WIN32
+    SYSTEM_POWER_STATUS s;
+    if (!GetSystemPowerStatus(&s)) return -1;
+    if (s.BatteryFlag == 128 || s.BatteryFlag == 255 || s.BatteryLifePercent > 100) return -1;  // 128 = nema baterije
+    return int(s.BatteryLifePercent) + (s.ACLineStatus == 1 ? 1000 : 0);
+#else
+    return -1;
+#endif
+}

@@ -29,6 +29,13 @@ class DesktopUiPlatform(
 ) : UiPlatform {
     override val hasSettings: Boolean get() = true
 
+    // Laptop: baterija iz Windowsa (GetSystemPowerStatus); stoni računar nema bateriju -> ne prikazuje se.
+    override fun battery(): com.example.padsampler.ui.BatteryInfo? {
+        val v = try { DesktopAudio.battery() } catch (_: Throwable) { -1 }
+        if (v < 0) return null
+        return com.example.padsampler.ui.BatteryInfo((v % 1000).coerceIn(0, 100), v >= 1000)
+    }
+
     @Composable
     override fun SettingsDialog(onClose: () -> Unit) {
         DesktopSettingsDialog(platform, vm, fullscreen(), setFullscreen, onClose)
@@ -109,14 +116,31 @@ class DesktopUiPlatform(
     }
 
     @Composable
-    override fun rememberSessionFilePicker(onPicked: (String) -> Unit): () -> Unit {
+    override fun rememberSessionFilePicker(onPicked: (String) -> Unit): () -> Unit =
+        rememberOpenPicker("Import session", "PadSampler session (*.padsession)", "padsession", onPicked)
+
+    @Composable
+    override fun rememberSessionSavePicker(onPicked: (String) -> Unit): (String) -> Unit =
+        rememberSavePicker("Export session", "PadSampler session (*.padsession)", "padsession", onPicked)
+
+    @Composable
+    override fun rememberMidiPresetFilePicker(onPicked: (String) -> Unit): () -> Unit =
+        rememberOpenPicker("Import MIDI preset", "PadSampler MIDI preset (*.padmidi)", "padmidi", onPicked)
+
+    @Composable
+    override fun rememberMidiPresetSavePicker(onPicked: (String) -> Unit): (String) -> Unit =
+        rememberSavePicker("Export MIDI preset", "PadSampler MIDI preset (*.padmidi)", "padmidi", onPicked)
+
+    /** "Open" za jedan tip fajla (ekstenzija bez tačke). */
+    @Composable
+    private fun rememberOpenPicker(title: String, desc: String, ext: String, onPicked: (String) -> Unit): () -> Unit {
         val current by rememberUpdatedState(onPicked)
         return remember {
             {
                 SwingUtilities.invokeLater {
-                    val ch = newChooser("Import session").apply {
+                    val ch = newChooser(title).apply {
                         fileSelectionMode = JFileChooser.FILES_ONLY
-                        val f = FileNameExtensionFilter("PadSampler session (*.padsession)", "padsession")
+                        val f = FileNameExtensionFilter(desc, ext)
                         addChoosableFileFilter(f)
                         fileFilter = f
                     }
@@ -129,22 +153,23 @@ class DesktopUiPlatform(
         }
     }
 
+    /** "Save as" za jedan tip fajla: dodaje ekstenziju ako fali i pita prije zamjene postojećeg fajla. */
     @Composable
-    override fun rememberSessionSavePicker(onPicked: (String) -> Unit): (String) -> Unit {
+    private fun rememberSavePicker(title: String, desc: String, ext: String, onPicked: (String) -> Unit): (String) -> Unit {
         val current by rememberUpdatedState(onPicked)
         return remember {
             { name: String ->
                 SwingUtilities.invokeLater {
-                    val ch = newChooser("Export session").apply {
+                    val ch = newChooser(title).apply {
                         fileSelectionMode = JFileChooser.FILES_ONLY
-                        fileFilter = FileNameExtensionFilter("PadSampler session (*.padsession)", "padsession")
+                        fileFilter = FileNameExtensionFilter(desc, ext)
                         selectedFile = File(currentDirectory, name)
                     }
                     if (ch.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
                         var f = ch.selectedFile
-                        if (!f.name.endsWith(".padsession", ignoreCase = true)) f = File(f.parentFile, f.name + ".padsession")
+                        if (!f.name.endsWith(".$ext", ignoreCase = true)) f = File(f.parentFile, f.name + ".$ext")
                         val ok = !f.exists() || JOptionPane.showConfirmDialog(
-                            null, "\"${f.name}\" already exists. Replace it?", "Export session",
+                            null, "\"${f.name}\" already exists. Replace it?", title,
                             JOptionPane.YES_NO_OPTION
                         ) == JOptionPane.YES_OPTION
                         if (ok) {

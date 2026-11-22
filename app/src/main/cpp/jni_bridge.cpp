@@ -87,6 +87,10 @@ JNI_FN(void, setSlotLoop)(JNIEnv*, jobject, jint slot, jboolean loop) {
     gBank.setLoop(slot, loop == JNI_TRUE);
 }
 JNI_FN(void, setTrackPan)(JNIEnv*, jobject, jint track, jfloat pan) { gEngine.mixer().setTrackPan(track, pan); }
+JNI_FN(void, setMasterFilter)(JNIEnv*, jobject, jfloat amount) { gEngine.mixer().setMasterFilter(amount); }
+JNI_FN(void, setTrackReverbSend)(JNIEnv*, jobject, jint track, jfloat amount) { gEngine.mixer().setTrackReverbSend(track, amount); }
+JNI_FN(void, setTrackDelaySend)(JNIEnv*, jobject, jint track, jfloat amount) { gEngine.mixer().setTrackDelaySend(track, amount); }
+JNI_FN(void, setTrackEq)(JNIEnv*, jobject, jint track, jint band, jfloat amount) { gEngine.mixer().setTrackEq(track, band, amount); }
 JNI_FN(void, setTrackGain)(JNIEnv*, jobject, jint track, jfloat gain) {
     gEngine.mixer().setTrackGain(track, gain);
 }

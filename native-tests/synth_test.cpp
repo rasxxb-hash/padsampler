@@ -318,6 +318,48 @@ static void testFx() {
     std::printf("ok efekti (bypass, delay na tempu, sve uključeno stabilno, rep, offline)\n");
 }
 
+// vibrato sa zakašnjenjem (prvih 0.2 s čista visina, poslije titra) i jačina udarca -> boja
+static void testVibratoVelTone() {
+    {
+        Synth s;
+        cleanSaw(s);
+        s.setParam(kVibrato, 1.0f);
+        s.noteOn(69, 1.0f);
+        auto a = render(s, kRate);
+        CHECK(std::fabs(freqOf(a, kRate / 50, kRate * 15 / 100) - 440.0) < 440.0 * 0.005);   // još bez vibrata
+        double lo = 1e9, hi = 0.0;
+        for (int w = 0; w < 12; ++w) {   // 0.7..1.0 s, prozori po 25 ms
+            const int from = kRate * 70 / 100 + w * kRate / 40;
+            const double f = freqOf(a, from, from + kRate / 40);
+            lo = std::min(lo, f);
+            hi = std::max(hi, f);
+        }
+        std::printf("   vibrato %.1f..%.1f Hz\n", lo, hi);
+        CHECK(hi - lo > 15.0 && hi - lo < 40.0);   // ±0.6 polutona oko 440 = ±15 Hz (mjereno u prozorima manje)
+        CHECK(peak(a) < 2.0f);
+    }
+    auto brightness = [](float vel, float amount) {
+        Synth s;
+        cleanSaw(s);
+        s.setParam(kCutoff, 800.0f);
+        s.setParam(kKeyTrack, 0.0f);
+        s.setParam(kFilterEnv, 0.0f);
+        s.setParam(kVelTone, amount);
+        s.noteOn(57, vel);
+        auto a = render(s, kRate / 2);
+        double d = 0.0, e = 0.0;
+        for (int i = kRate / 10 + 1; i < kRate / 2; ++i) {
+            const double x = a[2 * i], dx = x - a[2 * (i - 1)];
+            e += x * x;
+            d += dx * dx;
+        }
+        return std::sqrt(d / e);   // više visokih = veći odnos
+    };
+    CHECK(brightness(1.0f, 1.0f) > brightness(0.3f, 1.0f) * 1.3);   // jače = svjetlije
+    CHECK(std::fabs(brightness(1.0f, 0.0f) / brightness(0.3f, 0.0f) - 1.0) < 0.02);   // isključeno: ista boja
+    std::printf("ok vibrato i jačina -> boja\n");
+}
+
 int main() {
     setvbuf(stdout, nullptr, _IONBF, 0);
     testPitchAndRelease();
@@ -328,6 +370,7 @@ int main() {
     testPitchBend();
     testArp();
     testFx();
+    testVibratoVelTone();
     std::printf("SVE OK\n");
     return 0;
 }

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <memory>
 #include <vector>
 
 #include "mixer.h"
@@ -410,6 +411,284 @@ int main() {
         CHECK(std::fabs(h.L[96000 + 96000 + 10] - sv(96010)) < 1e-4f);        // bez restarta na +1 takt
         CHECK(std::fabs(h.L[96000 + 192000 + 10] - sv(10)) < 1e-4f);          // tvrdo poravnanje na +2 takta
         std::printf("18) lengthBars iz sempla: OK\n");
+    }
+
+    // 19) DJ filter (master): sredina = bit-exact bez filtera; LP guši visoke, HP guši niske; vrtnja dok svira bez NaN/klipova
+    {
+        auto sine = [](double hz, int64_t frames) {
+            std::vector<float> d(static_cast<size_t>(frames) * 2);
+            for (int64_t i = 0; i < frames; ++i) {
+                const float v = 0.5f * static_cast<float>(std::sin(2.0 * 3.14159265358979 * hz * i / kRate));
+                d[2 * i] = v;
+                d[2 * i + 1] = v;
+            }
+            return d;
+        };
+        auto rms = [](const std::vector<float>& x, int64_t from, int64_t to) {
+            double s = 0;
+            for (int64_t i = from; i < to; ++i) s += double(x[i]) * x[i];
+            return std::sqrt(s / double(to - from));
+        };
+        const int64_t from = 2 * kBar + 1000, to = 3 * kBar;
+        // a) filter 0 (i vraćen na 0) = isto kao bez filtera
+        {
+            // na heapu: pod ASan-om (MSVC) svi Harness-i iz main-a zajedno prekorače stek
+            auto pa = std::make_unique<Harness>(), pb = std::make_unique<Harness>();
+            Harness& a = *pa; Harness& b = *pb;
+            a.load(0, saw(kBar), true);
+            b.load(0, saw(kBar), true);
+            b.m.setMasterFilter(-0.7f);
+            a.m.launch(0);
+            b.m.launch(0);
+            a.run(kBar / 2);
+            b.run(kBar / 2);
+            b.m.setMasterFilter(0.0f);  // vrati na sredinu prije starta klipa
+            a.run(3 * kBar);
+            b.run(3 * kBar);
+            for (int64_t i = from; i < to; ++i) CHECK(a.L[i] == b.L[i] && a.R[i] == b.R[i]);
+        }
+        // b) LP do kraja (100 Hz): 5 kHz pada > 30 dB, 60 Hz ostaje
+        {
+            auto p1 = std::make_unique<Harness>(), p2 = std::make_unique<Harness>(), p3 = std::make_unique<Harness>();
+            Harness& hi = *p1; Harness& lo = *p2; Harness& ref = *p3;
+            hi.load(0, sine(5000, kBar), true);
+            lo.load(0, sine(60, kBar), true);
+            ref.load(0, sine(5000, kBar), true);
+            hi.m.setMasterFilter(-1.0f);
+            lo.m.setMasterFilter(-1.0f);
+            for (Harness* h : {&hi, &lo, &ref}) { h->m.launch(0); h->run(3 * kBar); }
+            const double r = rms(ref.L, from, to);
+            CHECK(rms(hi.L, from, to) < r * 0.03);          // < -30 dB
+            CHECK(rms(lo.L, from, to) > r * 0.7);           // bas prolazi
+        }
+        // c) HP do kraja (8 kHz): 100 Hz pada > 30 dB
+        {
+            auto p1 = std::make_unique<Harness>(), p2 = std::make_unique<Harness>();
+            Harness& lo = *p1; Harness& ref = *p2;
+            lo.load(0, sine(100, kBar), true);
+            ref.load(0, sine(100, kBar), true);
+            lo.m.setMasterFilter(1.0f);
+            for (Harness* h : {&lo, &ref}) { h->m.launch(0); h->run(3 * kBar); }
+            CHECK(rms(lo.L, from, to) < rms(ref.L, from, to) * 0.03);
+        }
+        // d) vrtnja s kraja na kraj dok svira (i preko sredine): konačno, bez velikih skokova
+        {
+            auto ph = std::make_unique<Harness>();
+            Harness& h = *ph;
+            h.load(0, saw(kBar), true);
+            h.m.launch(0);
+            h.run(kBar + 100);
+            for (int k = 0; k < 200; ++k) {
+                h.m.setMasterFilter(std::sin(k * 0.15f));
+                h.run(480);
+            }
+            for (int64_t i = kBar; i < h.now(); ++i) {
+                CHECK(std::isfinite(h.L[i]) && std::isfinite(h.R[i]));
+                CHECK(std::fabs(h.L[i]) <= 1.0f);
+            }
+        }
+        std::printf("19) DJ filter na masteru: OK\n");
+    }
+
+    // 20) send efekti po kanalu (reverb + delay 1/8 sa tačkom, ping-pong)
+    {
+        auto burst = [](int64_t len, int64_t total) {   // kratak zvuk pa tišina (one-shot)
+            std::vector<float> d(static_cast<size_t>(total) * 2, 0.0f);
+            for (int64_t i = 0; i < len; ++i) d[2 * i] = d[2 * i + 1] = 0.5f;
+            return d;
+        };
+        auto peakOf = [](const std::vector<float>& x, int64_t from, int64_t to) {
+            float p = 0.0f;
+            for (int64_t i = from; i < to; ++i) p = std::max(p, std::fabs(x[i]));
+            return p;
+        };
+        // a) send uključen pa vraćen na 0 prije starta = isto kao bez sendova
+        {
+            auto pa = std::make_unique<Harness>(), pb = std::make_unique<Harness>();
+            Harness& a = *pa; Harness& b = *pb;
+            a.load(0, saw(kBar), true);
+            b.load(0, saw(kBar), true);
+            b.m.setTrackReverbSend(0, 0.8f);
+            b.m.setTrackDelaySend(0, 0.8f);
+            b.run(kBar / 4);
+            b.m.setTrackReverbSend(0, 0.0f);
+            b.m.setTrackDelaySend(0, 0.0f);
+            a.run(kBar / 4);
+            a.m.launch(0);
+            b.m.launch(0);
+            a.run(3 * kBar);
+            b.run(3 * kBar);
+            for (int64_t i = 0; i < a.now(); ++i) CHECK(a.L[i] == b.L[i] && a.R[i] == b.R[i]);
+        }
+        // b) reverb: poslije kratkog zvuka ostaje rep; bez senda tišina; rep se ugasi
+        {
+            auto p1 = std::make_unique<Harness>(), p2 = std::make_unique<Harness>();
+            Harness& rev = *p1; Harness& dry = *p2;
+            rev.load(0, burst(2400, kBar / 2), false);
+            dry.load(0, burst(2400, kBar / 2), false);
+            rev.m.setTrackReverbSend(0, 1.0f);
+            for (Harness* h : {&rev, &dry}) { h->m.launch(0); h->run(kBar + 12 * kRate); }
+            const int64_t t0 = kBar + 2400 + 4800;   // 100 ms poslije kraja zvuka
+            CHECK(dry.silent(t0, t0 + kRate / 2));
+            const float tail = peakOf(rev.L, t0, t0 + kRate / 2);
+            std::printf("   reverb rep: %.4f\n", tail);
+            CHECK(tail > 0.005f && tail < 0.5f);
+            CHECK(peakOf(rev.R, t0, t0 + kRate / 2) > 0.005f);
+            for (int64_t i = 0; i < rev.now(); ++i) CHECK(std::isfinite(rev.L[i]) && std::fabs(rev.L[i]) <= 1.0f);
+            CHECK(rev.silent(rev.now() - kRate, rev.now(), 1e-4f));   // poslije ~12 s nema repa
+        }
+        // c) delay: prvi odjek lijevo poslije 3/16 takta (18000 frameova na 120 BPM), drugi desno
+        {
+            auto ph = std::make_unique<Harness>();
+            Harness& h = *ph;
+            h.load(0, burst(480, kBar / 2), false);
+            h.m.setTrackDelaySend(0, 1.0f);
+            h.m.launch(0);
+            h.run(2 * kBar);
+            const int64_t e1 = kBar + 18000, e2 = kBar + 36000;
+            CHECK(h.silent(kBar + 1000, e1 - 100));                    // između zvuka i odjeka ništa
+            CHECK(peakOf(h.L, e1 + 50, e1 + 400) > 0.3f);              // 1. odjek lijevo
+            CHECK(peakOf(h.R, e1 + 50, e1 + 400) < 1e-4f);
+            CHECK(peakOf(h.R, e2 + 50, e2 + 500) > 0.08f);             // 2. odjek desno, tiši
+            CHECK(peakOf(h.R, e2 + 50, e2 + 500) < peakOf(h.L, e1 + 50, e1 + 400));
+        }
+        // d) vrtnja sendova dok svira: konačno, bez klipova
+        {
+            auto ph = std::make_unique<Harness>();
+            Harness& h = *ph;
+            h.load(0, saw(kBar), true);
+            h.m.launch(0);
+            h.run(kBar + 100);
+            for (int k = 0; k < 200; ++k) {
+                h.m.setTrackReverbSend(0, 0.5f + 0.5f * std::sin(k * 0.2f));
+                h.m.setTrackDelaySend(0, 0.5f + 0.5f * std::cos(k * 0.13f));
+                h.run(480);
+            }
+            for (int64_t i = kBar; i < h.now(); ++i) CHECK(std::isfinite(h.L[i]) && std::isfinite(h.R[i]));
+        }
+        std::printf("20) send efekti (reverb + delay): OK\n");
+    }
+
+    // 21) EQ kanala (LOW shelf 200 Hz, MID peak 1 kHz, HIGH shelf 5 kHz; -1..1 = -12..+12 dB)
+    {
+        auto tone = [](double hz, int64_t frames) {
+            std::vector<float> d(static_cast<size_t>(frames) * 2);
+            for (int64_t i = 0; i < frames; ++i) d[2 * i] = d[2 * i + 1] = 0.05f * static_cast<float>(std::sin(2.0 * 3.14159265358979 * hz * i / kRate));
+            return d;
+        };
+        auto rms = [](const std::vector<float>& x, int64_t from, int64_t to) {
+            double s = 0;
+            for (int64_t i = from; i < to; ++i) s += double(x[i]) * x[i];
+            return std::sqrt(s / double(to - from));
+        };
+        const int64_t from = 2 * kBar + 1000, to = 3 * kBar;
+        // pojačanje tona hz kad je band postavljen na amount (u odnosu na ravan EQ)
+        auto gainAt = [&](double hz, int band, float amount) {
+            auto p1 = std::make_unique<Harness>(), p2 = std::make_unique<Harness>();
+            Harness& e = *p1; Harness& ref = *p2;
+            e.load(0, tone(hz, kBar), true);
+            ref.load(0, tone(hz, kBar), true);
+            e.m.setTrackEq(0, band, amount);
+            for (Harness* h : {&e, &ref}) { h->m.launch(0); h->run(3 * kBar); }
+            for (int64_t i = 0; i < e.now(); ++i) CHECK(std::isfinite(e.L[i]));
+            return rms(e.L, from, to) / rms(ref.L, from, to);
+        };
+        CHECK(gainAt(60, 0, 1.0f) > 3.5);              // LOW +12 dB: bas ~4x
+        CHECK(std::fabs(gainAt(8000, 0, 1.0f) - 1.0) < 0.05);   // visoki netaknuti
+        CHECK(gainAt(1000, 1, 1.0f) > 3.5);            // MID +12 dB na 1 kHz
+        CHECK(gainAt(10000, 2, -1.0f) < 0.3);          // HIGH -12 dB
+        CHECK(std::fabs(gainAt(100, 2, -1.0f) - 1.0) < 0.05);   // bas netaknut
+        // EQ uključen pa vraćen na 0 prije starta = bit-exact
+        {
+            auto pa = std::make_unique<Harness>(), pb = std::make_unique<Harness>();
+            Harness& a = *pa; Harness& b = *pb;
+            a.load(0, saw(kBar), true);
+            b.load(0, saw(kBar), true);
+            b.m.setTrackEq(0, 0, 0.7f);
+            b.m.setTrackEq(0, 2, -0.5f);
+            b.run(kBar / 4);
+            b.m.setTrackEq(0, 0, 0.0f);
+            b.m.setTrackEq(0, 2, 0.0f);
+            a.run(kBar / 4);
+            a.m.launch(0);
+            b.m.launch(0);
+            a.run(3 * kBar);
+            b.run(3 * kBar);
+            for (int64_t i = 0; i < a.now(); ++i) CHECK(a.L[i] == b.L[i] && a.R[i] == b.R[i]);
+        }
+        // vrtnja dok svira: konačno
+        {
+            auto ph = std::make_unique<Harness>();
+            Harness& h = *ph;
+            h.load(0, saw(kBar), true);
+            h.m.setTrackGain(0, 0.3f);
+            h.m.launch(0);
+            h.run(kBar + 100);
+            for (int k = 0; k < 200; ++k) {
+                for (int b = 0; b < 3; ++b) h.m.setTrackEq(0, b, std::sin(k * 0.17f + b));
+                h.run(480);
+            }
+            for (int64_t i = kBar; i < h.now(); ++i) CHECK(std::isfinite(h.L[i]) && std::isfinite(h.R[i]));
+        }
+        std::printf("21) EQ kanala: OK\n");
+    }
+
+    // 22) limiter na masteru: glasno ne prelazi prag i nije odsječeno; tiho ostaje bit-exact
+    {
+        auto sineAmp = [](double hz, double amp, int64_t frames) {
+            std::vector<float> d(static_cast<size_t>(frames) * 2);
+            for (int64_t i = 0; i < frames; ++i) {
+                const float v = static_cast<float>(amp * std::sin(2.0 * 3.14159265358979 * hz * double(i) / kRate));
+                d[2 * i] = d[2 * i + 1] = v;
+            }
+            return d;
+        };
+        // a) dva tracka po 0.9 (zbir 1.8): vrh <= prag, bez ravnih "odsječenih" vrhova
+        {
+            auto ph = std::make_unique<Harness>();
+            Harness& h = *ph;
+            h.load(0, sineAmp(100, 0.9, kBar), true);
+            h.load(1, sineAmp(100, 0.9, kBar), true);
+            h.m.launch(0);
+            h.m.launch(1);
+            h.run(3 * kBar);
+            float pk = 0.0f;
+            int flat = 0;
+            for (int64_t i = kBar; i < h.now(); ++i) {
+                CHECK(std::isfinite(h.L[i]));
+                pk = std::max(pk, std::fabs(h.L[i]));
+                if (std::fabs(h.L[i]) >= 0.9999f) ++flat;
+            }
+            CHECK(pk <= 0.9661f);
+            CHECK(pk > 0.9f);      // glasno ostaje glasno
+            CHECK(flat == 0);      // nije tvrdi klip
+        }
+        // b) tiho (0.5): limiter ne dira ništa (izlaz = ulaz * gain tracka, tačno)
+        {
+            auto ph = std::make_unique<Harness>();
+            Harness& h = *ph;
+            const auto d = sineAmp(440, 0.5, kBar);
+            h.load(0, d, true);
+            h.m.launch(0);
+            h.run(2 * kBar);
+            for (int64_t i = kBar + 100; i < 2 * kBar; ++i) CHECK(h.L[i] == d[2 * (i - kBar)]);
+        }
+        // c) poslije glasnog udarca gain se vrati (tiho opet nepromijenjeno nakon ~1 s)
+        {
+            auto ph = std::make_unique<Harness>();
+            Harness& h = *ph;
+            std::vector<float> d(static_cast<size_t>(kBar) * 2, 0.0f);
+            for (int64_t i = 0; i < 4800; ++i) d[2 * i] = d[2 * i + 1] = 1.0f;          // glasan udarac (1.0 * 2 tracka)
+            for (int64_t i = kRate; i < kBar; ++i) d[2 * i] = d[2 * i + 1] = 0.25f;    // pa tiho
+            h.load(0, d, false);
+            h.load(1, d, false);
+            h.m.launch(0);
+            h.m.launch(1);
+            h.run(2 * kBar);
+            CHECK(std::fabs(h.L[kBar + 100]) <= 0.9661f);
+            CHECK(std::fabs(h.L[kBar + kBar - 100] - 0.5f) < 1e-4f);   // 0.25 + 0.25, gain se vratio na 1
+        }
+        std::printf("22) limiter na masteru: OK\n");
     }
 
     std::printf("SVI TESTOVI PROSLI\n");

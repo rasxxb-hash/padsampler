@@ -2,6 +2,8 @@ package com.example.padsampler.ui
 
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
+import android.os.BatteryManager
 import android.net.Uri
 import android.os.PowerManager
 import android.provider.Settings
@@ -37,6 +39,21 @@ class AndroidUiPlatform(private val context: Context) : UiPlatform {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         } catch (_: Exception) {}
+    }
+
+    // Sticky broadcast: čita posljednje stanje baterije bez prijemnika i bez dozvole.
+    override fun battery(): BatteryInfo? {
+        return try {
+            val i = context.registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED)) ?: return null
+            val level = i.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
+            val scale = i.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+            if (level < 0 || scale <= 0) return null
+            val status = i.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+            val charging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+            BatteryInfo((level * 100 / scale).coerceIn(0, 100), charging)
+        } catch (_: Exception) {
+            null
+        }
     }
 
     @Composable
@@ -83,6 +100,26 @@ class AndroidUiPlatform(private val context: Context) : UiPlatform {
     override fun rememberSessionSavePicker(onPicked: (String) -> Unit): (String) -> Unit {
         val current by rememberUpdatedState(onPicked)
         // octet-stream: Android ne dodaje svoju ekstenziju (ostaje .padsession)
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
+            if (uri != null) current(uri.toString())
+        }
+        return remember(launcher) { { name: String -> launcher.launch(name) } }
+    }
+
+    @Composable
+    override fun rememberMidiPresetFilePicker(onPicked: (String) -> Unit): () -> Unit {
+        val current by rememberUpdatedState(onPicked)
+        val launcher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            if (uri != null) current(uri.toString())
+        }
+        // .padmidi nema svoj MIME tip, pa su dozvoljeni svi fajlovi
+        return remember(launcher) { { launcher.launch(arrayOf("*/*")) } }
+    }
+
+    @Composable
+    override fun rememberMidiPresetSavePicker(onPicked: (String) -> Unit): (String) -> Unit {
+        val current by rememberUpdatedState(onPicked)
+        // octet-stream: Android ne dodaje svoju ekstenziju (ostaje .padmidi)
         val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/octet-stream")) { uri ->
             if (uri != null) current(uri.toString())
         }

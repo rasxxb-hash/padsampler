@@ -24,7 +24,7 @@ Ciljni uređaji: Xiaomi Redmi Pad SE 11" (izlaz na slušalice, stereo, žičane)
 - Dokumentacija kontrolera: `docs/` (PDF "Launchpad Mini MK3 Programmer's Reference")
 
 ## Build (obje platforme)
-- Android: `./gradlew assembleDebug` (iz korijena)
+- Android: `./gradlew assembleDebug` (iz korijena). Java: JDK 21 (`JAVA_HOME` = `C:\Users\radov\.jdks\jbr-21.0.11`, trajno od 19. 11. 2026); JBR 25 iz novog Android Studija NE radi sa ovim Gradleom.
 - Android release (pravi APK): `./gradlew assembleRelease` -> `app/build/outputs/apk/release/app-release.apk`, potpisan ključem VAN projekta (`%USERPROFILE%.padsamplerelease.jks` + `keystore.properties`; bez njih release nije potpisan). Ključ se NE smije izgubiti (bez njega nema ažuriranja preko instalirane verzije). versionName/versionCode = `appVersion` iz `desktop-app/gradle.properties`. Nativne biblioteke poravnate na 16 KB (Android 15+): linker `-z max-page-size=16384`, Oboe 1.9.3.
 - Windows DLL: `cmake -S desktop -B desktop\build -G "Visual Studio 17 2022" -A x64`, pa `cmake --build desktop\build --config Release` i `ctest --test-dir desktop\build -C Release --output-on-failure`
 - Windows aplikacija: `cd desktop-app; .\gradlew.bat run` (DLL mora biti izgrađen prije; `copyEngine` ga kopira u `desktop-app/resources/common`)
@@ -40,7 +40,7 @@ Ciljni uređaji: Xiaomi Redmi Pad SE 11" (izlaz na slušalice, stereo, žičane)
 - Ne dodaji nove biblioteke bez pitanja. Sve ostalo u aplikaciji agent smije mijenjati bez posebnog pitanja (korisnik, 11. 11. 2026).
 - Audio nit (`Mixer::render`): NIKAD alokacija memorije, mutex, logovanje, JNI pozivi ili I/O.
 - Svi brojevi za Launchpad (SysEx, note, CC, boje) moraju doći iz PDF-a u `docs/`. Brojevi su provjereni; izbor MIDI porta (bez "DAW") treba potvrditi na uređaju.
-- Sve radi offline. Nema mrežnih poziva u aplikaciji (osim Ableton Linka na lokalnoj mreži). Nema tajnih ključeva u kodu. (CMake konfiguracija desktopa jednom preuzima RtAudio, to je samo build.)
+- Sve radi offline. Nema mrežnih poziva u aplikaciji (osim Ableton Linka na lokalnoj mreži i, samo na Windowsu, ⚙ "Check for updates" koji pita GitHub API isključivo na klik korisnika: `desktop-app/.../UpdateCheck.kt`; NIKAD automatska provjera, korisnik 19. 11. 2026). Nema tajnih ključeva u kodu. (CMake konfiguracija desktopa jednom preuzima RtAudio, to je samo build.)
 - Aplikacija mora ostati upotrebljiva na kraju svake faze. Mali koraci. Projekt je git repozitorij (od 16. 11. 2026, `main` -> GitHub `rasxxb-hash/padsampler`, javno); commit/push samo kad korisnik traži. Izdanje: podići appVersion, build, `gh release create vX.Y.Z <exe>` (gh: `C:Program FilesGitHub CLIgh.exe`).
 
 ## Domenska logika (session mod, kao Ableton)

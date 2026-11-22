@@ -165,7 +165,7 @@ fun KeysScreen(vm: SamplerViewModel, live: LiveState, modifier: Modifier = Modif
                 MoreMenu(onImport = { pickMidi() }, onClear = { clearDialog = true })
             } else {
                 FlatButton("IMPORT MIDI") { pickMidi() }
-                FlatButton("clear all") { clearDialog = true }
+                FlatButton("CLEAR ALL") { clearDialog = true }
                 FlatButton("PRINT TO PAD", color = Accent, textColor = Ink) { printDialog = true }
             }
         }
@@ -393,7 +393,7 @@ private fun CollapsedPanel(vm: SamplerViewModel, k: KeysState, compact: Boolean,
         Spacer(Modifier.weight(1f))
         // ARP brzo uključi/isključi i kad su potenciometri sakriveni
         StudioChip("ARP", k.params[P.ARP_ON] >= 0.5f) { vm.keys.setParam(P.ARP_ON, if (k.params[P.ARP_ON] >= 0.5f) 0f else 1f) }
-        StudioChip(if (compact) "knobs  ▾" else "show knobs  ▾", false) { onExpand() }
+        StudioChip("KNOBS  ▾", false) { onExpand() }
     }
 }
 
@@ -432,11 +432,12 @@ private fun SynthPanel(
             // tačka na tabu: arp ili neki efekat je uključen
             val arpOn = k.params[P.ARP_ON] >= 0.5f ||
                 listOf(P.FX_DRIVE, P.FX_CHORUS, P.FX_DELAY_MIX, P.FX_REVERB_MIX).any { k.params[it] > 0.001f }
-            // tri dugmeta iste veličine
-            val w = Modifier.width(100.dp)
+            // četiri dugmeta iste veličine; MIDI LEARN je tu da se vidi na oba taba (SYNTH i ARP / FX)
+            val w = Modifier.width(112.dp)
             StudioChip("SYNTH", tab == 0, modifier = w) { onTab(0) }
             StudioChip("ARP / FX", tab == 1, dot = arpOn, modifier = w) { onTab(1) }
-            StudioChip("hide  ▴", false, modifier = w) { onCollapse() }
+            StudioChip("MIDI LEARN", LocalLearn.current.active, modifier = w) { vm.toggleLearn() }
+            StudioChip("▲", false, modifier = w, fontSize = 15.sp) { onCollapse() }   // zatvori panel
         }
     }
 }
@@ -485,10 +486,9 @@ private fun SynthSections(vm: SamplerViewModel, k: KeysState, set: (Int, Float) 
                     Knob(P.GLIDE, k, set)
                     Knob(P.VOICES, k, set)
                 }
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Knob(P.VIBRATO, k, set)
                     Knob(P.VOLUME, k, set)
-                    // MIDI LEARN: potenciometri sa MIDI klavijature
-                    StudioChip("LEARN", LocalLearn.current.active) { vm.toggleLearn() }
                 }
             }
         }
@@ -517,6 +517,7 @@ private fun SynthSections(vm: SamplerViewModel, k: KeysState, set: (Int, Float) 
                 KnobColumn(k, set, P.A_DECAY, null, null)
                 KnobColumn(k, set, P.A_SUSTAIN, null, null)
                 KnobColumn(k, set, P.A_RELEASE, null, null)
+                KnobColumn(k, set, P.VEL_TONE, null, null)
             }
         }
     }
@@ -568,6 +569,20 @@ private val LocalLearn = staticCompositionLocalOf { LearnUi() }
 @Composable
 private fun LearnBar(vm: SamplerViewModel, device: String?, target: Int?) {
     val shape = rShape(10)
+    var presetsOpen by remember { mutableStateOf(false) }
+    // pickeri su ovdje (ne u dijalogu), da dijalog može ostati otvoren dok se bira fajl
+    val ui = LocalUiPlatform.current
+    var exportName by remember { mutableStateOf<String?>(null) }
+    val importPreset = ui.rememberMidiPresetFilePicker { vm.importMidiPresetFile(it) }
+    val exportPreset = ui.rememberMidiPresetSavePicker { ref -> exportName?.let { vm.exportMidiPreset(it, ref) } }
+    if (presetsOpen) {
+        MidiPresetDialog(
+            vm, device,
+            onImport = importPreset,
+            onExport = { name -> exportName = name; exportPreset(vm.midiPresetFileName(name)) },
+            onClose = { presetsOpen = false }
+        )
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -589,8 +604,75 @@ private fun LearnBar(vm: SamplerViewModel, device: String?, target: Int?) {
         )
         if (target != null) StudioChip("clear knob", false) { vm.clearLearnTarget() }
         StudioChip("clear all", false) { vm.clearAllMappings() }
+        StudioChip("presets", false) { presetsOpen = true }
         StudioChip("done", true) { vm.toggleLearn() }
     }
+}
+
+/**
+ * Preseti MIDI mapiranja: učitavanje na trenutnu klavijaturu, spremanje trenutnog mapiranja pod imenom,
+ * izvoz u .padmidi i uvoz (za drugi tablet/računar ili drugog korisnika).
+ */
+@Composable
+private fun MidiPresetDialog(
+    vm: SamplerViewModel,
+    device: String?,
+    onImport: () -> Unit,
+    onExport: (String) -> Unit,
+    onClose: () -> Unit
+) {
+    val presets by vm.midiPresets.collectAsState()
+    val all by vm.midiMap.collectAsState()
+    val current = device?.let { all[it] }.orEmpty()
+    var name by remember { mutableStateOf(device ?: "") }
+    AlertDialog(
+        onDismissRequest = onClose,
+        title = { Text("MIDI presets") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    if (device == null) "Connect a MIDI keyboard to load or save a preset."
+                    else "Keyboard: $device · ${current.size} knob${if (current.size == 1) "" else "s"} mapped. " +
+                        "Tap a preset to load it for this keyboard.",
+                    color = TextDim, fontSize = 12.sp
+                )
+                Column(
+                    modifier = Modifier.heightIn(max = 260.dp).verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    if (presets.isEmpty()) Text("No presets yet", color = TextDim, fontSize = 12.sp)
+                    for ((p, map) in presets) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(rShape(6))
+                                .background(if (map == current && current.isNotEmpty()) Color(0xFF1D2127) else Color.Transparent)
+                                .clickable { vm.loadMidiPreset(p) }
+                                .padding(horizontal = 8.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                p, color = if (map == current && current.isNotEmpty()) AccentBright else TextMain,
+                                fontSize = 14.sp, modifier = Modifier.weight(1f)
+                            )
+                            Text("${map.size} CC", color = TextFaint, fontSize = 11.sp, modifier = Modifier.padding(horizontal = 6.dp))
+                            Text("export", color = TextDim, fontSize = 12.sp, modifier = Modifier.clickable { onExport(p) }.padding(horizontal = 8.dp))
+                            Text("✕", color = TextDim, fontSize = 13.sp, modifier = Modifier.clickable { vm.deleteMidiPreset(p) }.padding(horizontal = 8.dp))
+                        }
+                    }
+                }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = name, onValueChange = { name = it.take(40) }, singleLine = true,
+                        label = { Text("Save current mapping as") }, modifier = Modifier.weight(1f)
+                    )
+                    TextButton(enabled = name.isNotBlank() && current.isNotEmpty(), onClick = { vm.saveMidiPreset(name) }) { Text("Save") }
+                }
+            }
+        },
+        dismissButton = { TextButton(onClick = onImport) { Text("Import file…") } },
+        confirmButton = { TextButton(onClick = onClose) { Text("Close") } }
+    )
 }
 
 /** Potenciometar: povuci gore/dolje; dupli dodir vraća početnu vrijednost; dodir na WAVE bira sljedeći talas. */

@@ -152,6 +152,7 @@ fun FlatButton(
     color: Color = PanelColor,
     textColor: Color = Color.White,
     enabled: Boolean = true,
+    maxLines: Int = 1,
     onClick: () -> Unit
 ) {
     val shape = rShape(12)
@@ -178,7 +179,9 @@ fun FlatButton(
             fontSize = 13.sp,
             fontWeight = FontWeight.SemiBold,
             letterSpacing = 0.4.sp,
-            maxLines = 1
+            maxLines = maxLines,
+            textAlign = TextAlign.Center,
+            lineHeight = 15.sp
         )
     }
 }
@@ -240,6 +243,12 @@ fun ChannelStrip(
     /** Pan -1..1 (null = bez potenciometra, npr. master). */
     pan: Float? = null,
     onPan: (Float) -> Unit = {},
+    /** DJ filter -1..1 (null = bez potenciometra, npr. master). */
+    filter: Float? = null,
+    onFilter: (Float) -> Unit = {},
+    /** Dugme FX (reverb, delay, EQ kanala u prozoru): null = bez dugmeta (master); true = neki efekat je uključen. */
+    fxActive: Boolean? = null,
+    onFx: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val shape = rShape(16)
@@ -267,20 +276,59 @@ fun ChannelStrip(
                 .clip(rShape(2))
                 .background(color)
         )
-        // PAN: lijevo-desno (dupli dodir = sredina)
-        if (pan != null && !compact) {   // telefon: bez PAN-a (pan iz sesije i dalje važi)
+        // FILTER (samo master: DJ filter, lijevo low-pass, desno high-pass); trackovi: dugme FX (prozor sa reverbom,
+        // delayem i EQ-om tog kanala) pa PAN; dupli dodir na potenciometar = početna vrijednost.
+        // Telefon: bez PAN-a (pan iz sesije i dalje važi); FX dugme manje; FILTER manji, bez vrijednosti.
+        val showPan = pan != null && !compact
+        val showFx = fxActive != null
+        if (filter != null || showPan || showFx) {
             Spacer(Modifier.height(if (compact) 2.dp else 6.dp))
-            SimpleKnob(
-                "PAN", (pan + 1f) / 2f, color, default = 0.5f, bipolar = true,
-                format = { v ->
-                    val p = ((v * 2f - 1f) * 100).toInt()
-                    when { p == 0 -> "C"; p < 0 -> "L${-p}"; else -> "R$p" }
-                },
-                onChange = { onPan(it * 2f - 1f) },
-                onRelease = { onPan(it * 2f - 1f) },
-                knobSize = if (compact) 28.dp else 40.dp,
-                showValue = !compact   // telefon: bez C/L/R ispod (više mjesta za slajder)
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (filter != null) SimpleKnob(
+                    "FILTER", (filter + 1f) / 2f, Accent, default = 0.5f, bipolar = true,
+                    format = { v ->
+                        val p = ((v * 2f - 1f) * 100).toInt()
+                        when { p == 0 -> "OFF"; p < 0 -> "LP ${-p}"; else -> "HP $p" }
+                    },
+                    onChange = { onFilter(it * 2f - 1f) },
+                    onRelease = { onFilter(it * 2f - 1f) },
+                    knobSize = if (compact) 28.dp else 40.dp,
+                    showValue = !compact
+                )
+                // FX: prozor sa reverbom, delayem i EQ-om samo za ovaj kanal; svijetli kad je nešto uključeno.
+                // Telefon: malo dugme (22 dp), da ne gura fader.
+                if (showFx && compact) {
+                    val on = fxActive == true
+                    val sh = rShape(6)
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(22.dp)
+                            .clip(sh)
+                            .background(if (on) Accent else BtnTop)
+                            .border(1.dp, Color.White.copy(alpha = 0.06f), sh)
+                            .clickable { onFx() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("FX", color = if (on) Color.Black else Color.White, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
+                    }
+                } else if (showFx) FlatButton(
+                    "FX",
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    color = if (fxActive == true) Accent else PanelColor,
+                    textColor = if (fxActive == true) Color.Black else Color.White
+                ) { onFx() }
+                if (showPan) SimpleKnob(
+                    "PAN", (pan!! + 1f) / 2f, color, default = 0.5f, bipolar = true,
+                    format = { v ->
+                        val p = ((v * 2f - 1f) * 100).toInt()
+                        when { p == 0 -> "C"; p < 0 -> "L${-p}"; else -> "R$p" }
+                    },
+                    onChange = { onPan(it * 2f - 1f) },
+                    onRelease = { onPan(it * 2f - 1f) },
+                    knobSize = 40.dp
+                )
+            }
         }
         Row(
             modifier = Modifier

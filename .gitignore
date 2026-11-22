@@ -24,3 +24,4 @@ keystore.properties
 
 # Steinberg ASIO SDK: build ga ne koristi (RtAudio nosi svoja ASIO zaglavlja); ne distribuira se
 desktop/third_party/asio-sdk/
+*.pdb

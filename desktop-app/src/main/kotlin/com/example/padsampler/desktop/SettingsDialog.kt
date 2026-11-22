@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.padsampler.SamplerViewModel
+import com.example.padsampler.data.Legal
 import com.example.padsampler.ui.Accent
 import com.example.padsampler.ui.AccentBright
 import com.example.padsampler.ui.Lcd
@@ -176,6 +177,37 @@ fun DesktopSettingsDialog(
                     Chip("Full screen (F11)", fullscreen) { onFullscreen(true) }
                 }
                 Text("The screen does not turn off while PadSampler is running.", color = TextDim, fontSize = 12.sp)
+
+                // ------------------------------------------------ verzija (mreža samo na klik)
+                Section("VERSION")
+                var checking by remember { mutableStateOf(false) }
+                var result by remember { mutableStateOf<UpdateCheck.Result?>(null) }
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("PadSampler ${Legal.version}", color = TextMain, fontSize = 13.sp)
+                    TextButton(enabled = !checking, onClick = {
+                        checking = true
+                        result = null
+                        scope.launch {
+                            result = withContext(Dispatchers.IO) { UpdateCheck.check(Legal.version) }
+                            checking = false
+                        }
+                    }) { Text(if (checking) "Checking..." else "Check for updates") }
+                }
+                when (val r = result) {
+                    is UpdateCheck.Result.UpToDate ->
+                        Text("You have the latest version.", color = AccentBright, fontSize = 12.sp)
+                    is UpdateCheck.Result.NewVersion -> Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("New version ${r.latest} is available.", color = AccentBright, fontSize = 12.sp)
+                        TextButton(onClick = { UpdateCheck.openDownloadPage() }) { Text("Download") }
+                    }
+                    is UpdateCheck.Result.Failed ->
+                        Text("Could not check: ${r.reason}", color = TextDim, fontSize = 12.sp)
+                    null -> Text(
+                        "PadSampler never goes online by itself. Only this button asks GitHub for the latest version " +
+                            "(nothing about you or your computer is sent).",
+                        color = TextFaint, fontSize = 11.sp
+                    )
+                }
             }
         },
         confirmButton = { TextButton(onClick = onClose) { Text("Close") } }

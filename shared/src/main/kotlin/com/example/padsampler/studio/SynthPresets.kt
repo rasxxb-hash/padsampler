@@ -209,11 +209,264 @@ class SynthPresets(baseDir: File) {
             P.OSC1_LEVEL to 0f, P.OSC2_LEVEL to 0f, P.NOISE to 1f, P.CUTOFF to 800f, P.RESONANCE to 0.85f,
             P.FILTER_ENV to 0.3f, P.F_ATTACK to 1.5f, P.F_DECAY to 2f, P.F_SUSTAIN to 0.5f, P.F_RELEASE to 2f,
             P.A_ATTACK to 1.5f, P.A_SUSTAIN to 1f, P.A_RELEASE to 2f, P.VOICES to 4f, P.VOLUME to 0.6f
+        ),
+
+        // ---- 2.0.2: još preseta
+        // BASS
+        preset(
+            "BASS", "Rubber Bass",
+            P.OSC1_WAVE to 0f, P.OSC1_OCT to -1f, P.OSC2_WAVE to 2f, P.OSC2_OCT to -1f, P.OSC2_DETUNE to 0f,
+            P.OSC2_LEVEL to 0.5f, P.CUTOFF to 350f, P.RESONANCE to 0.55f, P.FILTER_ENV to 0.5f, P.KEY_TRACK to 0.4f,
+            P.F_ATTACK to 0.001f, P.F_DECAY to 0.22f, P.F_SUSTAIN to 0.05f, P.F_RELEASE to 0.1f,
+            P.A_ATTACK to 0.002f, P.A_DECAY to 0.35f, P.A_SUSTAIN to 0.6f, P.A_RELEASE to 0.08f, P.GLIDE to 0.04f
+        ),
+        preset(
+            "BASS", "Synthwave Bass",
+            P.OSC1_WAVE to 1f, P.OSC1_OCT to -1f, P.OSC2_WAVE to 1f, P.OSC2_OCT to -1f, P.OSC2_DETUNE to 0.08f,
+            P.OSC2_LEVEL to 0.9f, P.CUTOFF to 700f, P.RESONANCE to 0.2f, P.FILTER_ENV to 0.45f, P.KEY_TRACK to 0.5f,
+            P.F_ATTACK to 0.001f, P.F_DECAY to 0.18f, P.F_SUSTAIN to 0.15f, P.F_RELEASE to 0.1f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 0.2f, P.A_SUSTAIN to 0.8f, P.A_RELEASE to 0.06f
+        ),
+        preset(
+            "BASS", "Wobble Bass",
+            P.OSC1_WAVE to 1f, P.OSC1_OCT to -1f, P.OSC2_WAVE to 2f, P.OSC2_OCT to -1f, P.OSC2_DETUNE to 0.15f,
+            P.OSC2_LEVEL to 0.8f, P.OSC3_WAVE to 0f, P.OSC3_OCT to -2f, P.OSC3_LEVEL to 0.6f,
+            P.CUTOFF to 300f, P.RESONANCE to 0.65f, P.FILTER_ENV to 0.6f,
+            P.F_ATTACK to 0.15f, P.F_DECAY to 0.15f, P.F_SUSTAIN to 0.3f, P.F_RELEASE to 0.15f,
+            P.A_ATTACK to 0.003f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 1f, P.A_RELEASE to 0.1f
+        ),
+        preset(
+            "BASS", "Upright Bass",
+            P.OSC1_WAVE to 0f, P.OSC1_OCT to -1f, P.OSC2_WAVE to 3f, P.OSC2_OCT to -1f, P.OSC2_DETUNE to 0f,
+            P.OSC2_LEVEL to 0.25f, P.NOISE to 0.05f, P.CUTOFF to 600f, P.RESONANCE to 0.05f, P.FILTER_ENV to 0.35f,
+            P.KEY_TRACK to 0.6f, P.F_ATTACK to 0.001f, P.F_DECAY to 0.12f, P.F_SUSTAIN to 0.1f, P.F_RELEASE to 0.15f,
+            P.A_ATTACK to 0.004f, P.A_DECAY to 0.8f, P.A_SUSTAIN to 0f, P.A_RELEASE to 0.15f
+        ),
+        // LEAD
+        preset(
+            "LEAD", "Sync-ish Lead",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_OCT to 1f, P.OSC2_DETUNE to 0.3f, P.OSC2_LEVEL to 0.8f,
+            P.CUTOFF to 2800f, P.RESONANCE to 0.45f, P.FILTER_ENV to 0.4f, P.F_DECAY to 0.3f, P.F_SUSTAIN to 0.4f,
+            P.A_ATTACK to 0.002f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 0.9f, P.A_RELEASE to 0.18f, P.GLIDE to 0.03f
+        ),
+        preset(
+            "LEAD", "Soft Flute",
+            P.OSC1_WAVE to 0f, P.OSC2_LEVEL to 0f, P.NOISE to 0.12f, P.CUTOFF to 2200f, P.RESONANCE to 0.1f,
+            P.FILTER_ENV to 0.15f, P.F_ATTACK to 0.08f, P.F_DECAY to 0.4f, P.F_SUSTAIN to 0.7f,
+            P.A_ATTACK to 0.06f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 0.9f, P.A_RELEASE to 0.25f, P.GLIDE to 0.05f
+        ),
+        preset(
+            "LEAD", "Screamer",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 2f, P.OSC2_DETUNE to 0.18f, P.OSC2_LEVEL to 0.9f,
+            P.OSC3_WAVE to 1f, P.OSC3_OCT to 1f, P.OSC3_DETUNE to 0.1f, P.OSC3_LEVEL to 0.5f,
+            P.CUTOFF to 1500f, P.RESONANCE to 0.75f, P.FILTER_ENV to 0.55f, P.F_ATTACK to 0.02f, P.F_DECAY to 0.6f,
+            P.F_SUSTAIN to 0.5f, P.A_ATTACK to 0.005f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 1f, P.A_RELEASE to 0.25f,
+            P.GLIDE to 0.08f, P.VOLUME to 0.6f
+        ),
+        preset(
+            "LEAD", "Chiptune",
+            P.OSC1_WAVE to 4f, P.OSC2_WAVE to 2f, P.OSC2_OCT to 1f, P.OSC2_DETUNE to 0f, P.OSC2_LEVEL to 0.3f,
+            P.CUTOFF to 9000f, P.RESONANCE to 0f, P.FILTER_ENV to 0f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 0.2f, P.A_SUSTAIN to 0.7f, P.A_RELEASE to 0.05f, P.VOLUME to 0.55f
+        ),
+        // PAD
+        preset(
+            "PAD", "Analog Brass Pad",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.2f, P.OSC3_WAVE to 1f, P.OSC3_OCT to -1f,
+            P.OSC3_DETUNE to -0.15f, P.OSC3_LEVEL to 0.5f, P.CUTOFF to 1100f, P.RESONANCE to 0.15f, P.FILTER_ENV to 0.35f,
+            P.F_ATTACK to 0.4f, P.F_DECAY to 1.5f, P.F_SUSTAIN to 0.5f, P.F_RELEASE to 1.5f,
+            P.A_ATTACK to 0.25f, P.A_DECAY to 1f, P.A_SUSTAIN to 0.9f, P.A_RELEASE to 1.5f, P.VOICES to 8f,
+            P.VOLUME to 0.55f
+        ),
+        preset(
+            "PAD", "Choir Pad",
+            P.OSC1_WAVE to 0f, P.OSC2_WAVE to 3f, P.OSC2_DETUNE to 0.1f, P.OSC2_LEVEL to 0.6f, P.OSC3_WAVE to 0f,
+            P.OSC3_OCT to 1f, P.OSC3_DETUNE to -0.08f, P.OSC3_LEVEL to 0.4f, P.NOISE to 0.08f,
+            P.CUTOFF to 1800f, P.RESONANCE to 0.35f, P.FILTER_ENV to 0.1f,
+            P.A_ATTACK to 0.8f, P.A_DECAY to 1.5f, P.A_SUSTAIN to 0.9f, P.A_RELEASE to 2f, P.VOICES to 8f,
+            P.VOLUME to 0.55f
+        ),
+        preset(
+            "PAD", "Sweep Pad",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 2f, P.OSC2_DETUNE to 0.14f, P.OSC3_WAVE to 1f, P.OSC3_OCT to 1f,
+            P.OSC3_LEVEL to 0.3f, P.CUTOFF to 300f, P.RESONANCE to 0.5f, P.FILTER_ENV to 0.7f,
+            P.F_ATTACK to 3f, P.F_DECAY to 3f, P.F_SUSTAIN to 0.4f, P.F_RELEASE to 2.5f,
+            P.A_ATTACK to 1.2f, P.A_DECAY to 2f, P.A_SUSTAIN to 1f, P.A_RELEASE to 3f, P.VOICES to 8f, P.VOLUME to 0.55f
+        ),
+        preset(
+            "PAD", "Ambient Air",
+            P.OSC1_WAVE to 0f, P.OSC2_WAVE to 0f, P.OSC2_OCT to 1f, P.OSC2_DETUNE to 0.06f, P.OSC2_LEVEL to 0.5f,
+            P.NOISE to 0.25f, P.CUTOFF to 3000f, P.RESONANCE to 0.2f, P.FILTER_ENV to 0.1f,
+            P.A_ATTACK to 2.5f, P.A_DECAY to 2f, P.A_SUSTAIN to 1f, P.A_RELEASE to 4f, P.VOICES to 8f, P.VOLUME to 0.5f
+        ),
+        // KEYS
+        preset(
+            "KEYS", "Clavinet",
+            P.OSC1_WAVE to 4f, P.OSC2_WAVE to 3f, P.OSC2_DETUNE to 0f, P.OSC2_LEVEL to 0.5f,
+            P.CUTOFF to 2200f, P.RESONANCE to 0.35f, P.FILTER_ENV to 0.5f, P.KEY_TRACK to 0.7f,
+            P.F_ATTACK to 0.001f, P.F_DECAY to 0.15f, P.F_SUSTAIN to 0.2f, P.F_RELEASE to 0.05f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 0.5f, P.A_SUSTAIN to 0.3f, P.A_RELEASE to 0.06f, P.VOICES to 8f,
+            P.VOLUME to 0.6f
+        ),
+        preset(
+            "KEYS", "Harpsichord",
+            P.OSC1_WAVE to 3f, P.OSC2_WAVE to 1f, P.OSC2_OCT to 1f, P.OSC2_DETUNE to 0.02f, P.OSC2_LEVEL to 0.5f,
+            P.CUTOFF to 4500f, P.RESONANCE to 0.1f, P.FILTER_ENV to 0.4f, P.KEY_TRACK to 0.8f,
+            P.F_ATTACK to 0.001f, P.F_DECAY to 0.4f, P.F_SUSTAIN to 0.1f, P.F_RELEASE to 0.3f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 0.9f, P.A_SUSTAIN to 0f, P.A_RELEASE to 0.35f, P.VOICES to 8f,
+            P.VOLUME to 0.55f
+        ),
+        preset(
+            "KEYS", "Mallet",
+            P.OSC1_WAVE to 0f, P.OSC2_WAVE to 0f, P.OSC2_OCT to 2f, P.OSC2_DETUNE to 0f, P.OSC2_LEVEL to 0.35f,
+            P.CUTOFF to 3500f, P.RESONANCE to 0f, P.FILTER_ENV to 0.3f, P.F_DECAY to 0.2f, P.F_SUSTAIN to 0f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 0.45f, P.A_SUSTAIN to 0f, P.A_RELEASE to 0.3f, P.VOICES to 8f
+        ),
+        preset(
+            "KEYS", "House Organ",
+            P.OSC1_WAVE to 2f, P.OSC2_WAVE to 0f, P.OSC2_OCT to 1f, P.OSC2_DETUNE to 0f, P.OSC2_LEVEL to 0.7f,
+            P.OSC3_WAVE to 2f, P.OSC3_OCT to -1f, P.OSC3_DETUNE to 0f, P.OSC3_LEVEL to 0.4f,
+            P.CUTOFF to 2500f, P.RESONANCE to 0.2f, P.FILTER_ENV to 0.3f, P.F_DECAY to 0.15f, P.F_SUSTAIN to 0.4f,
+            P.A_ATTACK to 0.002f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 0.6f, P.A_RELEASE to 0.08f, P.VOICES to 8f,
+            P.VOLUME to 0.55f
+        ),
+        preset(
+            "KEYS", "Poly Synth",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 3f, P.OSC2_DETUNE to 0.1f, P.OSC2_LEVEL to 0.7f,
+            P.CUTOFF to 1600f, P.RESONANCE to 0.25f, P.FILTER_ENV to 0.45f,
+            P.F_ATTACK to 0.005f, P.F_DECAY to 0.6f, P.F_SUSTAIN to 0.35f, P.F_RELEASE to 0.5f,
+            P.A_ATTACK to 0.005f, P.A_DECAY to 0.8f, P.A_SUSTAIN to 0.7f, P.A_RELEASE to 0.5f, P.VOICES to 8f,
+            P.VOLUME to 0.55f
+        ),
+        preset(
+            "KEYS", "Saw Brass Stab",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.15f, P.OSC3_WAVE to 1f, P.OSC3_OCT to -1f,
+            P.OSC3_LEVEL to 0.4f, P.CUTOFF to 700f, P.RESONANCE to 0.2f, P.FILTER_ENV to 0.75f,
+            P.F_ATTACK to 0.03f, P.F_DECAY to 0.25f, P.F_SUSTAIN to 0.2f, P.F_RELEASE to 0.15f,
+            P.A_ATTACK to 0.02f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 0.5f, P.A_RELEASE to 0.15f, P.VOICES to 8f,
+            P.VOLUME to 0.55f
+        ),
+        // FX
+        preset(
+            "FX", "Filter Drop",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.3f, P.CUTOFF to 120f, P.RESONANCE to 0.8f,
+            P.FILTER_ENV to 1f, P.F_ATTACK to 0.001f, P.F_DECAY to 1.8f, P.F_SUSTAIN to 0f, P.F_RELEASE to 1f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 2.5f, P.A_SUSTAIN to 0f, P.A_RELEASE to 1f, P.VOICES to 4f, P.VOLUME to 0.6f
+        ),
+        preset(
+            "FX", "Sci-Fi Blip",
+            P.OSC1_WAVE to 0f, P.OSC1_OCT to 2f, P.OSC2_LEVEL to 0f, P.CUTOFF to 5000f, P.RESONANCE to 0.95f,
+            P.FILTER_ENV to 0.9f, P.F_ATTACK to 0.001f, P.F_DECAY to 0.08f, P.F_SUSTAIN to 0f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 0.12f, P.A_SUSTAIN to 0f, P.A_RELEASE to 0.08f, P.VOICES to 4f
+        ),
+        preset(
+            "FX", "Ocean",
+            P.OSC1_LEVEL to 0f, P.OSC2_LEVEL to 0f, P.NOISE to 1f, P.CUTOFF to 400f, P.RESONANCE to 0.3f,
+            P.FILTER_ENV to 0.6f, P.F_ATTACK to 2.5f, P.F_DECAY to 3f, P.F_SUSTAIN to 0.1f, P.F_RELEASE to 3f,
+            P.A_ATTACK to 2f, P.A_DECAY to 3f, P.A_SUSTAIN to 0.4f, P.A_RELEASE to 3f, P.VOICES to 4f, P.VOLUME to 0.6f
+        ),
+        preset(
+            "FX", "Dark Hit",
+            P.OSC1_WAVE to 1f, P.OSC1_OCT to -2f, P.OSC2_WAVE to 2f, P.OSC2_OCT to -1f, P.OSC2_DETUNE to 0.4f,
+            P.NOISE to 0.4f, P.CUTOFF to 1200f, P.RESONANCE to 0.3f, P.FILTER_ENV to 0.6f,
+            P.F_ATTACK to 0.001f, P.F_DECAY to 1f, P.F_SUSTAIN to 0f, P.F_RELEASE to 1f,
+            P.A_ATTACK to 0.001f, P.A_DECAY to 2f, P.A_SUSTAIN to 0f, P.A_RELEASE to 1.5f, P.VOICES to 4f, P.VOLUME to 0.7f
+        ),
+        // ---- ORCHESTRA (22. 11. 2026): analogne imitacije instrumenata (kao Moog/Prophet preseti 70-ih, ne pravi
+        // instrument). Ključ: vibrato sa zakašnjenjem (VIBRATO), jače = svjetlije (VEL_TONE), malo šuma = dah.
+        preset(
+            "ORCHESTRA", "Trumpet",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.04f, P.OSC2_LEVEL to 0.5f, P.OSC3_LEVEL to 0f,
+            P.NOISE to 0.03f, P.CUTOFF to 700f, P.RESONANCE to 0.1f, P.FILTER_ENV to 0.55f, P.KEY_TRACK to 0.6f,
+            P.F_ATTACK to 0.06f, P.F_DECAY to 0.35f, P.F_SUSTAIN to 0.55f, P.F_RELEASE to 0.15f,
+            P.A_ATTACK to 0.03f, P.A_DECAY to 0.2f, P.A_SUSTAIN to 0.9f, P.A_RELEASE to 0.12f,
+            P.GLIDE to 0.03f, P.VIBRATO to 0.35f, P.VEL_TONE to 0.7f
+        ),
+        preset(
+            "ORCHESTRA", "Brass Section",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.15f, P.OSC2_LEVEL to 0.9f,
+            P.OSC3_WAVE to 1f, P.OSC3_OCT to 0f, P.OSC3_DETUNE to -0.12f, P.OSC3_LEVEL to 0.6f,
+            P.CUTOFF to 600f, P.RESONANCE to 0.1f, P.FILTER_ENV to 0.6f, P.KEY_TRACK to 0.5f,
+            P.F_ATTACK to 0.1f, P.F_DECAY to 0.6f, P.F_SUSTAIN to 0.5f, P.F_RELEASE to 0.3f,
+            P.A_ATTACK to 0.06f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 0.85f, P.A_RELEASE to 0.25f,
+            P.VOICES to 6f, P.VIBRATO to 0.15f, P.VEL_TONE to 0.6f, P.VOLUME to 0.6f
+        ),
+        preset(
+            "ORCHESTRA", "Sax",
+            P.OSC1_WAVE to 3f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.03f, P.OSC2_LEVEL to 0.4f, P.OSC3_LEVEL to 0f,
+            P.NOISE to 0.06f, P.CUTOFF to 900f, P.RESONANCE to 0.25f, P.FILTER_ENV to 0.4f, P.KEY_TRACK to 0.6f,
+            P.F_ATTACK to 0.04f, P.F_DECAY to 0.3f, P.F_SUSTAIN to 0.6f, P.F_RELEASE to 0.15f,
+            P.A_ATTACK to 0.025f, P.A_DECAY to 0.2f, P.A_SUSTAIN to 0.9f, P.A_RELEASE to 0.1f,
+            P.GLIDE to 0.04f, P.VIBRATO to 0.45f, P.VEL_TONE to 0.8f
+        ),
+        preset(
+            "ORCHESTRA", "Clarinet",
+            P.OSC1_WAVE to 2f, P.OSC2_WAVE to 2f, P.OSC2_OCT to 0f, P.OSC2_DETUNE to 0.02f, P.OSC2_LEVEL to 0.2f,
+            P.OSC3_LEVEL to 0f, P.NOISE to 0.02f, P.CUTOFF to 1400f, P.RESONANCE to 0.1f, P.FILTER_ENV to 0.2f,
+            P.KEY_TRACK to 0.7f, P.F_ATTACK to 0.03f, P.F_DECAY to 0.2f, P.F_SUSTAIN to 0.7f, P.F_RELEASE to 0.15f,
+            P.A_ATTACK to 0.04f, P.A_DECAY to 0.1f, P.A_SUSTAIN to 1f, P.A_RELEASE to 0.12f,
+            P.VIBRATO to 0.25f, P.VEL_TONE to 0.5f
+        ),
+        preset(
+            "ORCHESTRA", "Flute",
+            P.OSC1_WAVE to 0f, P.OSC2_WAVE to 0f, P.OSC2_OCT to 1f, P.OSC2_DETUNE to 0f, P.OSC2_LEVEL to 0.15f,
+            P.OSC3_LEVEL to 0f, P.NOISE to 0.12f, P.CUTOFF to 2500f, P.RESONANCE to 0.05f, P.FILTER_ENV to 0.1f,
+            P.KEY_TRACK to 0.6f, P.A_ATTACK to 0.06f, P.A_DECAY to 0.1f, P.A_SUSTAIN to 0.95f, P.A_RELEASE to 0.15f,
+            P.GLIDE to 0.02f, P.VIBRATO to 0.5f, P.VEL_TONE to 0.4f
+        ),
+        preset(
+            "ORCHESTRA", "Oboe",
+            P.OSC1_WAVE to 4f, P.OSC2_WAVE to 3f, P.OSC2_DETUNE to 0.02f, P.OSC2_LEVEL to 0.3f, P.OSC3_LEVEL to 0f,
+            P.NOISE to 0.03f, P.CUTOFF to 1500f, P.RESONANCE to 0.35f, P.FILTER_ENV to 0.25f, P.KEY_TRACK to 0.7f,
+            P.F_ATTACK to 0.02f, P.F_DECAY to 0.2f, P.F_SUSTAIN to 0.7f, P.F_RELEASE to 0.1f,
+            P.A_ATTACK to 0.03f, P.A_DECAY to 0.1f, P.A_SUSTAIN to 0.95f, P.A_RELEASE to 0.1f,
+            P.VIBRATO to 0.4f, P.VEL_TONE to 0.6f
+        ),
+        preset(
+            "ORCHESTRA", "Violin",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.08f, P.OSC2_LEVEL to 0.6f, P.OSC3_LEVEL to 0f,
+            P.NOISE to 0.02f, P.CUTOFF to 2000f, P.RESONANCE to 0.2f, P.FILTER_ENV to 0.15f, P.KEY_TRACK to 0.6f,
+            P.F_ATTACK to 0.15f, P.F_DECAY to 0.5f, P.F_SUSTAIN to 0.8f, P.F_RELEASE to 0.3f,
+            P.A_ATTACK to 0.12f, P.A_DECAY to 0.2f, P.A_SUSTAIN to 0.95f, P.A_RELEASE to 0.3f,
+            P.GLIDE to 0.05f, P.VIBRATO to 0.55f, P.VEL_TONE to 0.5f
+        ),
+        preset(
+            "ORCHESTRA", "Cello",
+            P.OSC1_WAVE to 1f, P.OSC1_OCT to -1f, P.OSC2_WAVE to 1f, P.OSC2_OCT to -1f, P.OSC2_DETUNE to 0.06f,
+            P.OSC2_LEVEL to 0.6f, P.OSC3_LEVEL to 0f, P.NOISE to 0.02f, P.CUTOFF to 900f, P.RESONANCE to 0.2f,
+            P.FILTER_ENV to 0.2f, P.KEY_TRACK to 0.5f,
+            P.F_ATTACK to 0.15f, P.F_DECAY to 0.5f, P.F_SUSTAIN to 0.7f, P.F_RELEASE to 0.4f,
+            P.A_ATTACK to 0.1f, P.A_DECAY to 0.2f, P.A_SUSTAIN to 0.95f, P.A_RELEASE to 0.35f,
+            P.GLIDE to 0.05f, P.VIBRATO to 0.45f, P.VEL_TONE to 0.5f
+        ),
+        preset(
+            "ORCHESTRA", "String Ensemble",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.18f, P.OSC2_LEVEL to 0.9f,
+            P.OSC3_WAVE to 1f, P.OSC3_OCT to 0f, P.OSC3_DETUNE to -0.15f, P.OSC3_LEVEL to 0.7f,
+            P.CUTOFF to 2200f, P.RESONANCE to 0.1f, P.FILTER_ENV to 0.05f, P.KEY_TRACK to 0.5f, P.F_SUSTAIN to 1f,
+            P.A_ATTACK to 0.35f, P.A_DECAY to 0.3f, P.A_SUSTAIN to 0.95f, P.A_RELEASE to 0.8f,
+            P.VOICES to 8f, P.VIBRATO to 0.2f, P.VEL_TONE to 0.3f, P.VOLUME to 0.55f
+        ),
+        preset(
+            "ORCHESTRA", "Pizzicato",
+            P.OSC1_WAVE to 1f, P.OSC2_WAVE to 1f, P.OSC2_DETUNE to 0.12f, P.OSC2_LEVEL to 0.7f, P.OSC3_LEVEL to 0f,
+            P.CUTOFF to 1500f, P.RESONANCE to 0.15f, P.FILTER_ENV to 0.5f, P.KEY_TRACK to 0.6f,
+            P.F_ATTACK to 0.001f, P.F_DECAY to 0.15f, P.F_SUSTAIN to 0f, P.F_RELEASE to 0.2f,
+            P.A_ATTACK to 0.002f, P.A_DECAY to 0.35f, P.A_SUSTAIN to 0f, P.A_RELEASE to 0.3f,
+            P.VOICES to 8f, P.VEL_TONE to 0.6f
+        ),
+        preset(
+            "ORCHESTRA", "Harmonica",
+            P.OSC1_WAVE to 2f, P.OSC2_WAVE to 4f, P.OSC2_DETUNE to 0.1f, P.OSC2_LEVEL to 0.5f, P.OSC3_LEVEL to 0f,
+            P.NOISE to 0.08f, P.CUTOFF to 1600f, P.RESONANCE to 0.3f, P.FILTER_ENV to 0.3f, P.KEY_TRACK to 0.6f,
+            P.F_ATTACK to 0.03f, P.F_DECAY to 0.3f, P.F_SUSTAIN to 0.6f, P.F_RELEASE to 0.1f,
+            P.A_ATTACK to 0.02f, P.A_DECAY to 0.1f, P.A_SUSTAIN to 0.9f, P.A_RELEASE to 0.1f,
+            P.VIBRATO to 0.3f, P.VEL_TONE to 0.7f
         )
     ).sortedBy { CATEGORY_ORDER.indexOf(it.category) }   // stabilno: unutar grupe redom kako su napisani
 
     companion object {
-        val CATEGORY_ORDER = listOf("INIT", "BASS", "LEAD", "PAD", "KEYS", "FX")
+        val CATEGORY_ORDER = listOf("INIT", "BASS", "LEAD", "PAD", "KEYS", "ORCHESTRA", "FX")
     }
 
     @Synchronized

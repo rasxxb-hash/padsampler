@@ -16,7 +16,21 @@ Oznake: [A] samo Android, [W] samo Windows, bez oznake = obje platforme.
 - [x] Računar: jezgro + testovi kroz CMake, RtAudio (WASAPI/ASIO), `padsampler.dll` (isti JNI most), Compose Desktop aplikacija, Java MIDI za Launchpad [W]
 - [x] Pad DLL-a u `msvcp140.dll` riješen (statički runtime /MT) [W]
 - [x] Objavljivanje (16. 11. 2026): GPL-3.0 licenca i licence tuđih biblioteka, ekran About, applicationId `net.nerdinstruments.padsampler`, README za GitHub sa slikama, sajt `website/` (početna, uputstvo EN + srpski, download, privacy, license)
-- [ ] Objavljivanje dalje: git init + push na GitHub, GitHub Release sa EXE-om, Cloudflare Pages (folder `website/`), Play Store (AAB, opis, grafike), Linux verzija
+- [x] Objavljivanje: GitHub (javno), Release 2.0.1 sa EXE-om, sajt nerd-instruments.net (Cloudflare Pages), Play Store zatvoreno testiranje (od 19. 11. 2026, 12 testera; produkcija od 3. 12. 2026), PayPal podrška
+- [ ] Play Store: prijava za produkciju poslije 3. 12. 2026; Linux verzija
+
+## Sljedeće (korisnik, 19. 11. 2026; skupiti u verziju 2.0.2, pa GitHub + Play)
+- [x] Print to pad: veći prozor (8 kolona stane, telefon se skroluje), imena i u Drums, nova imena u Keys (Chords, Melodic, Pads, Arp), polje za vlastito ime
+- [x] MIDI learn: preseti mapiranja (spremanje pod imenom, učitavanje, izvoz/uvoz .padmidi); provjeriti sa pravom klavijaturom
+- [x] Drums: akustični kitovi Acoustic, Rock, Jazz (modalna sinteza + soba; nove vrste zvuka u redu ACOUSTIC)
+- [x] Keys: 22 nova preseta (Bass, Lead, Pad, Keys, FX)
+- [x] Drums: moji kitovi (KIT ▾ → Save current kit…, MY KITS; semplovi + jačine, za sve sesije)
+- [x] Windows: ⚙ Check for updates (samo na klik; privacy.html dopunjen)
+- [x] Sat seta (SET u gornjoj traci, trajanje, upozorenje), vrijeme i baterija (lijeva kolona; Android i Windows laptop)
+- [x] Efekti u mikseru: DJ filter na masteru; po kanalu FX (reverb + delay send, EQ 3 opsega)
+- [x] Efekti u mikseru, faza 4: limiter na masteru (umjesto tvrdog klipa)
+- [x] Keys: ORCHESTRA preseti (truba, sax, violina, čelo...) + VIBRATO i VEL>TONE u sintisajzeru (22. 11. 2026)
+- [ ] Izvoz sesije za Ableton Live (korisnici pitaju; kasnije)
 
 ## Provjeriti na uređajima
 - [ ] Android: latencija pad -> zvuk na Redmi Pad SE [A]

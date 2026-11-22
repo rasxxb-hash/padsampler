@@ -32,6 +32,12 @@ interface UiPlatform {
     /** "Sačuvaj kao" za .padsession; poziva se sa predloženim imenom fajla (npr. "Pjesma.padsession"). */
     @Composable fun rememberSessionSavePicker(onPicked: (String) -> Unit): (suggestedName: String) -> Unit
 
+    /** Izbor .padmidi fajla (uvoz preseta MIDI mapiranja). */
+    @Composable fun rememberMidiPresetFilePicker(onPicked: (String) -> Unit): () -> Unit
+
+    /** "Sačuvaj kao" za .padmidi; poziva se sa predloženim imenom fajla. */
+    @Composable fun rememberMidiPresetSavePicker(onPicked: (String) -> Unit): (suggestedName: String) -> Unit
+
     /** Ima li platforma ekran podešavanja (dugme ⚙ u gornjoj traci). Računar: audio uređaj, MIDI, full screen. */
     val hasSettings: Boolean get() = false
 
@@ -46,7 +52,13 @@ interface UiPlatform {
 
     /** Otvara sistemska podešavanja aplikacije (baterija), da korisnik sam isključi štednju. */
     fun openBatterySettings() {}
+
+    /** Stanje baterije za gornju traku; null = platforma ne prikazuje bateriju (računar). Zove se povremeno. */
+    fun battery(): BatteryInfo? = null
 }
+
+/** Baterija uređaja: procenat 0..100 i da li se puni. */
+data class BatteryInfo(val percent: Int, val charging: Boolean)
 
 val LocalUiPlatform = staticCompositionLocalOf<UiPlatform> {
     error("UiPlatform nije postavljen (CompositionLocalProvider(LocalUiPlatform provides ...))")

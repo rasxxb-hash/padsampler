@@ -139,15 +139,15 @@ static void testChoke() {
     Mixer m;
     Studio st;
     m.setAuxSource(&st);
-    st.drums().setSample(0, dcSample(48000, 0.5f));
-    st.drums().setSample(1, dcSample(48000, 0.25f));
+    st.drums().setSample(0, dcSample(48000, 0.25f));  // tiho: zbir ispod praga limitera mastera
+    st.drums().setSample(1, dcSample(48000, 0.125f));
     st.noteOn(kPartDrums, 0, 1.0f);
     st.noteOn(kPartDrums, 1, 1.0f);
     auto a = run(m, 1000);
-    CHECK(near(a[2 * 500], 0.75f));
+    CHECK(near(a[2 * 500], 0.375f));
     st.noteOn(kPartDrums, 0, 1.0f);  // ista traka: stara se utiša (3 ms), nova svira
     auto b = run(m, 1000);
-    CHECK(near(b[2 * 900], 0.75f));  // ne 1.25
+    CHECK(near(b[2 * 900], 0.375f));  // ne 0.625
     std::printf("ok utišavanje iste trake\n");
 }
 

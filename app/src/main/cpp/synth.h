@@ -49,6 +49,9 @@ enum SynthParam : int {
     kFxDelayMix,    // 0..1
     kFxReverbSize,  // 0..1
     kFxReverbMix,   // 0..1
+    // izraz (dodato 22. 11. 2026, na kraju zbog starih preseta): vibrato kreće malo poslije note; jačina udarca otvara filter
+    kVibrato,       // 0..1 (do ±0.6 polutona, 5.5 Hz)
+    kVelTone,       // 0..1 (jače = svjetlije; 0 = boja ne zavisi od jačine)
     kSynthParamCount
 };
 
@@ -102,6 +105,8 @@ private:
         Env fenv, aenv;
         bool fastRelease = false;
         uint32_t age = 0;
+        double vibPhase = 0.0;     // vibrato (0..1)
+        double vibTime = 0.0;      // sekundi od početka note (vibrato kreće sa zakašnjenjem)
     };
 
     void startVoice(Voice& v, int note, float velocity, bool retrigger, bool glide);

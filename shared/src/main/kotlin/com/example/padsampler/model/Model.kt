@@ -92,6 +92,13 @@ data class ControlState(
     val faders: List<Float> = List(Layout.TRACKS) { Fader.DEFAULT },
     /** Pan po tracku: -1 lijevo .. 0 sredina .. +1 desno. */
     val pans: List<Float> = List(Layout.TRACKS) { 0f },
+    /** DJ filter na masteru: -1 low-pass .. 0 isključen .. +1 high-pass. */
+    val masterFilter: Float = 0f,
+    /** Send kanala u zajednički reverb / delay, 0..1. */
+    val revSends: List<Float> = List(Layout.TRACKS) { 0f },
+    val dlySends: List<Float> = List(Layout.TRACKS) { 0f },
+    /** EQ kanala [track][LOW, MID, HIGH], -1..1 = -12..+12 dB, 0 = ravno. */
+    val eqs: List<List<Float>> = List(Layout.TRACKS) { List(3) { 0f } },
     val mutes: List<Boolean> = List(Layout.TRACKS) { false },
     val solos: List<Boolean> = List(Layout.TRACKS) { false },
     val master: Float = 1f,
@@ -122,6 +129,13 @@ data class SessionData(
     val faders: List<Float> = List(Layout.TRACKS) { Fader.DEFAULT },
     /** Pan po tracku: -1 lijevo .. 0 sredina .. +1 desno. */
     val pans: List<Float> = List(Layout.TRACKS) { 0f },
+    /** DJ filter na masteru: -1 low-pass .. 0 isključen .. +1 high-pass. */
+    val masterFilter: Float = 0f,
+    /** Send kanala u zajednički reverb / delay, 0..1. */
+    val revSends: List<Float> = List(Layout.TRACKS) { 0f },
+    val dlySends: List<Float> = List(Layout.TRACKS) { 0f },
+    /** EQ kanala [track][LOW, MID, HIGH], -1..1. */
+    val eqs: List<List<Float>> = List(Layout.TRACKS) { List(3) { 0f } },
     val mutes: List<Boolean> = List(Layout.TRACKS) { false },
     val master: Float = 1f,
     /** Drums (kit + pattern) sesije. Fajlovi zvukova su u istom folderu kao semplovi (samples/). */

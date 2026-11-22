@@ -50,7 +50,8 @@ object KeysJson {
                 scale = runCatching { Scale.valueOf(o.optString("scale", "MINOR")) }.getOrDefault(Scale.MINOR),
                 octave = o.optInt("octave", 1).coerceIn(KeysLayout.MIN_OCTAVE, KeysLayout.MAX_OCTAVE),
                 noteLength = o.optInt("noteLength", 2).let { if (it in KeysLayout.NOTE_LENGTHS) it else 2 },
-                category = o.optString("category", "Bass").ifBlank { "Bass" },
+                // "Pad" je do 2.0.1 bilo ime kategorije; sada "Pads" (kao u Sessionu)
+                category = o.optString("category", "Bass").ifBlank { "Bass" }.let { if (it == "Pad") "Pads" else it },
                 swing = o.optInt("swing", 0).coerceIn(0, DrumLayout.MAX_SWING)
             )
         } catch (e: Exception) {

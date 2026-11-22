@@ -35,6 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.padsampler.model.SetClockState
 import kotlinx.coroutines.delay
 
 /**
@@ -47,7 +48,13 @@ fun SideRail(
     onMenu: () -> Unit,
     onEdit: () -> Unit,
     onStopAll: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    /** Trenutno vrijeme ("22:47") i baterija (Android; null = ne prikazuje se), iznad STOP ALL. */
+    now: String? = null,
+    battery: BatteryInfo? = null,
+    /** Sat seta (iznad sata); null = ne prikazuje se. */
+    setClock: SetClockState? = null,
+    onSetClock: () -> Unit = {}
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         val shape = rShape(12)
@@ -62,18 +69,34 @@ fun SideRail(
             contentAlignment = Alignment.Center
         ) { Text("☰", color = Color.White, fontSize = 24.sp) }
         FlatButton(
-            if (editMode) "done" else "edit",
+            if (editMode) "DONE" else "EDIT",
             modifier = Modifier.fillMaxWidth(),
             color = if (editMode) EditBorder else PanelColor,
             textColor = if (editMode) Color.Black else Color.White
         ) { onEdit() }
         Spacer(Modifier.weight(1f))
+        if (setClock != null) SetClockRail(setClock, onSetClock)
+        // okvir kao polje tempa (Lcd); sat mint, Inter, iste veličine kao SET (korisnik 22. 11. 2026)
+        if (now != null || battery != null) Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(rShape(12))
+                .background(Lcd)
+                .padding(vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            if (now != null) Text(now, color = AccentBright, fontSize = 15.sp, fontFamily = AppFonts.inter, fontWeight = FontWeight.SemiBold, maxLines = 1, style = androidx.compose.ui.text.TextStyle(fontFeatureSettings = "tnum"))
+            if (battery != null) BatteryView(battery, compact = false)
+        }
+        // zaustavlja sve odmah (trackovi, Drums, Keys); korisnik 22. 11. 2026: "KILL SWITCH" umjesto "STOP ALL"
         FlatButton(
-            "STOP\nALL",
+            "KILL\nSWITCH",
             modifier = Modifier
                 .fillMaxWidth()
                 .height(72.dp),
-            color = StopRedBottom
+            color = StopRedBottom,
+            maxLines = 2
         ) { onStopAll() }
     }
 }

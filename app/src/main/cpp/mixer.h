@@ -50,6 +50,9 @@ struct Command {
         SetSlotLoop,
         SetTrackGain,
         SetTrackPan,
+        SetMasterFilter,
+        SetTrackSend,
+        SetTrackEq,
         SetTrackMute,
         SetTrackSolo,
         SetMasterGain,
@@ -119,6 +122,30 @@ public:
                            double framesPerBar) = 0;
 };
 
+// Zajednički send efekti miksera (prostor): reverb (Freeverb, samo povrat) i delay vezan za tempo (1/8 sa tačkom,
+// ping-pong, povratna veza kroz blagi low-pass). Baferi se alociraju u konstruktoru (do 96 kHz); process() ne alocira.
+// Samo audio nit.
+class SendFx {
+public:
+    SendFx();
+    // revIn / dlyIn: stereo sabirnice (ono što kanali pošalju); povrat se DODAJE (+=) u out.
+    void process(const float* revIn, const float* dlyIn, float* out, int32_t frames, int sampleRate, double framesPerBeat);
+    void clear();   // briše repove (kad su efekti bili ugašeni, da ne iskoči stari rep)
+
+private:
+    struct Comb { std::vector<float> buf; int len = 1, pos = 0; float store = 0.0f; };
+    struct Allpass { std::vector<float> buf; int len = 1, pos = 0; };
+    void setup(int sampleRate);
+
+    int mRate = 0;
+    std::array<Comb, 8> mCombL, mCombR;
+    std::array<Allpass, 4> mApL, mApR;
+    std::vector<float> mDly;   // stereo
+    int mDlyPos = 0;
+    double mDlyFrames = 0.0;
+    float mDlyLpL = 0.0f, mDlyLpR = 0.0f;
+};
+
 class Mixer {
 public:
     Mixer();
@@ -166,6 +193,14 @@ public:
     void setTrackSolo(int track, bool solo);
     void setMasterGain(float linear);
     void setMasterMute(bool mute);
+    // DJ filter na masteru (sve: trackovi, Drums, Keys): -1 = low-pass do kraja (tamno) .. 0 = isključen .. +1 = high-pass
+    void setMasterFilter(float amount);
+    // Send po kanalu u zajednički reverb / delay (0..1, poslije fadera i pana, utišan kad je kanal mute)
+    void setTrackReverbSend(int track, float amount);
+    void setTrackDelaySend(int track, float amount);
+    // EQ kanala (prije fadera): band 0 = LOW (shelf 200 Hz), 1 = MID (peak 1 kHz), 2 = HIGH (shelf 5 kHz);
+    // amount -1..1 = -12..+12 dB, 0 = ravno (ne računa se)
+    void setTrackEq(int track, int band, float amount);
 
     // ---- stanje za UI (bilo koja nit)
     // slotStates[kNumSlots], trackLevels[kTracks] (peak 0..1), trackProgress[kTracks] (0..1),
@@ -213,6 +248,11 @@ private:
         float panL = 1.0f, panR = 1.0f;   // izglađeno (bez klikova)
         bool mute = false;
         bool solo = false;
+        float sendRev = 0.0f, sendDly = 0.0f;      // cilj 0..1
+        float revSmooth = 0.0f, dlySmooth = 0.0f;  // izglađeno
+        float eq[3] = {0.0f, 0.0f, 0.0f};        // cilj -1..1 (LOW, MID, HIGH)
+        float eqSmooth[3] = {0.0f, 0.0f, 0.0f};  // izglađeno (koeficijenti po segmentu)
+        float eqZ[3][2][2] = {};                 // stanje biquada [band][kanal][z1,z2]
     };
 
     static constexpr int kChunk = 512;
@@ -227,6 +267,8 @@ private:
     void recomputeBar();
     void renderChunk(float* out, int32_t frames);
     void renderSegment(float* out, int32_t seg, int64_t untilBar);
+    void applyMasterFilter(float* buf, int32_t seg, float smoothCoef, double outRate);
+    void applyTrackEq(Track& tr, float* buf, int32_t seg, double outRate);
     void retireLocked(const Sample* old);
     void renderPreview(float* out, int32_t frames);
     void syncToClock(double bpm, double barPhase, int32_t numFrames);
@@ -275,7 +317,19 @@ private:
     int64_t mBarCount = 0;
     float mMasterGain = 1.0f;
     float mMasterSmooth = 1.0f;
+    float mLimGain = 1.0f;   // limiter mastera (1 = ne radi)
     bool mMasterMute = false;
+    // DJ filter mastera (samo audio nit)
+    float mFilter = 0.0f;        // cilj -1..1
+    float mFilterSmooth = 0.0f;  // izglađeno
+    float mSvfIc1[2] = {0.0f, 0.0f};  // stanje filtera (L, R)
+    float mSvfIc2[2] = {0.0f, 0.0f};
+    // send efekti (samo audio nit): sabirnice, efekti, rep poslije zadnjeg slanja
+    SendFx mSendFx;
+    std::array<float, 2 * kChunk> mRevBus{};
+    std::array<float, 2 * kChunk> mDlyBus{};
+    int64_t mFxTail = 0;     // još koliko frameova računati rep (0 = efekti ne rade)
+    bool mFxClean = true;    // repovi obrisani
 };
 
 }  // namespace padsampler

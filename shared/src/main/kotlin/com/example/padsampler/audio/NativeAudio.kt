@@ -78,6 +78,13 @@ object NativeAudio {
     external fun setTrackGain(track: Int, gain: Float)
     /** -1 lijevo .. 0 sredina .. +1 desno (balance). */
     external fun setTrackPan(track: Int, pan: Float)
+    /** DJ filter na masteru: -1 low-pass .. 0 isključen .. +1 high-pass. */
+    external fun setMasterFilter(amount: Float)
+    /** Send kanala u zajednički reverb / delay (0..1, poslije fadera). */
+    external fun setTrackReverbSend(track: Int, amount: Float)
+    external fun setTrackDelaySend(track: Int, amount: Float)
+    /** EQ kanala: band 0 = LOW, 1 = MID, 2 = HIGH; -1..1 = -12..+12 dB. */
+    external fun setTrackEq(track: Int, band: Int, amount: Float)
     external fun setTrackMute(track: Int, mute: Boolean)
     external fun setTrackSolo(track: Int, solo: Boolean)
     external fun setMasterGain(gain: Float)

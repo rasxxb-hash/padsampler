@@ -77,6 +77,9 @@
     <ul>
       <li><b>SESSION · MIXER · DRUMS · KEYS</b>: četiri ekrana.</li>
       <li><b>Ime sesije</b>: ime trenutne sesije.</li>
+      <li><b>SET 0:00</b> (lijeva kolona, iznad sata): sat seta. Kreće sam sa prvim clipom (ili Drums / Keys) i teče dok ga ne resetuješ. Dodir otvara
+        izbor trajanja seta (15–120 min) i da li pokazuje proteklo (<code>32:14 / 45:00</code>) ili preostalo vrijeme.
+        Zadnjih 5 minuta je narandžast, poslije isteka crven i broji prekoračenje (<code>+2:10</code>). Bez zvuka i bez prozora.</li>
       <li><b>8 tačkica</b>: osmine trenutnog takta, pokazuju gdje je ritam.</li>
       <li><b>LINK</b>: Ableton Link uključen/isključen (vidi <a href="#link">Ableton Link</a>).</li>
       <li><b>− BPM +</b>: tempo, od 60 do 240 BPM. Dodir na broj otvara unos tempa.</li>
@@ -86,7 +89,9 @@
       <li><b>☰</b> otvara meni: učitavanje semplova, sačuvaj / izvezi / učitaj / nova sesija, set lista, opcije Linka,
         status (MIDI i izlaz zvuka) i About.</li>
       <li><b>edit / done</b>: režim za stavljanje semplova na padove.</li>
-      <li><b>STOP</b> (crveno, dolje): odmah zaustavlja sve, i Drums i Keys. Uvijek pri ruci.</li>
+      <li><b>Sat i baterija</b>: trenutno vrijeme i stanje baterije na Androidu i Windows laptopu (narandžasto ispod 20 %, crveno ispod 10 %,
+        mint munja dok se puni).</li>
+      <li><b>KILL SWITCH</b> (crveno, dolje lijevo): odmah zaustavlja sve, i Drums i Keys. Uvijek pri ruci.</li>
     </ul>
     <h3>Master</h3>
     <p>Glavni fejder i metar su desno, ispod je <b>M</b> (mute).</p>
@@ -95,7 +100,7 @@
     <!-- ===================================================== -->
     <h2 id="semplovi">3. Učitavanje semplova</h2>
     <ol>
-      <li>Dodirni <b>edit</b> lijevo (ili ☰ → Load samples). Padovi dobiju žuti okvir i ne sviraju dok je edit uključen.</li>
+      <li>Dodirni <b>EDIT</b> lijevo (ili ☰ → Load samples). Padovi dobiju žuti okvir i ne sviraju dok je edit uključen.</li>
       <li>Dodirni pad. Otvori se dijalog pada:
         <ul>
           <li><b>Browse library</b>: pretraga i preslušavanje tvojih foldera sa semplovima (sljedeće poglavlje).</li>
@@ -106,7 +111,7 @@
           <li><b>Remove sample</b>: uklanja sempl.</li>
         </ul>
       </li>
-      <li>Kad završiš, dodirni <b>done</b>.</li>
+      <li>Kad završiš, dodirni <b>DONE</b>.</li>
     </ol>
     <p>Semplovi se kopiraju u sesiju, pa rade i ako originalne fajlove pomjeriš ili obrišeš.
       Na padu piše ime foldera sempla, LOOP ili SHOT, i tonalitet ako je u imenu fajla ili foldera.</p>
@@ -140,7 +145,7 @@
       <li><b>▶ 1 … ▶ 6</b> (desno od mreže) pokreću cijelu scenu na sljedećem taktu.</li>
       <li><b>Donji red</b>: po jedno dugme za svaki track. Dugme za režim dolje desno mijenja red između
         <b>STOP</b> (zaustavi track na sljedećem taktu), <b>SOLO</b> i <b>MUTE</b>.</li>
-      <li><b>STOP</b> lijevo zaustavlja sve odmah.</li>
+      <li><b>KILL SWITCH</b> lijevo zaustavlja sve odmah.</li>
       <li>Pad koji svira svijetli i na donjoj ivici pokazuje dokle je stigao.</li>
     </ul>
 
@@ -163,7 +168,16 @@
       <img src="images/mixer.png" width="1920" height="1200" loading="lazy" alt="Mikser">
     </figure>
     <ul>
-      <li>Za svaki od 8 trackova: <b>PAN</b>, metar, <b>fejder</b> sa vrijednošću u dB, <b>M</b> (mute) i <b>S</b> (solo).</li>
+      <li>Za svaki od 8 trackova: <b>FX</b>, <b>PAN</b>, metar, <b>fejder</b> sa vrijednošću u dB, <b>M</b> (mute) i <b>S</b> (solo).</li>
+      <li><b>FX</b> otvara efekte tog tracka: <b>REVERB</b> i <b>DELAY</b> (koliko tracka ide u zajednički reverb i delay: više
+        reverba = dalje, pa svaki track možeš rasporediti u prostoru, da nije sve "flat") i <b>EQ</b> sa 3 opsega (<b>LOW</b>,
+        <b>MID</b>, <b>HIGH</b>, ±12 dB). Delay prati tempo (1/8 sa tačkom) i odbija se lijevo-desno. Na telefonu je dugme FX manje. <b>Reset</b> gasi sve efekte
+        tracka; dupli dodir vraća potenciometar na početak. Dugme FX svijetli kad je neki efekat uključen. Ugašeni efekti ne
+        troše procesor. Sve se pamti u sesiji.</li>
+      <li><b>Limiter</b> na masteru je uvijek uključen (bez podešavanja): kad miks postane preglasan, stiša ga taman koliko
+        treba, pa nikad ne izobliči (klipuje). Tiši miks prolazi netaknut.</li>
+      <li><b>Master</b> ima DJ <b>FILTER</b> za cijeli miks (i Drums i Keys): okreni lijevo i zvuk je tamniji (low-pass, do basa),
+        desno tanji (high-pass). Na sredini je <b>OFF</b>; dupli dodir vraća na sredinu. Odličan za prelaze i build-up.</li>
       <li>Fejder i pan se povlače. Dupli dodir na pan ga vrati na sredinu.</li>
       <li>Kanal <b>Master</b> je desno.</li>
       <li>Fejderi, pan, mute i solo se čuvaju u sesiji.</li>
@@ -177,17 +191,22 @@
     <h3>Pattern</h3>
     <ul>
       <li>8 zvukova (traka) × 16 koraka po taktu. Dodir na korak ga pali ili gasi.</li>
-      <li><b>PLAY</b> pokreće bubanj na sljedećem taktu. Svira dok ga ne zaustaviš (ili STOP). Promjena ekrana ga ne zaustavlja.</li>
+      <li><b>PLAY</b> pokreće bubanj na sljedećem taktu. Svira dok ga ne zaustaviš (ili KILL SWITCH). Promjena ekrana ga ne zaustavlja.</li>
       <li><b>LENGTH</b>: 1, 2, 4 ili 8 taktova. Kod dužeg patterna se bira koji takt vidiš. Produžavanje kopira postojeće taktove u nove.</li>
       <li><b>SWING</b> 0–100 %: svaka druga šesnaestina kasni.</li>
       <li><b>Traka jačine</b> ispod mreže određuje jačinu svakog koraka izabranog zvuka. Tiši koraci su blijeđi.</li>
       <li><b>undo / redo</b> (na Windowsu i <kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Y</kbd>).</li>
-      <li><b>clear all</b> briše sve korake.</li>
+      <li><b>CLEAR ALL</b> briše sve korake.</li>
     </ul>
     <h3>Zvukovi</h3>
     <ul>
       <li>Dodir na ime zvuka ga odsvira i izabere. <b>M</b> utišava traku; crta ispod imena je jačina trake.</li>
-      <li><b>KIT ▾</b> učitava ugrađeni kit: <b>808, 909, Electro, Lo-Fi</b>. Koraci ostaju.</li>
+      <li><b>KIT ▾</b> učitava ugrađeni kit: <b>808, 909, Electro, Lo-Fi</b>, ili akustični: <b>Acoustic, Rock, Jazz</b> (traka 7 = crash, traka 8 = ride), ili <b>Percussion</b> (konge, bongosi, clave, tambura, agogo, timbale; odlično na drugom tracku uz bubanj). Koraci ostaju.
+        <b>Moji kitovi</b>: <b>KIT ▾ → Save current kit…</b> čuva svih 8 traka (tvoje semplove i ugrađene zvukove) sa jačinama pod imenom.
+        Kit se onda vidi pod MY KITS u svakoj sesiji: jedan dodir vraća cijeli kit. ✕ ga briše. Koraci nisu dio kita.
+        U prozoru zvuka (dodir na ime trake) ugrađeni zvukovi su u tri reda: ELECTRONIC, ACOUSTIC (kick, snare, side stick,
+        hi-hat, tom, crash, ride) i PERCUSSION (conga low / high, bongo low / high, timbale, clave, tambourine, agogo; SNAP
+        na kongama i bongosima = slap).</li>
       <li><b>…</b> pored zvuka otvara njegov dijalog:
         <ul>
           <li><b>BUILT-IN SOUND</b>: vrsta (Kick, Snare, Clap, Rim, Closed HH, Open HH, Tom, Cymbal, Cowbell, Zap, Shaker)
@@ -210,15 +229,15 @@
     </figure>
     <h3>Sintisajzer</h3>
     <ul>
-      <li><b>PRESET</b>: ◀ ▶ redom kroz presete; <b>…</b> otvara spisak (27 ugrađenih po grupama Bass, Lead, Pad, Keys, FX),
+      <li><b>PRESET</b>: ◀ ▶ redom kroz presete; <b>…</b> otvara spisak (60 ugrađenih po grupama Bass, Lead, Pad, Keys, Orchestra, FX; Orchestra = analogne imitacije trube, limene sekcije, saksofona, klarineta, flaute, oboe, violine, čela, gudača, pizzicata i usne harmonike),
         snimanje i brisanje svojih.</li>
-      <li><b>GLIDE</b>, <b>VOICES</b> (mono = jedan glas, legato; ili do 8 glasova za akorde), <b>VOLUME</b>.</li>
+      <li><b>GLIDE</b>, <b>VOICES</b> (mono = jedan glas, legato; ili do 8 glasova za akorde), <b>VIBRATO</b> (titranje visine koje kreće malo poslije note, kao kod pravog svirača), <b>VOLUME</b>.</li>
       <li><b>OSCILLATORS 1–3</b>: <b>WAVE</b> (trougao, saw, kvadrat, širok i uzak puls; dodir mijenja), <b>OCT</b>, <b>DETUNE</b> (oscilatori 2 i 3).</li>
       <li><b>MIXER</b>: jačina svakog oscilatora i <b>NOISE</b> (šum).</li>
       <li><b>FILTER</b>: ladder low-pass 24 dB: <b>CUTOFF</b>, <b>EMPHASIS</b> (rezonanca), <b>CONTOUR</b> (koliko ga otvara anvelopa),
         <b>KEY TRK</b>, i svoja ATTACK / DECAY / SUSTAIN / RELEASE.</li>
-      <li><b>LOUDNESS</b>: anvelopa jačine.</li>
-      <li><b>hide</b> sklapa panel, da piano roll dobije više mjesta.</li>
+      <li><b>LOUDNESS</b>: anvelopa jačine. <b>VEL&gt;TONE</b>: koliko jače sviranje daje svjetliji zvuk (kao kod duvača).</li>
+      <li><b>▲</b> (gore desno na panelu) sklapa panel, da piano roll dobije više mjesta.</li>
     </ul>
     <h3>ARP / FX</h3>
     <ul>
@@ -235,7 +254,7 @@
       <li><b>KEY</b> i skala (Major, Minor, Dorian, Phrygian, Mixolydian, Harmonic minor, pentatonike, Blues, Chromatic):
         piano roll prikazuje samo note skale. <b>OCTAVE − / +</b> pomjera prikaz.</li>
       <li>Dodir na prazno polje dodaje notu, dodir na notu je briše. Tipke lijevo sviraju dok ih držiš.</li>
-      <li><b>PLAY</b>, <b>LENGTH</b>, <b>SWING</b>, traka jačine, undo / redo i <b>clear all</b> rade kao u Drums.</li>
+      <li><b>PLAY</b>, <b>LENGTH</b>, <b>SWING</b>, traka jačine, undo / redo i <b>CLEAR ALL</b> rade kao u Drums.</li>
       <li><b>SELECT</b>: prevuci okvir oko nota ili dodirni note da ih izabereš, pa ih prevuci da ih pomjeriš, ili koristi
         <b>ALL</b>, <b>◀ ▶</b>, <b>to bar</b> i <b>DEL</b>.</li>
       <li><b>IMPORT MIDI</b> učitava melodiju iz <code>.mid</code> fajla (ako ima više dijelova, biraš jedan).</li>
@@ -252,9 +271,9 @@
     <h2 id="print">10. Print to pad</h2>
     <p><b>PRINT TO PAD</b> (na Drums i Keys) pretvori pattern u WAV loop i stavi ga na pad, pa ga pokrećeš kao svaki drugi klip.</p>
     <ul>
-      <li>U mreži koja se otvori izaberi pad. Pad koji već ima sempl se zamijeni.</li>
+      <li>U prozoru koji se otvori izaberi pad (svih 6 × 8; na telefonu se prozor skroluje). Pad koji već ima sempl se zamijeni.</li>
       <li>Loop traje tačno koliko pattern na trenutnom tempu i nema šava: repovi delay-a i reverba se nastave na početak.</li>
-      <li>Za Keys biraš i kategoriju (Bass, Lead, Keys, Pad, Brass, Synth, FX); ona postane ime pada.</li>
+      <li>Izaberi ime: na Drums Drums, Beat, Percussion, Hats, Fill ili FX; na Keys Bass, Chords, Melodic, Lead, Keys, Pads, Arp, Brass, Synth ili FX, ili upiši svoje. Ono postane natpis pada i ime foldera kad izvezeš sesiju.</li>
       <li>Pad pamti pattern i zvukove. U edit režimu otvori pad i izaberi <b>Edit in Drums</b> ili
         <b>Edit in Keys</b>, izmijeni i ponovo printaj.</li>
     </ul>
@@ -282,7 +301,7 @@
     <ul>
       <li>Dodirni <b>LINK</b> u gornjoj traci. Postane zeleno i pokaže koliko je drugih aplikacija spojeno. Pri pokretanju aplikacije Link je uvijek isključen.</li>
       <li>Dok je Link uključen, tempo i takt dolaze od Linka. Klipovi i dalje kreću na taktu, ali na taktu Linka.</li>
-      <li><b>Start / stop</b>: klip pokrenut ovdje pokreće transport i kod drugih; STOP u Liveu zaustavi sve klipove ovdje; STOP ovdje zaustavi druge.</li>
+      <li><b>Start / stop</b>: klip pokrenut ovdje pokreće transport i kod drugih; STOP u Liveu zaustavi sve klipove ovdje; KILL SWITCH ovdje zaustavi druge.</li>
       <li><b>Link audio</b> (☰ → ABLETON LINK): šalje master izlaz PadSamplera u Ableton Live kao izvor
         "PadSampler Master". U Liveu ga izaberi kao ulaz audio tracka.</li>
       <li><b>Link offset</b> (☰ → ABLETON LINK): pomjeri PadSampler ranije ili kasnije (±200 ms) ako zvuči malo neusklađeno sa drugima.
@@ -336,8 +355,11 @@
       <li>Svaka USB MIDI klavijatura (class compliant) svira Keys sintisajzer, na svim ekranima. Rade velocity, pitch bend (±2 polutona)
         i mod točak (otvara filter).</li>
       <li><b>MIDI IN</b> na Keys ekranu: Auto (svi ulazi osim Launchpada), jedan uređaj, ili Off.</li>
-      <li><b>MIDI LEARN</b>: dodirni <b>LEARN</b> (pored VOLUME), dodirni potenciometar, pa pomjeri potenciometar ili klizač na klavijaturi.
+      <li><b>MIDI LEARN</b>: dodirni <b>MIDI LEARN</b> (desno, ispod ARP / FX), dodirni potenciometar, pa pomjeri potenciometar ili klizač na klavijaturi.
         Može se vezati svaki potenciometar sintisajzera, arpeggiatora i efekata. Veze se pamte za svaku klavijaturu.</li>
+      <li><b>MIDI preseti</b>: u traci MIDI LEARN dodirni <b>presets</b>. Sačuvaj trenutne veze pod imenom, dodirni preset da ga učitaš
+        za spojenu klavijaturu, ili ga <b>export</b> u fajl <code>.padmidi</code> i <b>Import file…</b> na drugom tabletu, na Windowsu,
+        ili ga podijeli sa drugima koji imaju istu klavijaturu.</li>
     </ul>
 
     <!-- ===================================================== -->
@@ -348,6 +370,9 @@
         od pucketanja), <b>Sample rate</b>. Pritisni <b>Apply audio settings</b>. Ako se uređaj ne može otvoriti, vrati se prethodni izlaz.</li>
       <li><b>MIDI CONTROLLER</b>: Auto pronalazi Launchpad po imenu; može se izabrati i port. <b>Refresh list</b> poslije spajanja.</li>
       <li><b>SCREEN</b>: prozor ili cijeli ekran (i <kbd>F11</kbd>). Ekran se ne gasi dok PadSampler radi.</li>
+      <li><b>VERSION</b>: pokazuje tvoju verziju. <b>Check for updates</b> pita GitHub koja je posljednja verzija; ako ima novija,
+        <b>Download</b> otvara stranicu za skidanje. PadSampler nikad ne provjerava sam, samo kad pritisneš dugme.
+        Nova verzija se instalira preko stare, a sesije i podešavanja ostaju.</li>
     </ul>
     <div class="tip"><b>Najmanje kašnjenje:</b> zvučna kartica sa ASIO drajverom i buffer od 128–256.
       Podešavanja i biblioteka su u <code>%APPDATA%\PadSampler</code>.</div>
@@ -358,7 +383,7 @@
     <ul>
       <li>Master kanal je samo na Session i Mixer. Kanali miksera su uži i bez pana
         (pan podešen na tabletu ili računaru i dalje važi).</li>
-      <li>Drums i Keys: rjeđe korištena dugmad (IMPORT MIDI, clear all) su u meniju <b>⋯</b>. <b>VEL</b> otvara swing i
+      <li>Drums i Keys: rjeđe korištena dugmad (IMPORT MIDI, CLEAR ALL) su u meniju <b>⋯</b>. <b>VEL</b> otvara swing i
         traku jačine preko mreže. Trake i piano roll se skroluju gore-dolje.</li>
       <li>Redovi dugmadi koji ne stanu skroluju se lijevo-desno.</li>
     </ul>

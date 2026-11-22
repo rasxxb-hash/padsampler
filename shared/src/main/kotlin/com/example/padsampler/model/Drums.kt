@@ -9,6 +9,8 @@ object DrumLayout {
     /** Na Launchpadu: redovi 7..4 = 32 koraka (2 takta) jedne strane; red 3 prazan. */
     const val LP_STEPS_PER_PAGE = 32
     val BAR_OPTIONS = listOf(1, 2, 4, 8)
+    /** Imena za Print to pad (labela pada i folder u izvozu sesije). */
+    val CATEGORIES = listOf("Drums", "Beat", "Percussion", "Hats", "Fill", "FX")
 
     // Launchpad raspored (red 0 dolje)
     const val ROW_SOUNDS = 2
@@ -91,10 +93,18 @@ data class DrumSound(
     val synth: DrumSynthSpec? = null
 )
 
-/** Vrste ugrađenih (sintetizovanih) zvukova bubnja. */
-enum class DrumSynthKind(val label: String) {
+/**
+ * Vrste ugrađenih zvukova; akustične (modalna sinteza) i perkusije (perc, takođe akustične) su posebne grupe u dijalogu
+ * zvuka. Nove vrste idu na kraj (ime se čuva u sesiji).
+ */
+enum class DrumSynthKind(val label: String, val acoustic: Boolean = false, val perc: Boolean = false) {
     KICK("Kick"), SNARE("Snare"), CLAP("Clap"), RIM("Rim"), HAT_CLOSED("Closed HH"), HAT_OPEN("Open HH"),
-    TOM("Tom"), CYMBAL("Cymbal"), COWBELL("Cowbell"), ZAP("Zap"), SHAKER("Shaker")
+    TOM("Tom"), CYMBAL("Cymbal"), COWBELL("Cowbell"), ZAP("Zap"), SHAKER("Shaker"),
+    AC_KICK("Kick", true), AC_SNARE("Snare", true), SIDESTICK("Side Stick", true), AC_HAT_CLOSED("Closed HH", true),
+    AC_HAT_OPEN("Open HH", true), AC_TOM("Tom", true), CRASH("Crash", true), RIDE("Ride", true),
+    CONGA_LO("Conga Lo", true, true), CONGA_HI("Conga Hi", true, true), BONGO_LO("Bongo Lo", true, true),
+    BONGO_HI("Bongo Hi", true, true), TIMBALE("Timbale", true, true), CLAVE("Clave", true, true),
+    TAMBOURINE("Tambourine", true, true), AGOGO("Agogo", true, true)
 }
 
 /** Podešavanja ugrađenog zvuka, sve 0..1: visina, dužina, boja (tamno-svijetlo), udar/šum, prljavština (lo-fi). */
@@ -121,7 +131,9 @@ data class DrumsState(
     /** Takt koji se prikazuje u aplikaciji (0..bars-1). */
     val viewBar: Int = 0,
     /** Strana na Launchpadu (2 takta po strani). */
-    val lpPage: Int = 0
+    val lpPage: Int = 0,
+    /** Labela (i folder u izvozu) printa: Drums, Beat... */
+    val category: String = "Drums"
 ) {
     val totalSteps get() = bars * DrumLayout.STEPS_PER_BAR
     val lpPages get() = (bars + 1) / 2

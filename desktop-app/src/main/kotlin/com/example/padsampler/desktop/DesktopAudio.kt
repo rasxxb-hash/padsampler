@@ -20,6 +20,8 @@ object DesktopAudio {
 
     external fun keepAwake(on: Boolean)
     external fun latencyMs(): Double
+    /** Baterija laptopa: 0..100 (+1000 = na punjaču); -1 = nema baterije ili nepoznato. */
+    external fun battery(): Int
 
     private external fun apis(): Array<String>
     private external fun devices(api: String): Array<String>

@@ -49,6 +49,16 @@ class PadStore(baseDir: File) {
             val pans = List(Layout.TRACKS) { i ->
                 if (pansArr != null && i < pansArr.length()) pansArr.optDouble(i, 0.0).toFloat().coerceIn(-1f, 1f) else 0f
             }
+            val masterFilter = o.optDouble("masterFilter", 0.0).toFloat().let { if (it.isFinite()) it.coerceIn(-1f, 1f) else 0f }
+            val revSends = readSends(o.optJSONArray("revSends"))
+            val dlySends = readSends(o.optJSONArray("dlySends"))
+            val eqsArr = o.optJSONArray("eqs")
+            val eqs = List(Layout.TRACKS) { t ->
+                val row = eqsArr?.optJSONArray(t)
+                List(3) { b ->
+                    if (row != null && b < row.length()) row.optDouble(b, 0.0).toFloat().let { if (it.isFinite()) it.coerceIn(-1f, 1f) else 0f } else 0f
+                }
+            }
             val mutes = readBools(o.optJSONArray("mutes"))
             SessionData(
                 name = o.optString("name", ""),
@@ -56,6 +66,10 @@ class PadStore(baseDir: File) {
                 pads = pads,
                 faders = faders,
                 pans = pans,
+                masterFilter = masterFilter,
+                revSends = revSends,
+                eqs = eqs,
+                dlySends = dlySends,
                 mutes = mutes,
                 master = o.optDouble("master", 1.0).toFloat().coerceIn(0f, 1f),
                 drums = DrumsJson.fromJson(o.optJSONObject("drums")),
@@ -90,6 +104,10 @@ class PadStore(baseDir: File) {
             .put("master", data.master.toDouble())
             .put("faders", JSONArray(data.faders.map { it.toDouble() }))
             .put("pans", JSONArray(data.pans.map { it.toDouble() }))
+            .put("masterFilter", data.masterFilter.toDouble())
+            .put("revSends", JSONArray(data.revSends.map { it.toDouble() }))
+            .put("eqs", JSONArray(data.eqs.map { row -> JSONArray(row.map { it.toDouble() }) }))
+            .put("dlySends", JSONArray(data.dlySends.map { it.toDouble() }))
             .put("mutes", JSONArray(data.mutes))
             .put("pads", pads)
             .apply { data.drums?.let { put("drums", DrumsJson.toJson(it)) } }
@@ -104,6 +122,11 @@ class PadStore(baseDir: File) {
 
     fun fileFor(config: PadConfig) = File(samplesDir, config.fileName)
     fun file(name: String) = File(samplesDir, name)
+
+    /** Send 0..1 po tracku (nema / neispravno = 0). */
+    private fun readSends(arr: JSONArray?): List<Float> = List(Layout.TRACKS) { i ->
+        if (arr != null && i < arr.length()) arr.optDouble(i, 0.0).toFloat().let { if (it.isFinite()) it.coerceIn(0f, 1f) else 0f } else 0f
+    }
 
     private fun readFloats(arr: JSONArray?, default: Float): List<Float> =
         List(Layout.TRACKS) { i ->

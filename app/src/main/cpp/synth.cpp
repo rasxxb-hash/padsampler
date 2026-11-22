@@ -22,7 +22,9 @@ const SynthParamInfo kInfo[kSynthParamCount] = {
     {0, 1, 0.7f},                                                          // volume
     {0, 1, 0}, {0, kArpModeCount - 1, kArpUp}, {0, kArpRateCount - 1, 3}, {1, 4, 1}, {0.05f, 1, 0.5f}, {0, 1, 0},  // arp
     {0, 1, 0}, {0, 1, 0}, {0, 5, 2}, {0, 0.9f, 0.35f}, {0, 1, 0}, {0, 1, 0.5f}, {0, 1, 0},  // efekti
+    {0, 1, 0}, {0, 1, 0},                                                  // vibrato, jačina -> boja
 };
+static_assert(kSynthParamCount == 42, "broj parametara mora biti isti kao SynthParams.COUNT (Keys.kt)");
 
 inline float coef(float timeSec, double rate) {
     return static_cast<float>(1.0 - std::exp(-1.0 / (std::max(0.0005, static_cast<double>(timeSec)) * rate)));
@@ -157,6 +159,7 @@ void Synth::startVoice(Voice& v, int note, float velocity, bool retrigger, bool 
     if (retrigger) {
         v.fenv.gate(true);
         v.aenv.gate(true);
+        v.vibTime = 0.0;   // nova nota (ne legato): vibrato opet kreće sa zakašnjenjem
     }
     v.fastRelease = false;
     v.active = true;
@@ -268,6 +271,11 @@ void Synth::render(float* out, int32_t frames, int sampleRate) {
     const float gain = p[kVolume] * 0.9f;
     const double bend = mBend.load(std::memory_order_relaxed);
     const double modOct = 3.0 * mMod.load(std::memory_order_relaxed);
+    // vibrato: do ±0.6 polutona, 5.5 Hz; kreće 0.2 s poslije note i raste do 0.6 s (kao kod pravog svirača)
+    const double vibDepth = 0.6 * p[kVibrato];
+    const double vibInc = 5.5 * kBlock / fs;
+    const double blockSec = kBlock / fs;
+    const double velTone = p[kVelTone];
 
     for (auto& v : mVoices) {
         if (!v.active) continue;
@@ -275,13 +283,22 @@ void Synth::render(float* out, int32_t frames, int sampleRate) {
             const int32_t n = std::min<int32_t>(kBlock, frames - b);
             // ---- kontrolna brzina (blok od 16)
             v.pitch += (v.target - v.pitch) * glideCoef;
+            double vib = 0.0;
+            if (vibDepth > 0.0) {
+                const double ramp = std::min(1.0, std::max(0.0, (v.vibTime - 0.2) / 0.4));
+                vib = vibDepth * ramp * std::sin(2.0 * 3.14159265358979 * v.vibPhase);
+                v.vibPhase += vibInc;
+                if (v.vibPhase >= 1.0) v.vibPhase -= 1.0;
+            }
+            v.vibTime += blockSec;
             double dt[3];
             for (int o = 0; o < 3; ++o) {
-                const double f = 440.0 * std::exp2((v.pitch + offs[o] + bend - 69.0) / 12.0);
+                const double f = 440.0 * std::exp2((v.pitch + vib + offs[o] + bend - 69.0) / 12.0);
                 dt[o] = std::min(0.45, f / fs);
             }
             const double cutoff = p[kCutoff] *
-                std::exp2(5.0 * p[kFilterEnv] * v.fenv.value + p[kKeyTrack] * (v.pitch - 60.0) / 12.0 + modOct);
+                std::exp2(5.0 * p[kFilterEnv] * v.fenv.value + p[kKeyTrack] * (v.pitch - 60.0) / 12.0 + modOct +
+                           velTone * 3.0 * (v.velocity - 0.8));   // jačina: 1.0 = +0.6 okt, 0.3 = -1.5 okt
             // ZDF ladder na 2x frekvenciji (fs2 = 2 fs): g = tan(pi fc / fs2), G = g / (1 + g)
             const double fc = std::min(cutoff, 0.45 * fs * 2.0);
             const float g = static_cast<float>(std::tan(3.14159265358979 * fc / (2.0 * fs)));

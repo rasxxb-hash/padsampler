@@ -18,6 +18,7 @@ import com.example.padsampler.midi.LedPicture
 import com.example.padsampler.midi.MidiListener
 import com.example.padsampler.midi.LaunchpadSurface
 import com.example.padsampler.model.BottomMode
+import com.example.padsampler.model.SetClock
 import com.example.padsampler.model.ControlState
 import com.example.padsampler.model.Fader
 import com.example.padsampler.model.Layout
@@ -28,6 +29,7 @@ import com.example.padsampler.model.SessionData
 import com.example.padsampler.platform.DocChild
 import com.example.padsampler.platform.Platform
 import com.example.padsampler.studio.DrumMachine
+import com.example.padsampler.studio.UserDrumKits
 import com.example.padsampler.studio.KeysMachine
 import com.example.padsampler.midi.KeyboardListener
 import com.example.padsampler.midi.MidiKeyboard
@@ -145,6 +147,8 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
 
     /** Drums (Studio): kit + step sequencer, svira kroz master. */
     val drums = DrumMachine(platform, store.samplesDir, onMessage = { _message.value = it }, onChanged = { scheduleSave() })
+    /** Sat seta u gornjoj traci (proteklo / preostalo vrijeme, kreće sa prvim clipom). */
+    val setClock = SetClock(platform)
     /** Pad na koji je zadnji put printan (ili koji je otvoren u Drums): predložen u dijalogu "Print to pad". */
     private val _printTarget = MutableStateFlow<Int?>(null)
     val printTarget: StateFlow<Int?> = _printTarget
@@ -175,6 +179,9 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
     private val _learnDevice = MutableStateFlow<String?>(null)
     /** Uređaj čije se mapiranje prikazuje (zadnji koji je poslao CC, inače prvi spojeni). */
     val learnDevice: StateFlow<String?> = _learnDevice
+    private val _midiPresets = MutableStateFlow<Map<String, Map<Int, Int>>>(emptyMap())
+    /** Imenovani preseti MIDI mapiranja (ime -> CC -> id parametra), za sve klavijature. */
+    val midiPresets: StateFlow<Map<String, Map<Int, Int>>> = _midiPresets
 
 
     val drumBrowserLane: StateFlow<Int?> = _drumBrowserLane
@@ -219,7 +226,7 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
 
             _bpm.value = saved.bpm
             _control.value = ControlState(
-                faders = saved.faders, pans = saved.pans, mutes = saved.mutes,
+                faders = saved.faders, pans = saved.pans, masterFilter = saved.masterFilter, revSends = saved.revSends, eqs = saved.eqs, dlySends = saved.dlySends, mutes = saved.mutes,
                 solos = List(Layout.TRACKS) { false }, master = saved.master
             )
             NativeAudio.setBpm(saved.bpm.toDouble())
@@ -249,6 +256,7 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
             keys.setState(saved.keys ?: KeysState())
             _userPresets.value = presets.user()
             _midiMap.value = midiMapStore.load()
+            _midiPresets.value = midiMapStore.loadPresets()
             refreshAudioInfo()
             audioReady = true
 
@@ -278,6 +286,10 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
                 )
                 _live.value = snapshot
                 keys.tick(snapshot.barPhase, snapshot.keysTransport)   // odbrojavanje / kraj snimanja
+                setClock.tick(
+                    snapshot.slotStates.any { it.toInt() == NativeAudio.PLAYING } ||
+                        snapshot.drumsTransport == NativeAudio.STUDIO_PLAYING || snapshot.keysTransport == NativeAudio.STUDIO_PLAYING
+                )
                 _stretching.value = NativeAudio.stretchPending()
                 val pp = NativeAudio.previewProgress()
                 _previewProgress.value = pp
@@ -306,11 +318,15 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
         for (t in 0 until Layout.TRACKS) {
             NativeAudio.setTrackGain(t, Fader.gain(c.faders[t]))
             NativeAudio.setTrackPan(t, c.pans[t])
+            NativeAudio.setTrackReverbSend(t, c.revSends[t])
+            NativeAudio.setTrackDelaySend(t, c.dlySends[t])
+            for (b in 0 until 3) NativeAudio.setTrackEq(t, b, c.eqs[t][b])
             NativeAudio.setTrackMute(t, c.mutes[t])
             NativeAudio.setTrackSolo(t, c.solos[t])
         }
         NativeAudio.setMasterGain(Fader.gain(c.master))
         NativeAudio.setMasterMute(c.masterMute)
+        NativeAudio.setMasterFilter(c.masterFilter)
     }
 
     // ---------------------------------------------------------------- sviranje
@@ -458,6 +474,37 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
 
     fun loadDrumKit(kit: DrumKits.Kit) {
         viewModelScope.launch(Dispatchers.IO) { drums.loadKit(kit) }
+    }
+
+    // ---- korisnikovi kitovi (Drums): semplovi + jačine pod imenom, za sve sesije
+    private val userKitStore = UserDrumKits(platform.filesDir)
+    private val _userKits = MutableStateFlow<List<UserDrumKits.Kit>>(emptyList())
+    val userKits: StateFlow<List<UserDrumKits.Kit>> = _userKits
+
+    /** Spisak se čita kad se otvori ekran Drums (store se ne dira u init-u, deklarisan je kasnije). */
+    fun refreshUserKits() {
+        viewModelScope.launch(Dispatchers.IO) { _userKits.value = userKitStore.list() }
+    }
+
+    fun saveUserDrumKit(name: String) {
+        val sounds = drums.state.value.sounds
+        if (sounds.all { it == null }) { _message.value = "Drums has no sounds to save"; return }
+        viewModelScope.launch(Dispatchers.IO) {
+            val kit = userKitStore.save(name, sounds, store.samplesDir)
+            _message.value = if (kit != null) "Kit saved: ${kit.name}" else "Cannot save kit"
+            _userKits.value = userKitStore.list()
+        }
+    }
+
+    fun loadUserDrumKit(kit: UserDrumKits.Kit) {
+        viewModelScope.launch(Dispatchers.IO) { drums.loadUserKit(kit, userKitStore) }
+    }
+
+    fun deleteUserDrumKit(name: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userKitStore.delete(name)
+            _userKits.value = userKitStore.list()
+        }
     }
 
     // ---- ugrađeni zvuk trake (potenciometri u dijalogu zvuka): dok se vuče samo motor, kad se pusti wav + stanje.
@@ -621,6 +668,48 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
         val value = v.coerceIn(-1f, 1f).let { if (kotlin.math.abs(it) < 0.02f) 0f else it }
         _control.update { c -> c.copy(pans = c.pans.toMutableList().also { it[track] = value }) }
         NativeAudio.setTrackPan(track, value)
+        scheduleSave()
+    }
+
+    /** Send kanala u zajednički reverb (0..1, skroz dolje = OFF). */
+    fun setReverbSend(track: Int, v: Float) {
+        if (track !in 0 until Layout.TRACKS) return
+        val value = v.coerceIn(0f, 1f).let { if (it < 0.01f) 0f else it }
+        _control.update { c -> c.copy(revSends = c.revSends.toMutableList().also { it[track] = value }) }
+        NativeAudio.setTrackReverbSend(track, value)
+        scheduleSave()
+    }
+
+    /** Send kanala u zajednički delay (1/8 sa tačkom, vezan za tempo; 0..1, skroz dolje = OFF). */
+    /** EQ kanala: band 0 = LOW, 1 = MID, 2 = HIGH; -1..1 = -12..+12 dB (blizu sredine = ravno). */
+    fun setTrackEq(track: Int, band: Int, v: Float) {
+        if (track !in 0 until Layout.TRACKS || band !in 0 until 3) return
+        val value = v.coerceIn(-1f, 1f).let { if (kotlin.math.abs(it) < 0.02f) 0f else it }
+        _control.update { c -> c.copy(eqs = c.eqs.toMutableList().also { rows -> rows[track] = rows[track].toMutableList().also { it[band] = value } }) }
+        NativeAudio.setTrackEq(track, band, value)
+        scheduleSave()
+    }
+
+    /** Svi efekti kanala na nulu (prozor FX: Reset). */
+    fun resetTrackFx(track: Int) {
+        setReverbSend(track, 0f)
+        setDelaySend(track, 0f)
+        for (b in 0 until 3) setTrackEq(track, b, 0f)
+    }
+
+    fun setDelaySend(track: Int, v: Float) {
+        if (track !in 0 until Layout.TRACKS) return
+        val value = v.coerceIn(0f, 1f).let { if (it < 0.01f) 0f else it }
+        _control.update { c -> c.copy(dlySends = c.dlySends.toMutableList().also { it[track] = value }) }
+        NativeAudio.setTrackDelaySend(track, value)
+        scheduleSave()
+    }
+
+    /** DJ filter na masteru: -1 low-pass .. 0 isključen .. +1 high-pass (blizu sredine = isključen). */
+    fun setMasterFilter(v: Float) {
+        val value = v.coerceIn(-1f, 1f).let { if (kotlin.math.abs(it) < 0.02f) 0f else it }
+        _control.update { c -> c.copy(masterFilter = value) }
+        NativeAudio.setMasterFilter(value)
         scheduleSave()
     }
 
@@ -1063,7 +1152,7 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
             }
             _control.update {
                 it.copy(
-                    faders = data.faders, pans = data.pans, mutes = data.mutes,
+                    faders = data.faders, pans = data.pans, masterFilter = data.masterFilter, revSends = data.revSends, eqs = data.eqs, dlySends = data.dlySends, mutes = data.mutes,
                     solos = List(Layout.TRACKS) { false }, master = data.master, masterMute = false
                 )
             }
@@ -1109,6 +1198,10 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
                 it.copy(
                     faders = List(Layout.TRACKS) { Fader.DEFAULT },
                     pans = List(Layout.TRACKS) { 0f },
+                    masterFilter = 0f,
+                    revSends = List(Layout.TRACKS) { 0f },
+                    dlySends = List(Layout.TRACKS) { 0f },
+                    eqs = List(Layout.TRACKS) { List(3) { 0f } },
                     mutes = List(Layout.TRACKS) { false },
                     solos = List(Layout.TRACKS) { false },
                     master = 1f, masterMute = false
@@ -1273,7 +1366,7 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
         val c = _control.value
         return SessionData(
             name = _sessionName.value, bpm = _bpm.value, pads = _pads.value.values.toList(),
-            faders = c.faders, pans = c.pans, mutes = c.mutes, master = c.master, drums = drums.state.value,
+            faders = c.faders, pans = c.pans, masterFilter = c.masterFilter, revSends = c.revSends, eqs = c.eqs, dlySends = c.dlySends, mutes = c.mutes, master = c.master, drums = drums.state.value,
             keys = keys.state.value
         )
     }
@@ -1304,16 +1397,18 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
 
     /**
      * Renderuje Drums pattern u wav (tačno N taktova na trenutnom tempu, loop bez šava) i stavlja ga na pad kao
-     * loop. Pad pamti pattern i kit (Edit in Drums).
+     * loop. Labela (i folder u izvozu) = kategorija (Drums, Beat...). Pad pamti pattern i kit (Edit in Drums).
      */
-    fun printDrumsToPad(slot: Int) {
+    fun printDrumsToPad(slot: Int, category: String) {
+        val label = category.trim().ifEmpty { "Drums" }
+        drums.setCategory(label)
         val state = drums.state.value
         if (!drums.hasContent()) {
             _message.value = "Nothing to print: add sounds and steps first"
             return
         }
-        printStudio(slot, NativeAudio.PART_DRUMS, "Drums", state.bars) { name, file, bpm ->
-            PadConfig(slot, name, file, true, bpm, "Drums", null, state)
+        printStudio(slot, NativeAudio.PART_DRUMS, label, state.bars) { name, file, bpm ->
+            PadConfig(slot, name, file, true, bpm, label, null, state)
         }
     }
 
@@ -1447,6 +1542,80 @@ class SamplerViewModel(private val platform: Platform) : ViewModel(), MidiListen
         val dev = _learnDevice.value ?: return
         updateMidiMap { it - dev }
         _learnTarget.value = null
+    }
+
+    // ---- preseti MIDI mapiranja (imenovani; mogu se izvesti u .padmidi i uvesti na drugom uređaju)
+
+    /** Sprema mapiranje trenutne klavijature pod imenom (isto ime = zamjena). */
+    fun saveMidiPreset(name: String) {
+        val n = name.trim().take(40)
+        val map = _learnDevice.value?.let { _midiMap.value[it] }
+        when {
+            n.isEmpty() -> return
+            map.isNullOrEmpty() -> { _message.value = "Nothing to save: map some knobs first"; return }
+        }
+        updateMidiPresets { it + (n to map!!) }
+        _message.value = "MIDI preset \"$n\" saved"
+    }
+
+    /** Učitava preset na trenutnu klavijaturu (zamjenjuje njeno mapiranje). */
+    fun loadMidiPreset(name: String) {
+        val map = _midiPresets.value[name] ?: return
+        val dev = _learnDevice.value
+        if (dev == null) {
+            _message.value = "Connect the MIDI keyboard first, then load the preset"
+            return
+        }
+        updateMidiMap { it + (dev to map) }
+        _learnTarget.value = null
+        _message.value = "MIDI preset \"$name\" loaded for $dev"
+    }
+
+    fun deleteMidiPreset(name: String) = updateMidiPresets { it - name }
+
+    /** Ime fajla za izvoz preseta. */
+    fun midiPresetFileName(name: String): String =
+        name.replace(Regex("[\\\\/:*?\"<>|]"), "_").trim().ifEmpty { "midi-map" } + "." + MidiMapStore.FILE_EXT
+
+    fun exportMidiPreset(name: String, ref: String) {
+        val map = _midiPresets.value[name] ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val out = docs.openOutputFile(ref) ?: throw IllegalStateException("cannot write file")
+                out.use { it.write(MidiMapStore.encodeFile(name, map).toByteArray()) }
+                _message.value = "MIDI preset \"$name\" exported"
+            } catch (e: Exception) {
+                _message.value = "Export failed: ${e.message}"
+            }
+        }
+    }
+
+    /** Uvoz .padmidi: dodaje se u presete (zauzeto ime dobije broj) i učitava na spojenu klavijaturu. */
+    fun importMidiPresetFile(ref: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val text = docs.openInput(ref)?.use { it.readBytes().decodeToString() }
+                    ?: throw IllegalStateException("cannot read file")
+                val (fileName, map) = MidiMapStore.decodeFile(text)
+                    ?: throw IllegalStateException("not a PadSampler MIDI preset")
+                val base = fileName.ifEmpty { "Imported" }
+                val existing = _midiPresets.value
+                val name = if (existing[base] == null || existing[base] == map) base
+                    else (2..999).map { "$base ($it)" }.first { existing[it] == null }
+                updateMidiPresets { it + (name to map) }
+                if (_learnDevice.value != null) loadMidiPreset(name)
+                else _message.value = "MIDI preset \"$name\" imported"
+            } catch (e: Exception) {
+                _message.value = "Import failed: ${e.message}"
+            }
+        }
+    }
+
+    private fun updateMidiPresets(f: (Map<String, Map<Int, Int>>) -> Map<String, Map<Int, Int>>) {
+        val m = _midiPresets.updateAndGet { f(it).filterValues { v -> v.isNotEmpty() }.toSortedMap(String.CASE_INSENSITIVE_ORDER) }
+        viewModelScope.launch(Dispatchers.IO) {
+            try { midiMapStore.savePresets(m) } catch (_: Exception) {}
+        }
     }
 
     private fun updateMidiMap(f: (Map<String, Map<Int, Int>>) -> Map<String, Map<Int, Int>>) {

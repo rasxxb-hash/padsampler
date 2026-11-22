@@ -303,6 +303,43 @@ class DrumMachine(
     }
 
     /**
+     * Korisnikov kit: svih 8 traka dobije zvukove i jačine iz kita (prazna traka u kitu = prazna traka).
+     * Fajlovi se kopiraju u folder semplova (sesija ih tako nosi). Koraci ostaju. Pozadinska nit.
+     */
+    fun loadUserKit(kit: UserDrumKits.Kit, store: UserDrumKits) {
+        val ts = System.currentTimeMillis()
+        val sounds = MutableList<DrumSound?>(DrumLayout.LANES) { null }
+        var ok = 0
+        var want = 0
+        for (lane in 0 until DrumLayout.LANES) {
+            val snd = kit.sounds.getOrNull(lane)
+            if (snd == null) {
+                NativeAudio.studioClearDrum(lane)
+                continue
+            }
+            want++
+            val ext = snd.fileName.substringAfterLast('.', "bin").lowercase().filter { it.isLetterOrDigit() }.ifEmpty { "bin" }
+            val target = File(samplesDir, "drum${lane}_${ts}_kit.$ext")
+            val loaded = try {
+                store.file(kit, snd).copyTo(target, overwrite = true)
+                loadIntoEngine(lane, target)
+            } catch (e: Exception) {
+                false
+            }
+            if (!loaded) {
+                target.delete()
+                NativeAudio.studioClearDrum(lane)
+                continue
+            }
+            NativeAudio.studioSetDrumGain(lane, Fader.gain(snd.gain))
+            sounds[lane] = snd.copy(fileName = target.name)
+            ok++
+        }
+        change { s -> s.copy(sounds = sounds) }
+        onMessage(if (ok == want) "Drum kit: ${kit.name}" else "Drum kit ${kit.name}: $ok of $want sounds loaded")
+    }
+
+    /**
      * Ugrađeni zvuk na traku: izračuna se u wav (folder semplova, kao i fajlovi korisnika, pa ga nose sesija,
      * izvoz i Print to pad) i učita u motor. Pozadinska nit. Vraća true ako je uspjelo.
      */
@@ -357,6 +394,9 @@ class DrumMachine(
         val d = platform.decodeAudio(f.absolutePath) ?: return false   // mp3 i ostalo
         return NativeAudio.studioLoadDrum(lane, d.data, d.frames, d.sampleRate)
     }
+
+    /** Labela (i folder u izvozu) za Print to pad. */
+    fun setCategory(c: String) = change { if (it.category == c) it else it.copy(category = c) }
 
     // ---------------------------------------------------------------- interno
 
