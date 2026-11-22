@@ -137,3 +137,5 @@ First release of PadSampler for Android.
 2. **Cijena: Free** (Monetize with Play → Products → App pricing). Payments/merchant profil se NE pravi (BiH nije podržana).
 3. **Play App Signing**: pri prvom uploadu prihvati da Google drži ključ za potpis; naš `release.jks` postaje *upload key*. Ključ i dalje čuvaj (bez njega nema novih uploada, osim preko resetovanja upload ključa kod Googlea).
 4. Svako novo izdanje: podići `appVersion` u `desktop-app/gradle.properties` (versionCode raste), `.\gradlew.bat bundleRelease`.
+
+- 2.0.3 (22. 11. 2026): Play Console upozorio da su `android.hardware.screen.landscape` i `android.hardware.wifi` obavezni (izvedeno iz `screenOrientation` i WIFI dozvola). U manifestu oba `required="false"` (bez Wi-Fi radi sve osim Ableton Linka). Provjera: `aapt2 dump badging app-release.apk` -> `uses-feature-not-required`.

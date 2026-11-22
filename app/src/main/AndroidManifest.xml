@@ -20,6 +20,15 @@
     <uses-feature
         android:name="android.hardware.usb.host"
         android:required="false" />
+    <!-- Play bi ih inače izveo kao obavezne (landscape iz screenOrientation, wifi iz WIFI dozvola za Link) i
+         sakrio app na uređajima bez njih (npr. Chromebook bez landscapea, tablet samo sa mobilnim podacima).
+         Bez Wi-Fi radi sve osim Ableton Linka. (22. 11. 2026, upozorenje iz Play Consolea) -->
+    <uses-feature
+        android:name="android.hardware.screen.landscape"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
