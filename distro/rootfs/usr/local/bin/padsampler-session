@@ -1,0 +1,13 @@
+#!/bin/bash
+# X sesija PadSampler OS-a: bez čuvara ekrana i gašenja monitora; ako se aplikacija zatvori, pokrene se ponovo.
+xset s off s noblank -dpms 2>/dev/null
+xsetroot -solid black 2>/dev/null
+
+export JACK_NO_START_SERVER=1        # RtAudio: ne pokušavaj pokrenuti jackd (sistem koristi ALSA direktno)
+export _JAVA_AWT_WM_NONREPARENTING=1 # nema window managera
+cd "$HOME"
+
+while true; do
+    /opt/padsampler/bin/PadSampler >>"$HOME/.padsampler/app.log" 2>&1
+    sleep 1
+done

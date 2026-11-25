@@ -1,0 +1,33 @@
+#!/bin/bash
+# Particija za semplove (exFAT, oznaka PADSAMPLES, vidi se i na Windowsu), montira se na /home/padsampler/Samples.
+# Pri PRVOM pokretanju sa USB-a je nema: napravi se u slobodnom prostoru iza particije "persistence".
+set -u
+LABEL=PADSAMPLES
+MNT=/home/padsampler/Samples
+log() { echo "padsampler-samples: $*"; }
+
+mkdir -p "$MNT"
+dev=$(blkid -L "$LABEL" 2>/dev/null || true)
+
+if [ -z "$dev" ]; then
+    pers=$(blkid -L persistence 2>/dev/null || true)
+    if [ -z "$pers" ]; then log "nema particije persistence, preskačem"; exit 0; fi
+    disk=/dev/$(lsblk -no PKNAME "$pers" | head -n1)
+    if [ ! -b "$disk" ]; then log "ne nalazim disk za $pers"; exit 0; fi
+    # GPT kopija na kraj diska (image je manji od USB-a), pa nova particija preko ostatka
+    sgdisk -e "$disk" >/dev/null 2>&1
+    free_mb=$(( $(sgdisk -p "$disk" | awk '/Total free space/ {print $5}') * 512 / 1024 / 1024 ))
+    if [ "${free_mb:-0}" -lt 256 ]; then log "premalo slobodnog prostora (${free_mb} MB)"; exit 0; fi
+    sgdisk -n 4:0:0 -t 4:0700 -c 4:"$LABEL" "$disk" || { log "sgdisk nije uspio"; exit 0; }
+    partx -a -n 4 "$disk" 2>/dev/null || partx -u "$disk" 2>/dev/null
+    udevadm settle
+    part=$(lsblk -lnpo NAME,PARTN "$disk" | awk '$2 == 4 {print $1}')
+    [ -b "$part" ] || { log "nova particija se ne vidi"; exit 0; }
+    mkfs.exfat -L "$LABEL" "$part" || { log "mkfs.exfat nije uspio"; exit 0; }
+    udevadm settle
+    dev=$part
+    log "napravljena $dev (${free_mb} MB)"
+fi
+
+mount -t exfat -o uid=1000,gid=1000,fmask=0022,dmask=0022,noatime "$dev" "$MNT" && log "montirano $dev -> $MNT"
+exit 0

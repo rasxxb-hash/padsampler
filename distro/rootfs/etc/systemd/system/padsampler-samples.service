@@ -1,0 +1,13 @@
+[Unit]
+Description=PadSampler: particija za semplove (exFAT)
+After=local-fs.target systemd-udev-settle.service
+Before=getty@tty1.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/padsampler-samples
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

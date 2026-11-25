@@ -61,3 +61,50 @@ jobs:
           name: PadSampler-linux-${{ matrix.arch }}
           path: PadSampler-linux-${{ matrix.arch }}.tar.gz
           retention-days: 30
+
+  # USB image za PC (x86_64): Debian 13 + PadSampler, BIOS i UEFI. Vidi distro/README.md.
+  image-x86_64:
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: PadSampler-linux-x86_64
+
+      - name: Sistem (Debian 13, u kontejneru)
+        run: |
+          docker run --rm --privileged -v "$PWD:/w" -w /w debian:trixie \
+            bash distro/build-rootfs.sh PadSampler-linux-x86_64.tar.gz out
+          sudo chown -R "$USER" out
+
+      - name: Image
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdisk dosfstools mtools e2fsprogs grub-pc-bin
+          sudo bash distro/make-image.sh out padsampler-os-x86_64.img
+          sudo chown "$USER" padsampler-os-x86_64.img
+
+      - name: Test u QEMU (UEFI i BIOS)
+        run: |
+          sudo apt-get install -y qemu-system-x86 ovmf socat
+          sudo chmod 666 /dev/kvm || true
+          bash distro/test-qemu.sh padsampler-os-x86_64.img qemu-test
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qemu-test
+          path: qemu-test/
+          retention-days: 30
+
+      - name: Kompresija
+        run: xz -T0 -6 -v padsampler-os-x86_64.img
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: padsampler-os-x86_64
+          path: padsampler-os-x86_64.img.xz
+          compression-level: 0
+          retention-days: 30

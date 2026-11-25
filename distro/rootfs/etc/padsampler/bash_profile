@@ -1,0 +1,4 @@
+# PadSampler OS: na tty1 odmah X + PadSampler (bez desktopa)
+if [ -z "$DISPLAY" ] && [ "$(tty)" = "/dev/tty1" ]; then
+    exec startx /usr/local/bin/padsampler-session -- -nolisten tcp vt1 -keeptty >/tmp/xorg-session.log 2>&1
+fi
