@@ -49,6 +49,9 @@ object DesktopAudio {
         "wasapi" -> "WASAPI"
         "asio" -> "ASIO"
         "ds" -> "DirectSound"
+        "alsa" -> "ALSA"
+        "pulse" -> "PulseAudio"
+        "jack" -> "JACK"
         "null" -> "No audio"
         else -> api.uppercase()
     }

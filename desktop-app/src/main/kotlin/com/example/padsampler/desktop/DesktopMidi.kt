@@ -73,16 +73,32 @@ class DesktopMidi(private val listener: MidiListener) : MidiOut {
     companion object {
         private val wrapped = Regex("""^MIDI(?:IN|OUT)\d+\s*\((.*)\)$""")
 
-        /** "MIDIIN2 (LPMiniMK3 MIDI)" -> "LPMiniMK3 MIDI": svi portovi jednog uređaja imaju isto ime. */
-        fun baseName(port: String): String = wrapped.find(port.trim())?.groupValues?.get(1)?.trim() ?: port.trim()
+        private val alsaHw = Regex("""\s*\[hw:[0-9,]+\]$""")
+
+        /**
+         * Ime porta za prikaz i poređenje. Windows: ime uređaja ("MIDIIN2 (LPMiniMK3 MIDI)").
+         * Linux (ALSA): ime je "LPMiniMK3 [hw:1,0,1]", a ime porta ("... DAW", "... MIDI") je u opisu, pa se
+         * uzima opis + " [hw:..]" (oznaka drži portove različitim; baseName je skida).
+         */
+        fun portName(info: MidiDevice.Info): String {
+            val hw = alsaHw.find(info.name) ?: return info.name
+            val desc = info.description?.trim().orEmpty()
+            return if (desc.isEmpty() || desc.startsWith("No details", ignoreCase = true)) info.name else desc + hw.value
+        }
+
+        /** "MIDIIN2 (LPMiniMK3 MIDI)" -> "LPMiniMK3 MIDI"; "LPMiniMK3 MIDI [hw:1,0,1]" -> "LPMiniMK3 MIDI". */
+        fun baseName(port: String): String {
+            val p = port.replace(alsaHw, "").trim()
+            return wrapped.find(p)?.groupValues?.get(1)?.trim() ?: p
+        }
 
         /** MIDI uređaji (bez Javinog sintisajzera/sekvencera i "DAW" portova), za izbor u podešavanjima. */
         fun availableDevices(): List<String> =
             MidiSystem.getMidiDeviceInfo().mapNotNull { info ->
                 val dev = try { MidiSystem.getMidiDevice(info) } catch (_: Exception) { null }
                 if (dev == null || dev is Synthesizer || dev is Sequencer) null
-                else if ("daw" in info.name.lowercase()) null
-                else baseName(info.name)
+                else if ("daw" in portName(info).lowercase()) null
+                else baseName(portName(info))
             }.distinct().sortedBy { it.lowercase() }
     }
 
@@ -109,14 +125,14 @@ class DesktopMidi(private val listener: MidiListener) : MidiOut {
     }
 
     private fun stillPresent(): Boolean {
-        val now = MidiSystem.getMidiDeviceInfo().map { it.name }.toSet()
+        val now = MidiSystem.getMidiDeviceInfo().map { portName(it) }.toSet()
         return connectedNames.all { it in now }
     }
 
     private fun tryConnect() {
         val found = mutableListOf<MidiDevice>()
         for (info in MidiSystem.getMidiDeviceInfo()) {
-            if (!isWanted(info.name)) continue
+            if (!isWanted(portName(info))) continue
             val dev = try { MidiSystem.getMidiDevice(info) } catch (_: Exception) { continue }
             if (dev is Synthesizer || dev is Sequencer) continue
             found += dev
@@ -128,8 +144,8 @@ class DesktopMidi(private val listener: MidiListener) : MidiOut {
             try {
                 if (!dev.isOpen) dev.open()
                 devices += dev
-                connectedNames += dev.deviceInfo.name
-                description = dev.deviceInfo.name
+                connectedNames += portName(dev.deviceInfo)
+                description = baseName(portName(dev.deviceInfo))
                 if (dev.maxReceivers != 0) sendPorts += dev.receiver
                 if (dev.maxTransmitters != 0) dev.transmitter.receiver = InReceiver()
             } catch (_: MidiUnavailableException) {

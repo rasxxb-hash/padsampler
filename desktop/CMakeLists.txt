@@ -85,6 +85,12 @@ if(WIN32)
   # WASAPI (podrazumijevano) + ASIO. RtAudio u sebi nosi ASIO zaglavlja, pa Steinbergov SDK ne treba za build.
   set(RTAUDIO_API_ASIO ON CACHE BOOL "" FORCE)
   set(RTAUDIO_API_WASAPI ON CACHE BOOL "" FORCE)
+elseif(NOT APPLE)
+  # Linux: ALSA (direktno, najmanja latencija), JACK i PulseAudio (PipeWire daje oba).
+  # Paketi za build (Debian/Ubuntu): libasound2-dev libjack-jackd2-dev libpulse-dev
+  set(RTAUDIO_API_ALSA ON CACHE BOOL "" FORCE)
+  set(RTAUDIO_API_PULSE ON CACHE BOOL "" FORCE)
+  set(RTAUDIO_API_JACK ON CACHE BOOL "" FORCE)
 else()
   set(RTAUDIO_API_ALSA OFF CACHE BOOL "" FORCE)
   set(RTAUDIO_API_PULSE OFF CACHE BOOL "" FORCE)

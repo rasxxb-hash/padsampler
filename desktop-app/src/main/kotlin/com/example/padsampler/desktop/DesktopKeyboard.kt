@@ -45,14 +45,14 @@ class DesktopKeyboard(
     }
 
     override fun availableDevices(): List<String> =
-        inputs().map { DesktopMidi.baseName(it.first.name) }
+        inputs().map { DesktopMidi.baseName(DesktopMidi.portName(it.first)) }
             .filter { !MidiKeyboard.isLaunchpadName(it) && !takenByLaunchpad(it) }
             .distinct().sortedBy { it.lowercase() }
 
     /** Uređaji koji šalju MIDI (bez Javinog sintisajzera/sekvencera i "DAW" portova). */
     private fun inputs(): List<Pair<javax.sound.midi.MidiDevice.Info, MidiDevice>> =
         MidiSystem.getMidiDeviceInfo().mapNotNull { info ->
-            if ("daw" in info.name.lowercase()) return@mapNotNull null
+            if ("daw" in DesktopMidi.portName(info).lowercase()) return@mapNotNull null
             val dev = try { MidiSystem.getMidiDevice(info) } catch (_: Exception) { null } ?: return@mapNotNull null
             if (dev is Synthesizer || dev is Sequencer || dev.maxTransmitters == 0) null else info to dev
         }
@@ -76,7 +76,7 @@ class DesktopKeyboard(
 
     private fun refresh() {
         val present = inputs()
-        val names = present.map { it.first.name }.toSet()
+        val names = present.map { DesktopMidi.portName(it.first) }.toSet()
         synchronized(open) {
             // zatvori nestale i one koji više nisu izabrani
             val it = open.entries.iterator()
@@ -88,11 +88,12 @@ class DesktopKeyboard(
                 }
             }
             for ((info, dev) in present) {
-                if (info.name in open || !wanted(info.name)) continue
+                val name = DesktopMidi.portName(info)
+                if (name in open || !wanted(name)) continue
                 try {
                     if (!dev.isOpen) dev.open()
-                    dev.transmitter.receiver = In(KeyboardParser(listener, DesktopMidi.baseName(info.name)))
-                    open[info.name] = dev
+                    dev.transmitter.receiver = In(KeyboardParser(listener, DesktopMidi.baseName(name)))
+                    open[name] = dev
                 } catch (_: Exception) {
                     try { dev.close() } catch (_: Exception) {}   // zauzet (drugi program) ili nije ulaz
                 }

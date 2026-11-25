@@ -34,10 +34,10 @@ import com.example.padsampler.ui.AppFonts
 import com.example.padsampler.ui.LocalUiPlatform
 import java.io.File
 
-/** Učitava padsampler.dll iz resursa aplikacije (isto za "gradlew run" i instaliranu verziju). */
+/** Učitava motor iz resursa aplikacije: padsampler.dll (Windows) / libpadsampler.so (Linux). */
 private fun loadNativeEngine() {
     val res = System.getProperty("compose.application.resources.dir")
-    val dll = res?.let { File(it, "padsampler.dll") }
+    val dll = res?.let { File(it, System.mapLibraryName("padsampler")) }
     if (dll != null && dll.isFile) {
         System.load(dll.absolutePath)
         System.setProperty("padsampler.preloaded", "1")

@@ -42,7 +42,10 @@ tasks.named("processResources") { dependsOn(copyLegal) }
 // Motor (padsampler.dll, gradi ga CMake u desktop/) i fontovi idu u resurse aplikacije,
 // odakle ih uzimaju i "gradlew run" i instalacijski paket.
 val appRes = layout.projectDirectory.dir("resources")
-val engineDll = File(rootDir.parentFile, "desktop/build/Release/padsampler.dll")
+// Windows: desktop/build/Release/padsampler.dll (Visual Studio); Linux: desktop/build/libpadsampler.so (Makefile/Ninja)
+val isWindows = System.getProperty("os.name").lowercase().contains("win")
+val engineDll = if (isWindows) File(rootDir.parentFile, "desktop/build/Release/padsampler.dll")
+                else File(rootDir.parentFile, "desktop/build/libpadsampler.so")
 
 val copyEngine by tasks.registering(Copy::class) {
     from(engineDll)
@@ -101,7 +104,8 @@ compose.desktop {
         jvmArgs += listOf("--enable-native-access=ALL-UNNAMED")
 
         nativeDistributions {
-            targetFormats(TargetFormat.Msi, TargetFormat.Exe)
+            // Linux: createDistributable (folder sa bin/PadSampler, ide u USB image) ili packageDeb
+            if (isWindows) targetFormats(TargetFormat.Msi, TargetFormat.Exe) else targetFormats(TargetFormat.Deb)
             packageName = "PadSampler"
             packageVersion = (project.findProperty("appVersion") as String?) ?: "1.0.0"
             description = "Live pad sampler"
@@ -117,6 +121,13 @@ compose.desktop {
                 dirChooser = true
                 perUserInstall = true
                 upgradeUuid = "6f0c2b8e-3a51-4c5e-9d0b-7a4e1f2c8d31"
+            }
+            linux {
+                iconFile.set(project.file("icons/icon.png"))
+                packageName = "padsampler"
+                debMaintainer = "Nerd Instruments"
+                menuGroup = "AudioVideo;Audio"
+                appCategory = "sound"
             }
         }
     }

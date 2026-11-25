@@ -3,12 +3,16 @@
 #include <jni.h>
 
 #include <condition_variable>
+#include <cstdlib>
 #include <mutex>
 #include <string>
 #include <thread>
 
 #ifdef _WIN32
 #include <windows.h>
+#elif defined(__linux__)
+#include <dirent.h>
+#include <fstream>
 #endif
 
 #include "desktop_audio_engine.h"
@@ -128,6 +132,33 @@ DJNI_FN(jint, battery)(JNIEnv*, jobject) {
     if (!GetSystemPowerStatus(&s)) return -1;
     if (s.BatteryFlag == 128 || s.BatteryFlag == 255 || s.BatteryLifePercent > 100) return -1;  // 128 = nema baterije
     return int(s.BatteryLifePercent) + (s.ACLineStatus == 1 ? 1000 : 0);
+#elif defined(__linux__)
+    // /sys/class/power_supply: BAT* (capacity) i punjač (type "Mains", online 1)
+    auto readStr = [](const std::string& path) {
+        std::ifstream f(path);
+        std::string s;
+        std::getline(f, s);
+        return s;
+    };
+    const std::string root = "/sys/class/power_supply/";
+    DIR* d = opendir(root.c_str());
+    if (!d) return -1;
+    int percent = -1;
+    bool ac = false;
+    while (dirent* e = readdir(d)) {
+        const std::string name = e->d_name;
+        if (name.empty() || name[0] == '.') continue;
+        const std::string type = readStr(root + name + "/type");
+        if (type == "Battery" && percent < 0) {
+            const std::string cap = readStr(root + name + "/capacity");
+            if (!cap.empty()) percent = std::atoi(cap.c_str());
+        } else if (type == "Mains" && readStr(root + name + "/online") == "1") {
+            ac = true;
+        }
+    }
+    closedir(d);
+    if (percent < 0 || percent > 100) return -1;
+    return percent + (ac ? 1000 : 0);
 #else
     return -1;
 #endif

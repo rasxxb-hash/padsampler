@@ -60,7 +60,9 @@ fun DesktopSettingsDialog(
     // ---- audio: početne vrijednosti = ono što trenutno svira (ili sačuvano)
     val running = remember { DesktopAudio.currentOutput() }
     val apis = remember { DesktopAudio.availableApis().filter { it != "null" } }
-    var api by remember { mutableStateOf(running.first.ifBlank { platform.getString(DesktopSettings.AUDIO_API, "wasapi") }) }
+    // Podrazumijevano WASAPI; na Linuxu (nema WASAPI-ja) prvi dostupni (JACK / ALSA / PulseAudio)
+    val defaultApi = if ("wasapi" in apis) "wasapi" else apis.firstOrNull() ?: "wasapi"
+    var api by remember { mutableStateOf(running.first.ifBlank { platform.getString(DesktopSettings.AUDIO_API, defaultApi) }) }
     var device by remember { mutableStateOf(running.second.ifBlank { platform.getString(DesktopSettings.AUDIO_DEVICE) }) }
     var buffer by remember { mutableStateOf(platform.getInt(DesktopSettings.AUDIO_BUFFER, 0).takeIf { it > 0 } ?: 256) }
     var rate by remember { mutableStateOf(platform.getInt(DesktopSettings.AUDIO_RATE, 0)) }   // 0 = auto

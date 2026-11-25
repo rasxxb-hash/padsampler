@@ -1,0 +1,63 @@
+# PadSampler za Linux: motor (libpadsampler.so), C++ testovi i aplikacija (folder sa bin/PadSampler),
+# za x86_64 (PC, laptop, mini PC) i arm64 (Raspberry Pi 4/5). Ubuntu 22.04 (glibc 2.35) -> radi i na Debianu 12+.
+name: Linux build
+
+on:
+  push:
+    branches: [linux]
+    paths-ignore: ['website/**', 'docs/**', '**.md']
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-22.04
+          - arch: arm64
+            runner: ubuntu-22.04-arm
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Paketi
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config \
+            libasound2-dev libjack-jackd2-dev libpulse-dev
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Motor (libpadsampler.so)
+        run: |
+          cmake -S desktop -B desktop/build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build desktop/build
+
+      - name: C++ testovi
+        run: ctest --test-dir desktop/build --output-on-failure
+
+      - name: Provjera RtAudio API-ja u motoru
+        run: nm -D --defined-only desktop/build/libpadsampler.so | grep -c Java_ && ldd desktop/build/libpadsampler.so
+
+      - name: Aplikacija (createDistributable)
+        working-directory: desktop-app
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon createDistributable
+
+      - name: Pakovanje
+        run: |
+          cd desktop-app/build/installer/main/app
+          tar -czf "$GITHUB_WORKSPACE/PadSampler-linux-${{ matrix.arch }}.tar.gz" PadSampler
+          ls -la PadSampler/bin PadSampler/lib/app | head -40
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PadSampler-linux-${{ matrix.arch }}
+          path: PadSampler-linux-${{ matrix.arch }}.tar.gz
+          retention-days: 30
