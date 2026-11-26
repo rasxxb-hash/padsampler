@@ -21,7 +21,7 @@ PKGS=(
   initramfs-tools live-boot live-boot-initramfs-tools linux-image-amd64
   util-linux gdisk exfatprogs dosfstools e2fsprogs procps less nano
   # grafika: Xorg bez desktopa (modesetting je u xserver-xorg-core)
-  xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-fbdev xinit x11-xserver-utils
+  xserver-xorg-core xserver-xorg-input-libinput xserver-xorg-video-fbdev xinit x11-xserver-utils xbindkeys
   libgl1 libegl1 libgl1-mesa-dri
   # Java (AWT) + Compose (Skia)
   libx11-6 libxext6 libxrender1 libxtst6 libxi6 libxrandr2 libxcursor1 libfreetype6 fontconfig fonts-dejavu-core

@@ -172,16 +172,21 @@ fun DesktopSettingsDialog(
                 }
                 TextButton(onClick = { midiRefresh++ }) { Text("Refresh list") }
 
-                // ------------------------------------------------ ekran
-                Section("SCREEN")
-                ChipRow {
-                    Chip("Window", !fullscreen) { onFullscreen(false) }
-                    Chip("Full screen (F11)", fullscreen) { onFullscreen(true) }
+                // ------------------------------------------------ ekran (PadSampler OS: uvijek full screen)
+                if (!DesktopSettings.KIOSK) {
+                    Section("SCREEN")
+                    ChipRow {
+                        Chip("Window", !fullscreen) { onFullscreen(false) }
+                        Chip("Full screen (F11)", fullscreen) { onFullscreen(true) }
+                    }
+                    Text("The screen does not turn off while PadSampler is running.", color = TextDim, fontSize = 12.sp)
                 }
-                Text("The screen does not turn off while PadSampler is running.", color = TextDim, fontSize = 12.sp)
 
-                // ------------------------------------------------ verzija (mreža samo na klik)
+                // ------------------------------------------------ verzija (mreža samo na klik; PadSampler OS: bez provjere)
                 Section("VERSION")
+                if (DesktopSettings.KIOSK) {
+                    Text("PadSampler ${Legal.version}", color = TextMain, fontSize = 13.sp)
+                } else {
                 var checking by remember { mutableStateOf(false) }
                 var result by remember { mutableStateOf<UpdateCheck.Result?>(null) }
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -210,6 +215,7 @@ fun DesktopSettingsDialog(
                         color = TextFaint, fontSize = 11.sp
                     )
                 }
+                }   // !KIOSK
             }
         },
         confirmButton = { TextButton(onClick = onClose) { Text("Close") } }

@@ -3,6 +3,11 @@
 xset s off s noblank -dpms 2>/dev/null
 xsetroot -solid black 2>/dev/null
 
+# Jačina: sistem na maksimum (reguliše se masterom u PadSampleru); Fn + jačina na laptopu i dalje radi
+/usr/local/sbin/padsampler-volume-init >/dev/null 2>&1
+xbindkeys -f /etc/padsampler/xbindkeysrc 2>/dev/null
+
+export PADSAMPLER_KIOSK=1            # aplikacija: uvijek full screen, bez "Check for updates"
 export JACK_NO_START_SERVER=1        # RtAudio: ne pokušavaj pokrenuti jackd (sistem koristi ALSA direktno)
 export _JAVA_AWT_WM_NONREPARENTING=1 # nema window managera
 cd "$HOME"

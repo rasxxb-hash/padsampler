@@ -62,11 +62,14 @@ fun main() {
         val vm = remember { SamplerViewModel(platform) }
         // Običan prozor (pamti veličinu i mjesto dok je aplikacija u full screenu)
         val normalState = rememberWindowState(width = 1280.dp, height = 800.dp)
-        var fullscreen by remember { mutableStateOf(platform.getInt(DesktopSettings.FULLSCREEN, 0) == 1) }
+        var fullscreen by remember {
+            mutableStateOf(DesktopSettings.KIOSK || platform.getInt(DesktopSettings.FULLSCREEN, 0) == 1)
+        }
         // Monitor na kojem je prozor (za full screen); null prije prvog prikaza
         val currentWindow = remember { arrayOfNulls<ComposeWindow>(1) }
 
         fun setFullscreen(on: Boolean) {
+            if (DesktopSettings.KIOSK) return   // PadSampler OS: uvijek full screen
             if (on == fullscreen) return
             fullscreen = on
             platform.putInt(DesktopSettings.FULLSCREEN, if (on) 1 else 0)

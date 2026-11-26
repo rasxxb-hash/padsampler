@@ -1,0 +1,2 @@
+# PadSampler OS: poslije alsactl restore (90-alsa-restore.rules) svaka zvučna kartica ide na maksimalnu jačinu
+ACTION=="add", SUBSYSTEM=="sound", KERNEL=="controlC*", TEST=="/usr/bin/amixer", RUN+="/usr/local/sbin/padsampler-volume-init $attr{device/number}"

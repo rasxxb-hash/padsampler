@@ -1,0 +1,16 @@
+#!/bin/bash
+# PadSampler OS: tasteri za jačinu na laptopu (xbindkeys). Mijenja Master (ili PCM ako nema Master) na svim karticama.
+#   padsampler-volume up | down | mute
+case "${1:-}" in
+    up)   change="5%+ unmute" ;;
+    down) change="5%-" ;;
+    mute) change="toggle" ;;
+    *) echo "upotreba: $0 up|down|mute"; exit 1 ;;
+esac
+for d in /proc/asound/card[0-9]*; do
+    [ -d "$d" ] || continue
+    c=${d##*/card}
+    ctl=$(amixer -c "$c" scontrols 2>/dev/null | grep -oE "'(Master|PCM)'" | head -n1 | tr -d "'")
+    [ -n "$ctl" ] && amixer -q -c "$c" sset "$ctl" $change 2>/dev/null
+done
+exit 0

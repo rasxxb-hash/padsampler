@@ -1,0 +1,7 @@
+# PadSampler OS: multimedijalni tasteri laptopa (Fn + jačina)
+"/usr/local/bin/padsampler-volume up"
+    XF86AudioRaiseVolume
+"/usr/local/bin/padsampler-volume down"
+    XF86AudioLowerVolume
+"/usr/local/bin/padsampler-volume mute"
+    XF86AudioMute

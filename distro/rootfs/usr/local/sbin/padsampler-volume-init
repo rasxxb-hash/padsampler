@@ -1,0 +1,28 @@
+#!/bin/bash
+# PadSampler OS: sistemska jačina (ALSA mikser) na maksimum, da jačinu reguliše samo master u PadSampleru.
+# Zove ga udev za svaku zvučnu karticu (i USB interfejs uključen kasnije), POSLIJE alsactl restore/init.
+#   padsampler-volume-init <broj kartice>      (bez argumenta: sve kartice)
+LEVEL=100%
+# Samo izlazi; ulazi (Mic, Line, CD...) i "Beep" se ne diraju, da ne bi bilo povratne sprege
+OUTPUTS='^(Master|PCM|Speaker|Headphone|Front|Surround|Center|LFE|Side|Line Out|Headphone\+LO|Speaker\+LO|Master Mono|Digital|Playback|DAC|Analog Output)$'
+
+init_card() {
+    local c=$1
+    amixer -c "$c" scontrols 2>/dev/null | sed -n "s/^Simple mixer control '\(.*\)',\([0-9]*\)$/\1\t\2/p" |
+    while IFS=$'\t' read -r name idx; do
+        if [[ "$name" =~ $OUTPUTS ]]; then
+            amixer -q -c "$c" sset "$name",$idx $LEVEL unmute 2>/dev/null ||
+            amixer -q -c "$c" sset "$name",$idx $LEVEL 2>/dev/null
+        elif [[ "$name" == "Loopback Mixing" ]]; then
+            amixer -q -c "$c" sset "$name",$idx Disabled 2>/dev/null
+        fi
+    done
+    echo "padsampler-volume-init: kartica $c na $LEVEL"
+}
+
+if [ -n "${1:-}" ]; then
+    init_card "$1"
+else
+    for d in /proc/asound/card[0-9]*; do [ -d "$d" ] && init_card "${d##*/card}"; done
+fi
+exit 0

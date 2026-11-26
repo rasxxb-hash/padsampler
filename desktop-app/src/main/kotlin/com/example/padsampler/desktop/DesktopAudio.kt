@@ -66,6 +66,12 @@ object DesktopSettings {
     const val MIDI_DEVICE = "midi_device"
     const val FULLSCREEN = "fullscreen"
 
+    /**
+     * Kiosk mod (samo PadSampler OS sa USB-a; postavlja ga distro/rootfs/usr/local/bin/padsampler-session):
+     * uvijek full screen (bez izbora u ⚙ i bez F11) i bez "Check for updates". Windows ga nikad ne postavlja.
+     */
+    val KIOSK: Boolean = System.getenv("PADSAMPLER_KIOSK") == "1"
+
     /** Sačuvane audio postavke idu u motor prije prvog pokretanja zvuka. */
     fun applySavedAudio(p: DesktopPlatform) {
         DesktopAudio.setConfig(

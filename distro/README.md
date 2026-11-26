@@ -28,3 +28,8 @@ Rezultat: `padsampler-os-x86_64.img.xz`. Upisati na USB (8 GB ili više) sa bale
 - Meni GRUB-a: drži **Shift** ili **Esc** pri pokretanju. Opcije: normalno, "safe graphics" (nomodeset), bez sačuvanih podešavanja.
 - Gašenje: dugme za napajanje (kratko).
 - Zvuk: ALSA direktno (bez PulseAudio/PipeWire), izbor izlaza u ⚙ u aplikaciji.
+- Jačina: sistemski mikser svake kartice ide na 100% pri pokretanju i kad se uključi USB kartica
+  (`padsampler-volume-init`, udev `91-padsampler-volume.rules`); jačinu reguliše master u PadSampleru.
+  Fn + jačina na laptopu mijenja sistemsku jačinu (`xbindkeys`, `padsampler-volume`).
+- Kiosk mod (`PADSAMPLER_KIOSK=1` u `padsampler-session`): aplikacija je uvijek full screen, u ⚙ nema izbora
+  prozora ni "Check for updates". Windows verzija to nikad ne uključuje.
