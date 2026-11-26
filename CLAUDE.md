@@ -5,6 +5,12 @@ Kontroliše se Novation Launchpad Mini MK3 MIDI kontrolerom (USB, programmer mod
 i loopove, sa mikserom po kolonama.
 Ciljni uređaji: Xiaomi Redmi Pad SE 11" (izlaz na slušalice, stereo, žičane) i Windows računar (WASAPI ili ASIO, npr. Behringer).
 
+## Grana `linux`: PadSampler OS (USB)
+- Na grani `linux` je i treća verzija: Linux sa USB-a koji odmah otvara PadSampler (`distro/`).
+- **PRVO pročitaj `distro/STANJE.md`** (stanje, pravila, šta je otvoreno). Poslije SVAKE izmjene na ovoj grani dopuni
+  `distro/STANJE.md` (Dnevnik + Otvoreno) i commituj ga zajedno sa izmjenom; korisnik radi sa više računara.
+- Samo grana `linux`; `main`, Android i Windows se ne diraju. Bez Raspberry Pi-ja i bez instalacije na disk.
+
 ## Stek
 - Kotlin + Compose (Jetpack Compose na Androidu, Compose Desktop na računaru), MVVM (ViewModel + StateFlow)
 - Audio: zajednički C++ motor (`Mixer`, `SampleBank`, Link). Android: **Oboe**; računar: **RtAudio** (WASAPI/ASIO).
