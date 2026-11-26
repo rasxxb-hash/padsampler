@@ -1,5 +1,5 @@
 # PadSampler za Linux: motor (libpadsampler.so), C++ testovi i aplikacija (folder sa bin/PadSampler),
-# za x86_64 (PC, laptop, mini PC) i arm64 (Raspberry Pi 4/5). Ubuntu 22.04 (glibc 2.35) -> radi i na Debianu 12+.
+# samo x86_64 (PC, laptop, mini PC); Raspberry Pi se ne pravi. Ubuntu 22.04 (glibc 2.35) -> radi i na Debianu 12+.
 name: Linux build
 
 on:
@@ -16,8 +16,6 @@ jobs:
         include:
           - arch: x86_64
             runner: ubuntu-22.04
-          - arch: arm64
-            runner: ubuntu-22.04-arm
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
